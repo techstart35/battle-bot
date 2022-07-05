@@ -74,7 +74,7 @@ func sendCountDownMessage(s *discordgo.Session, entryMsg *discordgo.Message, bef
 				Inline: false,
 			},
 			{
-				Name:   "▼中継先チャンネル",
+				Name:   "▼このチャンネルにも戦いの様子を送信します",
 				Value:  fmt.Sprintf("<#%s>", entryMsg.ChannelID),
 				Inline: false,
 			},
@@ -109,7 +109,7 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) ([]*dis
 		Color:       0xff0000,
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name:   "▼中継先チャンネル",
+				Name:   "▼このチャンネルにも戦いの様子を送信します",
 				Value:  fmt.Sprintf("<#%s>", entryMsg.ChannelID),
 				Inline: true,
 			},
@@ -174,9 +174,13 @@ func sendWinnerMessage(s *discordgo.Session, entryMessage *discordgo.Message, wi
 		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 	}
 
-	_, err = s.ChannelMessageSend(entryMessage.ChannelID, fmt.Sprintf("<@%s>", winner.ID))
+	msg, err := s.ChannelMessageSend(entryMessage.ChannelID, fmt.Sprintf("<@%s>さん、おめでとう🎉", winner.ID))
 	if err != nil {
 		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	if err := s.MessageReactionAdd(msg.ChannelID, msg.ID, "🎉"); err != nil {
+		return errors.New(fmt.Sprintf("リアクションを付与できません: %v", err))
 	}
 
 	return nil

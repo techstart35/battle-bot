@@ -33,7 +33,7 @@ func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*disc
 			return users, errors.New(fmt.Sprintf("リアクションをしたユーザーを取得できません: %v", err))
 		}
 
-		if len(us) == 1 && us[0].Username == botName {
+		if len(us) == 0 || len(us) == 1 && us[0].Username == botName {
 			break
 		}
 

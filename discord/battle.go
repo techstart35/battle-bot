@@ -126,6 +126,8 @@ func BattleMessageHandler(
 			// カウントUP
 			round++
 		}
+
+		time.Sleep(5 * time.Second)
 	}
 }
 

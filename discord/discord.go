@@ -58,29 +58,35 @@ func battleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Println(err)
 	}
 
-	// TODO: テスト用に秒数を変更しています
+	time.Sleep(60 * time.Second)
+
 	// 60秒後（残り60秒）にメッセージを送信
-	time.Sleep(30 * time.Second)
 	if err := sendCountDownMessage(s, msg, 60); err != nil {
 		log.Println(err)
 	}
 
-	// 90秒後（残り30秒）にメッセージを送信
-	time.Sleep(2 * time.Second)
+	time.Sleep(30 * time.Second)
+
+	// 残り30秒アナウンス
 	if err := sendCountDownMessage(s, msg, 30); err != nil {
 		log.Println(err)
 	}
 
-	// 110秒後（残り10秒）にメッセージを送信
-	time.Sleep(2 * time.Second)
+	time.Sleep(20 * time.Second)
+
+	// 残り10秒アナウンス
 	if err := sendCountDownMessage(s, msg, 10); err != nil {
 		log.Println(err)
 	}
+
+	time.Sleep(10 * time.Second)
 
 	usrs, err := sendStartMessage(s, msg)
 	if err != nil {
 		log.Println(err)
 	}
+
+	time.Sleep(5 * time.Second)
 
 	if err := BattleMessageHandler(s, usrs, msg); err != nil {
 		log.Println(err)
