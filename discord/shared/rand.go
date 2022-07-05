@@ -1,4 +1,4 @@
-package discord
+package shared
 
 import (
 	"math/rand"

@@ -3,14 +3,15 @@ package discord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/message"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
 
-// ----- Discord -----
 const (
 	Command = "b"
 )
@@ -26,7 +27,7 @@ func SendDiscord() {
 	}
 
 	//イベントハンドラを追加
-	session.AddHandler(battleHandler)
+	session.AddHandler(BattleHandler)
 
 	if err := session.Open(); err != nil {
 		log.Printf(fmt.Sprintf("discordを開けません: %v", err))
@@ -46,49 +47,68 @@ func SendDiscord() {
 }
 
 // battleを実行します
-func battleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	cmd := m.Content
+func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	input := strings.Split(m.Content, " ")
+	cmd := input[0]
 
 	if cmd != Command {
 		return
 	}
 
-	msg, err := sendEntryMessage(s, m)
+	var anotherChannelID string
+
+	if len(input) >= 2 {
+		// チャンネルIDを設定
+		anotherChannelID = strings.TrimLeft(input[1], "<#")
+		anotherChannelID = strings.TrimRight(anotherChannelID, ">")
+
+		// チャンネルIDが正しいことを検証
+		if _, err := s.Channel(anotherChannelID); err != nil {
+			if err := message.SendSimpleEmbedMessage(s, m.ChannelID, "ERROR", "コマンドが正しくありません"); err != nil {
+				log.Println(err)
+			}
+			return
+		}
+	}
+
+	msg, err := message.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		log.Println(err)
 	}
 
-	time.Sleep(60 * time.Second)
+	// TODO: 60秒に設定
+	time.Sleep(5 * time.Second)
 
 	// 60秒後（残り60秒）にメッセージを送信
-	if err := sendCountDownMessage(s, msg, 60); err != nil {
+	if err := message.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
-	time.Sleep(30 * time.Second)
+	// TODO: 30秒に設定
+	time.Sleep(5 * time.Second)
 
 	// 残り30秒アナウンス
-	if err := sendCountDownMessage(s, msg, 30); err != nil {
+	if err := message.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(20 * time.Second)
 
 	// 残り10秒アナウンス
-	if err := sendCountDownMessage(s, msg, 10); err != nil {
+	if err := message.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(10 * time.Second)
 
-	usrs, err := sendStartMessage(s, msg)
+	usrs, err := message.SendStartMessage(s, msg, anotherChannelID)
 	if err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(5 * time.Second)
 
-	if err := BattleMessageHandler(s, usrs, msg); err != nil {
+	if err := message.BattleMessageHandler(s, usrs, msg); err != nil {
 		log.Println(err)
 	}
 }

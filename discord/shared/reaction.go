@@ -1,4 +1,4 @@
-package discord
+package shared
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 // botのリアクションは除外します。
 //
 // botしかリアクションしない場合は、戻り値のスライスは空となります。
-func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
+func GetReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
 	users := make([]*discordgo.User, 0)
 
 	botName := os.Getenv("BOT_NAME")

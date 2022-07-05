@@ -1,9 +1,10 @@
-package discord
+package message
 
 import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/shared"
 	"math/rand"
 	"strings"
 	"time"
@@ -14,10 +15,11 @@ func BattleMessageHandler(
 	s *discordgo.Session,
 	users []*discordgo.User,
 	entryMessage *discordgo.Message,
+	anotherChannelID string,
 ) error {
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
-		if err := sendNoEntryMessage(s, entryMessage); err != nil {
+		if err := SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
 			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 		}
 
@@ -34,7 +36,7 @@ func BattleMessageHandler(
 		switch {
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case l == 1:
-			if err := sendWinnerMessage(s, entryMessage, survivor[0]); err != nil {
+			if err := SendWinnerMessage(s, entryMessage, survivor[0]); err != nil {
 				return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 			}
 
@@ -57,7 +59,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			description := strings.Join(battleLines, "\n")
-			if err := sendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
@@ -91,7 +93,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			description := strings.Join(battleLines, "\n")
-			if err := sendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
@@ -117,7 +119,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			description := strings.Join(battleLines, "\n")
-			if err := sendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
@@ -144,7 +146,7 @@ func getRandomSoloTmpl() string {
 		"💥｜**%s** はバナナの皮で滑って気絶した",
 	}
 
-	return soloTemplates[RandInt(1, len(soloTemplates))-1]
+	return soloTemplates[shared.RandInt(1, len(soloTemplates))-1]
 }
 
 // バトルテンプレートをランダムに取得します
@@ -154,5 +156,26 @@ func getRandomBattleTmpl() string {
 		"⚔️｜**%s** は **%s** を突き飛ばした",
 	}
 
-	return battleTemplates[RandInt(1, len(battleTemplates))-1]
+	return battleTemplates[shared.RandInt(1, len(battleTemplates))-1]
+}
+
+// Battleのメッセージを送信します
+func SendBattleMessage(
+	s *discordgo.Session,
+	entryMessage *discordgo.Message,
+	description string,
+	round int,
+) error {
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       fmt.Sprintf("第%d回戦", round),
+		Description: description,
+		Color:       0xff0000,
+	}
+
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	if err != nil {
+		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	return nil
 }
