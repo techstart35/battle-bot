@@ -69,7 +69,7 @@ func sendCountDownMessage(s *discordgo.Session, entryMsg *discordgo.Message, bef
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name: "エントリー",
-				Value: fmt.Sprintf("[Jump！](https://discord.com/channels/%s/%s/%s)",
+				Value: fmt.Sprintf("[Jump!](https://discord.com/channels/%s/%s/%s)",
 					os.Getenv("GUILD_ID"), entryMsg.ChannelID, entryMsg.ID),
 				Inline: false,
 			},
@@ -105,7 +105,7 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) error {
 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Start ⚔️",
-		Description: fmt.Sprintf("エントリー：%s", userStr),
+		Description: fmt.Sprintf("挑戦者：%s", userStr),
 		Color:       0xff0000,
 		Fields: []*discordgo.MessageEmbedField{
 			{
@@ -128,13 +128,34 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) error {
 func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
 	var users []*discordgo.User
 
-	us, err := s.MessageReactions(entryMsg.ChannelID, entryMsg.ID, "⚔️", 100, "", "")
-	if err != nil {
-		return users, errors.New(fmt.Sprintf("リアクションをしたユーザーを取得できません: %v", err))
-	}
+	botName := os.Getenv("BOT_NAME")
 
-	for _, u := range us {
-		users = append(users, u)
+	// 最大1000人まで参加可能（10 * 100）
+	for i := 0; i < 10; i++ {
+		var afterID string
+
+		switch i {
+		case 0:
+			afterID = ""
+		default:
+			afterID = users[len(users)-1].ID
+		}
+
+		us, err := s.MessageReactions(entryMsg.ChannelID, entryMsg.ID, "⚔️", 100, "", afterID)
+		if err != nil {
+			return users, errors.New(fmt.Sprintf("リアクションをしたユーザーを取得できません: %v", err))
+		}
+
+		if len(us) == 1 && us[0].Username == botName {
+			break
+		}
+
+		for _, u := range us {
+			fmt.Println(i, u.Username, u.ID)
+			if u.Username != botName {
+				users = append(users, u)
+			}
+		}
 	}
 
 	return users, nil
