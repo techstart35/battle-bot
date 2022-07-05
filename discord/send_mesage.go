@@ -16,22 +16,22 @@ func sendEntryMessage(s *discordgo.Session, m *discordgo.MessageCreate) (*discor
 		Color:       0x0099ff,
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name:   "主催者",
+				Name:   "▼主催者",
 				Value:  fmt.Sprintf("<@%s>", m.Author.ID),
 				Inline: false,
 			},
 			{
-				Name:   "⚡️勝者",
+				Name:   "▼勝者",
 				Value:  "1名",
 				Inline: false,
 			},
 			{
-				Name:   "⚡️エントリー",
+				Name:   "▼エントリー",
 				Value:  "⚔️のリアクション",
 				Inline: false,
 			},
 			{
-				Name:   "⚡️試合開始",
+				Name:   "▼試合開始",
 				Value:  "メッセージ送信から2分後",
 				Inline: false,
 			},
@@ -68,13 +68,13 @@ func sendCountDownMessage(s *discordgo.Session, entryMsg *discordgo.Message, bef
 		Color:       color,
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name: "エントリー",
+				Name: "▼エントリー",
 				Value: fmt.Sprintf("[Jump!](https://discord.com/channels/%s/%s/%s)",
 					os.Getenv("GUILD_ID"), entryMsg.ChannelID, entryMsg.ID),
 				Inline: false,
 			},
 			{
-				Name:   "中継先チャンネル",
+				Name:   "▼中継先チャンネル",
 				Value:  fmt.Sprintf("<#%s>", entryMsg.ChannelID),
 				Inline: false,
 			},
@@ -109,7 +109,7 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) ([]*dis
 		Color:       0xff0000,
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name:   "中継先チャンネル",
+				Name:   "▼中継先チャンネル",
 				Value:  fmt.Sprintf("<#%s>", entryMsg.ChannelID),
 				Inline: true,
 			},
@@ -124,43 +124,60 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) ([]*dis
 	return users, nil
 }
 
-// リアクションした人を取得します
-//
-// botのリアクションは除外します。
-//
-// botしかリアクションしない場合は、戻り値のスライスは空となります。
-func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
-	users := make([]*discordgo.User, 0)
-
-	botName := os.Getenv("BOT_NAME")
-
-	// 最大1000人まで参加可能（10 * 100）
-	for i := 0; i < 10; i++ {
-		var afterID string
-
-		switch i {
-		case 0:
-			afterID = ""
-		default:
-			afterID = users[len(users)-1].ID
-		}
-
-		us, err := s.MessageReactions(entryMsg.ChannelID, entryMsg.ID, "⚔️", 100, "", afterID)
-		if err != nil {
-			return users, errors.New(fmt.Sprintf("リアクションをしたユーザーを取得できません: %v", err))
-		}
-
-		if len(us) == 1 && us[0].Username == botName {
-			break
-		}
-
-		// botは除外する
-		for _, u := range us {
-			if u.Username != botName {
-				users = append(users, u)
-			}
-		}
+// NoEntryのメッセージを送信します
+func sendNoEntryMessage(s *discordgo.Session, entryMessage *discordgo.Message) error {
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "No Entry",
+		Description: "エントリーが無かったため、試合は開始されません",
+		Color:       0xff0000,
 	}
 
-	return users, nil
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	if err != nil {
+		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	return nil
+}
+
+// Battleのメッセージを送信します
+func sendBattleMessage(
+	s *discordgo.Session,
+	entryMessage *discordgo.Message,
+	description string,
+	round int,
+) error {
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       fmt.Sprintf("第%d回戦", round),
+		Description: description,
+		Color:       0xff0000,
+	}
+
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	if err != nil {
+		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	return nil
+}
+
+// Winnerのメッセージを送信します
+func sendWinnerMessage(s *discordgo.Session, entryMessage *discordgo.Message, winner *discordgo.User) error {
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "👑 Winner 👑",
+		Description: fmt.Sprintf("勝者：<@%s>", winner.ID),
+		Color:       0xff0000,
+	}
+
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	if err != nil {
+		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	_, err = s.ChannelMessageSend(entryMessage.ChannelID, fmt.Sprintf("<@%s>", winner.ID))
+	if err != nil {
+		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+	}
+
+	return nil
 }
