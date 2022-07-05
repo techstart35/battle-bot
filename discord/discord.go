@@ -77,7 +77,12 @@ func battleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Println(err)
 	}
 
-	if err := sendStartMessage(s, msg); err != nil {
+	usrs, err := sendStartMessage(s, msg)
+	if err != nil {
+		log.Println(err)
+	}
+
+	if err := sendBattleMessage(s, usrs, msg, msg.ChannelID); err != nil {
 		log.Println(err)
 	}
 }

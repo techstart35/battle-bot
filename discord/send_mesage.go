@@ -90,10 +90,10 @@ func sendCountDownMessage(s *discordgo.Session, entryMsg *discordgo.Message, bef
 }
 
 // 開始メッセージを送信します
-func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) error {
+func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
 	users, err := getReactedUsers(s, entryMsg)
 	if err != nil {
-		return errors.New(fmt.Sprintf("リアクションしたユーザーの取得に失敗しました: %v", err))
+		return nil, errors.New(fmt.Sprintf("リアクションしたユーザーの取得に失敗しました: %v", err))
 	}
 
 	var tmpUser []string
@@ -118,15 +118,19 @@ func sendStartMessage(s *discordgo.Session, entryMsg *discordgo.Message) error {
 
 	_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 	if err != nil {
-		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		return nil, errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 	}
 
-	return nil
+	return users, nil
 }
 
 // リアクションした人を取得します
+//
+// botのリアクションは除外します。
+//
+// botしかリアクションしない場合は、戻り値のスライスは空となります。
 func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
-	var users []*discordgo.User
+	users := make([]*discordgo.User, 0)
 
 	botName := os.Getenv("BOT_NAME")
 
@@ -150,8 +154,8 @@ func getReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*disc
 			break
 		}
 
+		// botは除外する
 		for _, u := range us {
-			fmt.Println(i, u.Username, u.ID)
 			if u.Username != botName {
 				users = append(users, u)
 			}
