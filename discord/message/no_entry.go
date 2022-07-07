@@ -6,6 +6,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+var noEntryTemplate = `
+エントリーが無かったため、試合は開始されません
+`
+
 // NoEntryのメッセージを送信します
 func SendNoEntryMessage(
 	s *discordgo.Session,
@@ -14,7 +18,7 @@ func SendNoEntryMessage(
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
-		Description: "エントリーが無かったため、試合は開始されません",
+		Description: noEntryTemplate,
 		Color:       0xff0000,
 	}
 

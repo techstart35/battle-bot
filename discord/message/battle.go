@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/message/template"
 	"github.com/techstart35/battle-bot/discord/shared"
 	"math/rand"
 	"strings"
@@ -36,100 +37,57 @@ func BattleMessageHandler(
 		switch {
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case l == 1:
-			if err := SendWinnerMessage(s, entryMessage, survivor[0]); err != nil {
+			if err := SendWinnerMessage(s, entryMessage, survivor[0], anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 			}
 
 			return nil
-		case l <= 24 && l%2 == 0: // 24以下の偶数の場合は、全員をステージングして対戦
+		case l <= 16: // 16以下の場合は、全員をステージングして対戦
 			var stage []*discordgo.User
 			stage = append(stage, survivor...)
 
-			var battleLines []string
-			var winner []*discordgo.User
-
-			// 2つずつ抽出する
-			for i := 0; i < len(stage)-1; i += 2 {
-				battleLine := fmt.Sprintf(getRandomBattleTmpl(), stage[i].Username, stage[i+1].Username)
-				battleLines = append(battleLines, battleLine)
-
-				// 勝者を追加
-				winner = append(winner, stage[0])
+			// バトルメッセージを作成
+			res, err := createBattleMessage(stage)
+			if err != nil {
+				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
 
 			// メッセージ送信
-			description := strings.Join(battleLines, "\n")
-			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, res.Description, round); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
 			// 生き残りを減らす
-			survivor = winner
+			survivor = res.Winners
 			// カウントUP
 			round++
-		case l <= 24 && l%2 != 0: // 24以下の奇数の場合は、全員をステージングして、1名はソロ
+		case l >= 16: // 16以上の場合は、16名のみをステージングして対戦
 			var stage []*discordgo.User
-			stage = append(stage, survivor...)
+			stage = survivor[0:16]
 
-			var battleLines []string
-			var winner []*discordgo.User
-
-			// 2つずつ抽出する
-			for i := 0; i < len(stage); i += 2 {
-				// 最後の1つ（奇数のため余る）はソロのギミックが適用される
-				if i == len(stage)-1 {
-					battleLine := fmt.Sprintf(getRandomSoloTmpl(), stage[i].Username)
-					battleLines = append(battleLines, battleLine)
-
-					break
-				}
-
-				battleLine := fmt.Sprintf(getRandomBattleTmpl(), stage[i].Username, stage[i+1].Username)
-				battleLines = append(battleLines, battleLine)
-
-				// 勝者を追加
-				winner = append(winner, stage[0])
+			res, err := createBattleMessage(stage)
+			if err != nil {
+				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
 
 			// メッセージ送信
-			description := strings.Join(battleLines, "\n")
-			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, res.Description, round); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
 			// 生き残りを減らす
-			survivor = winner
-			// カウントUP
-			round++
-		case l >= 24: // 24以上の場合は、24名のみをステージングして対戦
-			var stage []*discordgo.User
-			stage = survivor[0:24]
+			var newSurvivor []*discordgo.User
+			newSurvivor = append(newSurvivor, res.Winners...)
+			newSurvivor = append(newSurvivor, survivor[16:]...)
 
-			var battleLines []string
-			var winner []*discordgo.User
-
-			// 2つずつ抽出する
-			for i := 0; i < len(stage)-1; i += 2 {
-				battleLine := fmt.Sprintf(getRandomBattleTmpl(), stage[i].Username, stage[i+1].Username)
-				battleLines = append(battleLines, battleLine)
-
-				// 勝者を追加
-				winner = append(winner, stage[0])
-			}
-
-			// メッセージ送信
-			description := strings.Join(battleLines, "\n")
-			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
-			}
-
-			// 生き残りを減らす
-			survivor = winner
+			survivor = newSurvivor
 			// カウントUP
 			round++
 		}
 
-		time.Sleep(5 * time.Second)
+		if len(survivor) > 1 {
+			time.Sleep(5 * time.Second)
+		}
 	}
 }
 
@@ -137,26 +95,6 @@ func BattleMessageHandler(
 func shuffleSurvivor(slice []*discordgo.User) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
-}
-
-// ソロテンプレートをランダムに取得します
-func getRandomSoloTmpl() string {
-	var soloTemplates = []string{
-		"💥｜**%s** は自爆した",
-		"💥｜**%s** はバナナの皮で滑って気絶した",
-	}
-
-	return soloTemplates[shared.RandInt(1, len(soloTemplates))-1]
-}
-
-// バトルテンプレートをランダムに取得します
-func getRandomBattleTmpl() string {
-	var battleTemplates = []string{
-		"⚔️｜**%s** は **%s** を倒した",
-		"⚔️｜**%s** は **%s** を突き飛ばした",
-	}
-
-	return battleTemplates[shared.RandInt(1, len(battleTemplates))-1]
 }
 
 // Battleのメッセージを送信します
@@ -178,4 +116,64 @@ func SendBattleMessage(
 	}
 
 	return nil
+}
+
+// バトルメッセージを作成するレスポンスです
+type CreateBattleLinesRes struct {
+	Description string
+	Winners     []*discordgo.User
+}
+
+// バトルメッセージを作成します
+func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) {
+	var res CreateBattleLinesRes
+
+	var (
+		lines   []string
+		winners []*discordgo.User
+	)
+
+	nextUsersIndex := 0
+
+	for {
+		num := 1
+
+		// 2つ取得可能な場合のみ、ランダムで取得する
+		if nextUsersIndex+1 != len(users) {
+			num = shared.RandInt(1, 3)
+		}
+
+		switch num {
+		case 1:
+			line := fmt.Sprintf(
+				template.GetRandomSoloTmpl(),
+				shared.FormatMentionByUserID(users[nextUsersIndex].ID),
+			)
+
+			lines = append(lines, line)
+			nextUsersIndex++
+		case 2:
+			line := fmt.Sprintf(
+				template.GetRandomBattleTmpl(),
+				shared.FormatMentionByUserID(users[nextUsersIndex].ID),
+				shared.FormatMentionByUserID(users[nextUsersIndex+1].ID),
+			)
+
+			lines = append(lines, line)
+			winners = append(winners, users[nextUsersIndex])
+
+			nextUsersIndex += 2
+		default:
+			return res, errors.New("取得したギミック数が不正です")
+		}
+
+		if nextUsersIndex == len(users) {
+			break
+		}
+	}
+
+	res.Description = strings.Join(lines, "\n")
+	res.Winners = winners
+
+	return res, nil
 }

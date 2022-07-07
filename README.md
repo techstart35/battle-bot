@@ -4,6 +4,14 @@ DiscordのBattle botです。
 
 Rumble loyalの日本語ver.を想定して作成しています。
 
+## Bot管理コンパネ
+
+以下のURLでコンパネにアクセスできます。
+
+```
+https://discord.com/developers/applications/975019338534899733/information
+```
+
 ## 導入方法
 
 以下のURLでサーバーに追加することができます。

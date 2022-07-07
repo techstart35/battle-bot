@@ -16,7 +16,7 @@ var startTemplate = `
 var startTemplateWithAnotherChannel = `
 ⚡️挑戦者(%d名）：%s
 ⚡️勝者：1名
-⚡️<#%s> チャンネルでも配信中💬
+⚡️<#%s> チャンネルでも配信中 💬
 `
 
 // 開始メッセージを送信します

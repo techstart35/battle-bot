@@ -77,7 +77,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// TODO: 60秒に設定
-	time.Sleep(5 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	// 60秒後（残り60秒）にメッセージを送信
 	if err := message.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {

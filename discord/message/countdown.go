@@ -8,19 +8,21 @@ import (
 )
 
 var countDownTemplate = `
-Are You Ready?
 開始まであと **%d秒**
+
+Are You Ready?
 
 [エントリーはこちら](https://discord.com/channels/%s/%s/%s)
 `
 
 var entryChannelCountDownTemplate = `
-Are You Ready?
 開始まであと **%d秒**
+
+Are You Ready?
 
 [エントリーはこちら](https://discord.com/channels/%s/%s/%s)
 
-<#%s> でも配信中💬
+<#%s> でも配信中 💬
 `
 
 // カウントダウンメッセージを送信します
