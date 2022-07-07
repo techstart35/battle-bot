@@ -49,7 +49,7 @@ func BattleMessageHandler(
 			}
 
 			return nil
-		case l <= 16: // 16以下の場合は、全員をステージングして対戦
+		case l <= 8: // 8以下の場合は、全員をステージングして対戦
 			var stage []*discordgo.User
 			stage = append(stage, survivor...)
 
@@ -70,14 +70,14 @@ func BattleMessageHandler(
 			)
 
 			// メッセージ送信
-			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 			// カウントUP
 			round++
-		case l >= 16: // 16以上の場合は、16名のみをステージングして対戦
+		case l >= 8: // 8以上の場合は、8名のみをステージングして対戦
 			var stage []*discordgo.User
-			stage = survivor[0:16]
+			stage = survivor[0:8]
 
 			res, err := createBattleMessage(stage)
 			if err != nil {
@@ -87,7 +87,7 @@ func BattleMessageHandler(
 			// 生き残りを減らす
 			var newSurvivor []*discordgo.User
 			newSurvivor = append(newSurvivor, res.Winners...)
-			newSurvivor = append(newSurvivor, survivor[16:]...)
+			newSurvivor = append(newSurvivor, survivor[8:]...)
 			survivor = newSurvivor
 
 			// バトルメッセージに生き残り数を追加
@@ -98,7 +98,7 @@ func BattleMessageHandler(
 			)
 
 			// メッセージ送信
-			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+			if err := SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
 
@@ -124,11 +124,19 @@ func SendBattleMessage(
 	entryMessage *discordgo.Message,
 	description string,
 	round int,
+	anotherChannelID string,
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("第%d回戦", round),
 		Description: description,
 		Color:       0xff0000,
+	}
+
+	if anotherChannelID != "" {
+		_, err := s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
+		if err != nil {
+			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		}
 	}
 
 	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
@@ -183,7 +191,7 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 		case 1:
 			line := fmt.Sprintf(
 				template.GetRandomSoloTmpl(),
-				shared.FormatMentionByUserID(users[nextUsersIndex].ID),
+				users[nextUsersIndex].Username,
 			)
 
 			lines = append(lines, line)
@@ -191,8 +199,8 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 		case 2:
 			line := fmt.Sprintf(
 				template.GetRandomBattleTmpl(),
-				shared.FormatMentionByUserID(users[nextUsersIndex].ID),
-				shared.FormatMentionByUserID(users[nextUsersIndex+1].ID),
+				users[nextUsersIndex].Username,
+				users[nextUsersIndex+1].Username,
 			)
 
 			lines = append(lines, line)
