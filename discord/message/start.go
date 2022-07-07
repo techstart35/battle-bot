@@ -11,14 +11,14 @@ import (
 
 var startTemplate = `
 ⚡️挑戦者（%d名）：%s
-⚡️勝者：1名
-⚡️勝率：%v％
+⚡️勝者：**1名**
+⚡️勝率：**%v％**
 `
 
 var startTemplateWithAnotherChannel = `
 ⚡️挑戦者(%d名）：%s
-⚡️勝者：1名
-⚡️勝率：%v％
+⚡️勝者：**1名**
+⚡️勝率：**%v％**
 ⚡️<#%s> チャンネルでも配信中 💬
 `
 
