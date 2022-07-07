@@ -107,7 +107,7 @@ func BattleMessageHandler(
 		}
 
 		if len(survivor) > 1 {
-			time.Sleep(5 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}
 }

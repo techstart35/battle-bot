@@ -106,7 +106,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Println(err)
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	if err := message.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
 		log.Println(err)
