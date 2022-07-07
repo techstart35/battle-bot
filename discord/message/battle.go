@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+// バトルメッセージ全体のテンプレートです
+var BattleMessageTemplate = `
+%s
+
+生き残り: **%d名**
+`
+
 // バトルメッセージを送信します
 func BattleMessageHandler(
 	s *discordgo.Session,
@@ -52,13 +59,20 @@ func BattleMessageHandler(
 				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
 
-			// メッセージ送信
-			if err := SendBattleMessage(s, entryMessage, res.Description, round); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
-			}
-
 			// 生き残りを減らす
 			survivor = res.Winners
+
+			// バトルメッセージに生き残り数を追加
+			description := fmt.Sprintf(
+				BattleMessageTemplate,
+				res.Description,
+				len(survivor),
+			)
+
+			// メッセージ送信
+			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+			}
 			// カウントUP
 			round++
 		case l >= 16: // 16以上の場合は、16名のみをステージングして対戦
@@ -70,17 +84,24 @@ func BattleMessageHandler(
 				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
 
-			// メッセージ送信
-			if err := SendBattleMessage(s, entryMessage, res.Description, round); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
-			}
-
 			// 生き残りを減らす
 			var newSurvivor []*discordgo.User
 			newSurvivor = append(newSurvivor, res.Winners...)
 			newSurvivor = append(newSurvivor, survivor[16:]...)
-
 			survivor = newSurvivor
+
+			// バトルメッセージに生き残り数を追加
+			description := fmt.Sprintf(
+				BattleMessageTemplate,
+				res.Description,
+				len(survivor),
+			)
+
+			// メッセージ送信
+			if err := SendBattleMessage(s, entryMessage, description, round); err != nil {
+				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+			}
+
 			// カウントUP
 			round++
 		}
@@ -125,8 +146,18 @@ type CreateBattleLinesRes struct {
 }
 
 // バトルメッセージを作成します
+//
+// usersが2未満の場合はエラーを返します。
+//
+// 生存数はこの関数を使う側で設定します。
+//
+// 1人以上のWinnerを返すため、最初の2名は必ずバトルとなります。
 func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) {
 	var res CreateBattleLinesRes
+
+	if len(users) < 2 {
+		return res, errors.New("メッセージ作成に必要なユーザー数が不足しています")
+	}
 
 	var (
 		lines   []string
@@ -141,6 +172,11 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 		// 2つ取得可能な場合のみ、ランダムで取得する
 		if nextUsersIndex+1 != len(users) {
 			num = shared.RandInt(1, 3)
+		}
+
+		// 必ずWinnerを設定するため、最初の2名は必ずバトルとする
+		if nextUsersIndex == 0 {
+			num = 2
 		}
 
 		switch num {

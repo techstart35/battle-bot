@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/discord/shared"
+	"math"
 	"strings"
 )
 
 var startTemplate = `
 ⚡️挑戦者（%d名）：%s
 ⚡️勝者：1名
+⚡️勝率：%v％
 `
 
 var startTemplateWithAnotherChannel = `
 ⚡️挑戦者(%d名）：%s
 ⚡️勝者：1名
+⚡️勝率：%v％
 ⚡️<#%s> チャンネルでも配信中 💬
 `
 
@@ -36,11 +39,17 @@ func SendStartMessage(
 	}
 
 	userStr := strings.Join(challengers, " ")
+	probability := 1 / float64(len(challengers)) * 100
 
 	embedInfo := &discordgo.MessageEmbed{
-		Title:       "⚔️ Battle Start ⚔️",
-		Description: fmt.Sprintf(startTemplate, len(challengers), userStr),
-		Color:       0xff0000,
+		Title: "⚔️ Battle Start ⚔️",
+		Description: fmt.Sprintf(
+			startTemplate,
+			len(challengers),
+			userStr,
+			math.Round(probability*10)/10,
+		),
+		Color: 0xff0000,
 	}
 
 	// チャンネルIDが入っている場合は、別チャンネルに送信 & Descriptionの書き換えを行います。
@@ -54,6 +63,7 @@ func SendStartMessage(
 			startTemplateWithAnotherChannel,
 			len(challengers),
 			userStr,
+			math.Round(probability*10)/10,
 			anotherChannelID,
 		)
 	}

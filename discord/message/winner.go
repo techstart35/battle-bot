@@ -35,7 +35,10 @@ func SendWinnerMessage(
 		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 	}
 
-	msg, err := s.ChannelMessageSend(entryMessage.ChannelID, fmt.Sprintf("<@%s>さん、おめでとう🎉", winner.ID))
+	msg, err := s.ChannelMessageSend(
+		entryMessage.ChannelID,
+		fmt.Sprintf("<@%s>さん、おめでとうございます🎉", winner.ID),
+	)
 	if err != nil {
 		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 	}
