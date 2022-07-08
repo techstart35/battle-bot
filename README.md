@@ -4,6 +4,10 @@ DiscordのBattle botです。
 
 Rumble loyalの日本語ver.を想定して作成しています。
 
+## bot名
+
+バトロワ.bot
+
 ## Bot管理コンパネ
 
 以下のURLでコンパネにアクセスできます。
