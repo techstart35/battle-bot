@@ -8,17 +8,13 @@ Rumble loyalの日本語ver.を想定して作成しています。
 
 以下のURLでコンパネにアクセスできます。
 
-```
-https://discord.com/developers/applications/975019338534899733/information
-```
+[コンパネURL](https://discord.com/developers/applications/975019338534899733/information)
 
 ## 導入方法
 
 以下のURLでサーバーに追加することができます。
 
-```
-https://discord.com/api/oauth2/authorize?client_id=975019338534899733&permissions=275146427456&scope=bot
-```
+[サーバー追加URL](https://discord.com/api/oauth2/authorize?client_id=975019338534899733&permissions=275146427456&scope=bot)
 
 ## 権限
 
