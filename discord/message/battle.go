@@ -170,6 +170,7 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 	var (
 		lines   []string
 		winners []*discordgo.User
+		losers  []*discordgo.User
 	)
 
 	nextUsersIndex := 0
@@ -189,22 +190,24 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 
 		switch num {
 		case 1:
+			loser := users[nextUsersIndex]
 			line := fmt.Sprintf(
 				template.GetRandomSoloTmpl(),
-				users[nextUsersIndex].Username,
+				loser.Username,
 			)
 
 			lines = append(lines, line)
+			losers = append(losers, loser)
+
 			nextUsersIndex++
 		case 2:
-			line := fmt.Sprintf(
-				template.GetRandomBattleTmpl(),
-				users[nextUsersIndex].Username,
-				users[nextUsersIndex+1].Username,
-			)
+			winner := users[nextUsersIndex]
+			loser := users[nextUsersIndex+1]
+
+			line := template.GetRandomBattleTmpl(winner.Username, loser.Username)
 
 			lines = append(lines, line)
-			winners = append(winners, users[nextUsersIndex])
+			winners = append(winners, winner)
 
 			nextUsersIndex += 2
 		default:

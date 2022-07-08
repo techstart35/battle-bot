@@ -35,10 +35,10 @@ func SendStartMessage(
 
 	var challengers []string
 	for _, v := range users {
-		challengers = append(challengers, fmt.Sprintf("<@%s>", v.ID))
+		challengers = append(challengers, v.Username)
 	}
 
-	userStr := strings.Join(challengers, " ")
+	userStr := strings.Join(challengers, ", ")
 	probability := 1 / float64(len(challengers)) * 100
 
 	embedInfo := &discordgo.MessageEmbed{
