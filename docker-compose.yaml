@@ -1,0 +1,9 @@
+version: "3"
+services:
+  go:
+    image: battle-bot
+    container_name: battle-bot
+    build: .
+    volumes:
+      - ./:/go/src
+    tty: true
