@@ -129,7 +129,7 @@ func SendBattleMessage(
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("第%d回戦", round),
 		Description: description,
-		Color:       0xff0000,
+		Color:       0xffa500,
 	}
 
 	if anotherChannelID != "" {

@@ -8,6 +8,8 @@ import (
 
 var winnerTemplate = `
 勝者：<@%s>
+
+※面白い敗因募集中！ 
 `
 
 // Winnerのメッセージを送信します
