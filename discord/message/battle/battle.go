@@ -96,6 +96,7 @@ func BattleMessageHandler(
 					}
 					losers = ls
 
+					time.Sleep(7 * time.Second)
 					// メッセージ送信
 					if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
 						return errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))

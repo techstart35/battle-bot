@@ -26,7 +26,7 @@ func SendRevivalMessage(
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "敗者復活🔥",
 		Description: GetRandomRevivalTmpl(user),
-		Color:       0xffc0cb,
+		Color:       0xff69b4,
 	}
 
 	if anotherChannelID != "" {
