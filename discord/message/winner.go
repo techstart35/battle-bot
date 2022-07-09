@@ -8,6 +8,10 @@ import (
 
 var winnerTemplate = `
 勝者：<@%s>
+`
+
+var winnerWithAdTemplate = `
+勝者：<@%s>
 
 ※おふざけ敗因募集中！ 
 `
@@ -26,7 +30,13 @@ func SendWinnerMessage(
 	}
 
 	if anotherChannelID != "" {
-		_, err := s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
+		ei := &discordgo.MessageEmbed{
+			Title:       "👑 Winner 👑",
+			Description: fmt.Sprintf(winnerWithAdTemplate, winner.ID),
+			Color:       0xff0000,
+		}
+
+		_, err := s.ChannelMessageSendEmbed(anotherChannelID, ei)
 		if err != nil {
 			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 		}
