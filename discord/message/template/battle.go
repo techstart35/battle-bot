@@ -5,8 +5,8 @@ import (
 	"github.com/techstart35/battle-bot/discord/shared"
 )
 
-// ソロギミックのテンプレートをランダムに取得します
-func GetRandomSoloTmpl() string {
+// ソロバトルギミックのテンプレートをランダムに取得します
+func GetRandomSoloBattleTmpl() string {
 	var tmpl = []string{
 		"💥｜**%s** は間違えて自爆ボタンを押してしまった。ﾄﾞｶｰﾝ。",
 		"💥｜**%s** はバナナの皮で滑って気絶。",
@@ -27,6 +27,7 @@ func GetRandomSoloTmpl() string {
 		"💥｜**%s** はMIRAKOにお仕置きされてうれ死",
 		"💥｜**%s** は八門遁甲を開門するも、対戦相手がいなかった。",
 		"💥｜**%s** は体に宿る九尾を抜かれて瀕死状態に。",
+		"💥｜**%s** はジュレまみれになった。溺死。",
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
@@ -53,6 +54,21 @@ func GetRandomBattleTmpl(winner, loser string) string {
 		fmt.Sprintf("⚔️｜**%s** は 👑**%s** に秘孔つかれてあべ死。", loser, winner),
 		fmt.Sprintf("⚔️｜**%s** は 👑**%s** の筋肉バスターで気絶。", loser, winner),
 		fmt.Sprintf("⚔️｜**%s** は 👑**%s** の投げたじゃがいもに当たって死亡。", loser, winner),
+		fmt.Sprintf("⚔️｜👑**%s** は **%s** の白シャツにカレーを飛ばしてやる気を喪失させた。", winner, loser),
+	}
+
+	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
+}
+
+// ソロプレイ（無駄アクション）のテンプレートをランダムに取得します。
+func GetRandomSoloTmpl() string {
+	var tmpl = []string{
+		"☀️｜天気が良かったので、 **%s** はお散歩に出かけた。",
+		"☀️｜**%s** はのんきに釣りをしている。",
+		"☀️｜**%s** は元気玉を作ろうと両手を上にあげている。",
+		"☀️｜**%s** はキャンプを楽しんでいる。",
+		"☀️｜**%s** はバナナを食べている。",
+		"☀️｜**%s** は豆の収穫をしている。ﾀﾉｼｲ!!",
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]

@@ -107,7 +107,7 @@ func BattleMessageHandler(
 		}
 
 		if len(survivor) > 1 {
-			time.Sleep(10 * time.Second)
+			time.Sleep(16 * time.Second)
 		}
 	}
 }
@@ -175,24 +175,30 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 
 	nextUsersIndex := 0
 
+	const (
+		soloBattle   = iota + 1 // 1
+		battle       = iota + 1 // 2
+		soloNoBattle = iota + 1 // 3
+	)
+
 	for {
-		num := 1
+		num := soloBattle
 
 		// 2つ取得可能な場合のみ、ランダムで取得する
 		if nextUsersIndex+1 != len(users) {
-			num = shared.RandInt(1, 3)
+			num = shared.RandInt(soloBattle, soloNoBattle+1)
 		}
 
 		// 必ずWinnerを設定するため、最初の2名は必ずバトルとする
 		if nextUsersIndex == 0 {
-			num = 2
+			num = battle
 		}
 
 		switch num {
-		case 1:
+		case soloBattle:
 			loser := users[nextUsersIndex]
 			line := fmt.Sprintf(
-				template.GetRandomSoloTmpl(),
+				template.GetRandomSoloBattleTmpl(),
 				loser.Username,
 			)
 
@@ -200,7 +206,7 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 			losers = append(losers, loser)
 
 			nextUsersIndex++
-		case 2:
+		case battle:
 			winner := users[nextUsersIndex]
 			loser := users[nextUsersIndex+1]
 
@@ -210,6 +216,18 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 			winners = append(winners, winner)
 
 			nextUsersIndex += 2
+		case soloNoBattle:
+			winner := users[nextUsersIndex]
+			line := fmt.Sprintf(
+				template.GetRandomSoloTmpl(),
+				winner.Username,
+			)
+
+			lines = append(lines, line)
+			// 負けていないため、勝者としてカウントする
+			winners = append(winners, winner)
+
+			nextUsersIndex++
 		default:
 			return res, errors.New("取得したギミック数が不正です")
 		}
