@@ -80,12 +80,11 @@ func BattleMessageHandler(
 			}
 
 			// 復活イベントを作成
-			if len(survivor) > 2 {
+			if len(survivor) > 1 {
 				// 20%の確率でイベントが発生
 				if customProbability(2) {
 					// 敗者の中から1名を選択
 					shuffleDiscordUsers(losers)
-					fmt.Println(len(losers))
 					revival := losers[0]
 
 					// 選択した1名をsurvivorに移行
@@ -244,6 +243,7 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 
 			lines = append(lines, line)
 			winners = append(winners, winner)
+			losers = append(losers, loser)
 
 			nextUsersIndex += 2
 		case soloNoBattle:
