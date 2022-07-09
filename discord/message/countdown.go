@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"os"
 )
 
 var countDownTemplate = `
@@ -12,15 +11,14 @@ var countDownTemplate = `
 
 Are You Ready?
 
-[エントリーはこちら](https://discord.com/channels/%s/%s/%s)
+▼エントリーはこちら
+<#%s>
 `
 
 var entryChannelCountDownTemplate = `
 開始まであと **%d秒**
 
 Are You Ready?
-
-[エントリーはこちら](https://discord.com/channels/%s/%s/%s)
 
 <#%s> でも配信中 💬
 `
@@ -47,8 +45,7 @@ func SendCountDownMessage(
 		Description: fmt.Sprintf(
 			countDownTemplate,
 			beforeStart,
-			os.Getenv("GUILD_ID"),
-			entryMsg.ChannelID, entryMsg.ID,
+			entryMsg.ChannelID,
 		),
 		Color: color,
 	}
@@ -63,9 +60,6 @@ func SendCountDownMessage(
 		embedInfo.Description = fmt.Sprintf(
 			entryChannelCountDownTemplate,
 			beforeStart,
-			os.Getenv("GUILD_ID"),
-			entryMsg.ChannelID,
-			entryMsg.ID,
 			anotherChannelID,
 		)
 	}

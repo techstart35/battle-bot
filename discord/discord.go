@@ -13,8 +13,9 @@ import (
 	"time"
 )
 
+// TODO: 修正
 const (
-	Command = "b"
+	Command = "c"
 )
 
 // Discordでメッセージを送信します
