@@ -81,8 +81,8 @@ func BattleMessageHandler(
 
 			// 復活イベントを作成
 			if len(survivor) > 1 {
-				// 20%の確率でイベントが発生
-				if customProbability(2) {
+				// 30%の確率でイベントが発生
+				if customProbability(3) {
 					// 敗者の中から1名を選択
 					shuffleDiscordUsers(losers)
 					revival := losers[0]
