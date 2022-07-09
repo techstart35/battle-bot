@@ -1,10 +1,11 @@
-package message
+package battle
 
 import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message/template"
+	"github.com/techstart35/battle-bot/discord/message"
+	"github.com/techstart35/battle-bot/discord/message/battle/template"
 	"github.com/techstart35/battle-bot/discord/shared"
 	"math/rand"
 	"strings"
@@ -27,7 +28,7 @@ func BattleMessageHandler(
 ) error {
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
-		if err := SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
+		if err := message.SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
 			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 		}
 
@@ -35,16 +36,17 @@ func BattleMessageHandler(
 	}
 
 	survivor := users
+	var losers []*discordgo.User
 
 	round := 1
 	for {
-		shuffleSurvivor(survivor)
+		shuffleDiscordUsers(survivor)
 
 		l := len(survivor)
 		switch {
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case l == 1:
-			if err := SendWinnerMessage(s, entryMessage, survivor[0], anotherChannelID); err != nil {
+			if err := message.SendWinnerMessage(s, entryMessage, survivor[0], anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 			}
 
@@ -61,6 +63,8 @@ func BattleMessageHandler(
 
 			// 生き残りを減らす
 			survivor = res.Winners
+			// 敗者を追加
+			losers = append(losers, res.Losers...)
 
 			// バトルメッセージに生き残り数を追加
 			description := fmt.Sprintf(
@@ -73,6 +77,32 @@ func BattleMessageHandler(
 			if err := SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
 			}
+
+			// 復活イベントを作成
+			if len(survivor) > 2 {
+				// 20%の確率でイベントが発生
+				if customProbability(2) {
+					// 敗者の中から1名を選択
+					shuffleDiscordUsers(losers)
+					fmt.Println(len(losers))
+					revival := losers[0]
+
+					// 選択した1名をsurvivorに移行
+					survivor = append(survivor, revival)
+					// 選択した1名を敗者から削除
+					ls, err := shared.RemoveUserFromUsers(losers, 0)
+					if err != nil {
+						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
+					}
+					losers = ls
+
+					// メッセージ送信
+					if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
+						return errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))
+					}
+				}
+			}
+
 			// カウントUP
 			round++
 		case l >= 8: // 8以上の場合は、8名のみをステージングして対戦
@@ -89,6 +119,9 @@ func BattleMessageHandler(
 			newSurvivor = append(newSurvivor, res.Winners...)
 			newSurvivor = append(newSurvivor, survivor[8:]...)
 			survivor = newSurvivor
+
+			// 敗者を追加
+			losers = append(losers, res.Losers...)
 
 			// バトルメッセージに生き残り数を追加
 			description := fmt.Sprintf(
@@ -110,12 +143,6 @@ func BattleMessageHandler(
 			time.Sleep(16 * time.Second)
 		}
 	}
-}
-
-// 生き残りのスライスの中身ををシャッフルします
-func shuffleSurvivor(slice []*discordgo.User) {
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
 }
 
 // Battleのメッセージを送信します
@@ -151,6 +178,7 @@ func SendBattleMessage(
 type CreateBattleLinesRes struct {
 	Description string
 	Winners     []*discordgo.User
+	Losers      []*discordgo.User
 }
 
 // バトルメッセージを作成します
@@ -239,6 +267,36 @@ func createBattleMessage(users []*discordgo.User) (CreateBattleLinesRes, error) 
 
 	res.Description = strings.Join(lines, "\n")
 	res.Winners = winners
+	res.Losers = losers
 
 	return res, nil
+}
+
+// スライスの中身ををシャッフルします
+func shuffleDiscordUsers(slice []*discordgo.User) {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
+}
+
+// 指定した確率でtrueが返ります
+//
+// 引数には1-10までの数字を入れます。
+//
+// 1を入れると10%,10を入れると100%の確率でtrueが返ります。
+func customProbability(num int) bool {
+	b := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+	// bをシャッフルする
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(b), func(i, j int) { b[i], b[j] = b[j], b[i] })
+
+	gb := b[:num]
+
+	for _, v := range gb {
+		if v == 1 {
+			return true
+		}
+	}
+
+	return false
 }

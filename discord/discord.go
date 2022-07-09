@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/discord/message"
+	"github.com/techstart35/battle-bot/discord/message/battle"
 	"log"
 	"os"
 	"os/signal"
@@ -106,7 +107,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	time.Sleep(10 * time.Second)
 
-	if err := message.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
+	if err := battle.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 }
