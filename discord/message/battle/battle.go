@@ -106,7 +106,7 @@ func BattleMessageHandler(
 
 			// カウントUP
 			round++
-		case l >= 8: // 8以上の場合は、8名のみをステージングして対戦
+		case 8 <= l && l < 60: // 8以上、60未満の場合は、8名のみをステージングして対戦
 			var stage []*discordgo.User
 			stage = survivor[0:8]
 
@@ -119,6 +119,39 @@ func BattleMessageHandler(
 			var newSurvivor []*discordgo.User
 			newSurvivor = append(newSurvivor, res.Winners...)
 			newSurvivor = append(newSurvivor, survivor[8:]...)
+			survivor = newSurvivor
+
+			// 敗者を追加
+			losers = append(losers, res.Losers...)
+
+			// バトルメッセージに生き残り数を追加
+			description := fmt.Sprintf(
+				BattleMessageTemplate,
+				res.Description,
+				len(survivor),
+			)
+
+			// メッセージ送信
+			if err := SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+			}
+
+			// カウントUP
+			round++
+
+		case 60 <= l: // 60以上の場合は、15名をステージングして対戦
+			var stage []*discordgo.User
+			stage = survivor[0:15]
+
+			res, err := createBattleMessage(stage)
+			if err != nil {
+				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
+			}
+
+			// 生き残りを減らす
+			var newSurvivor []*discordgo.User
+			newSurvivor = append(newSurvivor, res.Winners...)
+			newSurvivor = append(newSurvivor, survivor[15:]...)
 			survivor = newSurvivor
 
 			// 敗者を追加
