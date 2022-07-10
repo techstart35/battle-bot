@@ -84,9 +84,6 @@ func BattleMessageHandler(
 			// カウントUP
 			round++
 
-			fmt.Println("生き残り:", len(survivor))
-			fmt.Println("敗者:", len(losers))
-
 			// 復活イベントを作成
 			if len(survivor) > 1 && len(losers) >= 1 {
 				if err := execRevivalEvent(s, entryMessage, anotherChannelID); err != nil {
