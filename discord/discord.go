@@ -5,6 +5,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/discord/message"
 	"github.com/techstart35/battle-bot/discord/message/battle"
+	"github.com/techstart35/battle-bot/discord/message/countdown"
+	"github.com/techstart35/battle-bot/discord/message/entry"
+	"github.com/techstart35/battle-bot/discord/message/start"
 	"log"
 	"os"
 	"os/signal"
@@ -72,7 +75,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	msg, err := message.SendEntryMessage(s, m, anotherChannelID)
+	msg, err := entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -80,27 +83,27 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	time.Sleep(60 * time.Second)
 
 	// 60秒後（残り60秒）にメッセージを送信
-	if err := message.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
+	if err := countdown.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(30 * time.Second)
 
 	// 残り30秒アナウンス
-	if err := message.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
+	if err := countdown.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(20 * time.Second)
 
 	// 残り10秒アナウンス
-	if err := message.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
+	if err := countdown.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
 		log.Println(err)
 	}
 
 	time.Sleep(10 * time.Second)
 
-	usrs, err := message.SendStartMessage(s, msg, anotherChannelID)
+	usrs, err := start.SendStartMessage(s, msg, anotherChannelID)
 	if err != nil {
 		log.Println(err)
 	}

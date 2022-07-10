@@ -1,4 +1,4 @@
-package message
+package noentry
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var noEntryTemplate = `
+var template = `
 エントリーが無かったため、試合は開始されません
 `
 
@@ -18,7 +18,7 @@ func SendNoEntryMessage(
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
-		Description: noEntryTemplate,
+		Description: template,
 		Color:       0xff0000,
 	}
 
