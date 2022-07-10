@@ -1,4 +1,4 @@
-package message
+package entry
 
 import (
 	"errors"
@@ -6,8 +6,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var entryTemplate = `
-ねだるな！勝ち取れ🔥🔥
+// 別チャンネルの指定がなかった場合のテンプレートです
+var noAnotherChannelTemplate = `
+⚔️ Giveaway Battle ⚔️
 
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
@@ -15,7 +16,8 @@ var entryTemplate = `
 ⚡️開始：このメッセージ送信から**2分後**
 `
 
-var entryTemplateWithAnotherChannel = `
+// 別チャンネルの指定があった場合のテンプレートです
+var withAnotherChannelTemplate = `
 ねだるな！勝ち取れ🔥🔥
 
 ⚡️主催者：<@%s>
@@ -27,7 +29,7 @@ var entryTemplateWithAnotherChannel = `
 
 // エントリーメッセージを送信します
 //
-// 引数のチャンネルIDがある場合、そちらにもメッセージを送信します。
+// 起動元のチャンネルのみに送信します。
 func SendEntryMessage(
 	s *discordgo.Session,
 	m *discordgo.MessageCreate,
@@ -35,13 +37,14 @@ func SendEntryMessage(
 ) (*discordgo.Message, error) {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Giveaway Battle ⚔️",
-		Description: fmt.Sprintf(entryTemplate, m.Author.ID),
+		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),
 		Color:       0x0099ff,
 	}
 
+	// 別チャンネルの指定があった場合はテンプレートを差し替え
 	if anotherChannelID != "" {
 		embedInfo.Description = fmt.Sprintf(
-			entryTemplateWithAnotherChannel,
+			withAnotherChannelTemplate,
 			m.Author.ID,
 			anotherChannelID,
 		)
@@ -52,6 +55,7 @@ func SendEntryMessage(
 		return nil, errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 	}
 
+	// リアクションを付与
 	if err := s.MessageReactionAdd(m.ChannelID, msg.ID, "⚔️"); err != nil {
 		return nil, errors.New(fmt.Sprintf("リアクションを付与できません: %v", err))
 	}

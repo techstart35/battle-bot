@@ -1,4 +1,4 @@
-package message
+package winner
 
 import (
 	"errors"
@@ -6,11 +6,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var winnerTemplate = `
+// エントリーチャンネルに送信するメッセージです
+var entryChannelTemplate = `
 勝者：<@%s>
 `
 
-var winnerWithAdTemplate = `
+// 別チャンネルに送信するメッセージです
+var anotherChannelTemplate = `
 勝者：<@%s>
 
 ※おふざけ敗因募集中！ 
@@ -25,21 +27,8 @@ func SendWinnerMessage(
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
-		Description: fmt.Sprintf(winnerTemplate, winner.ID),
+		Description: fmt.Sprintf(entryChannelTemplate, winner.ID),
 		Color:       0xff0000,
-	}
-
-	if anotherChannelID != "" {
-		ei := &discordgo.MessageEmbed{
-			Title:       "👑 Winner 👑",
-			Description: fmt.Sprintf(winnerWithAdTemplate, winner.ID),
-			Color:       0xff0000,
-		}
-
-		_, err := s.ChannelMessageSendEmbed(anotherChannelID, ei)
-		if err != nil {
-			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
-		}
 	}
 
 	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
@@ -57,6 +46,19 @@ func SendWinnerMessage(
 
 	if err := s.MessageReactionAdd(msg.ChannelID, msg.ID, "🎉"); err != nil {
 		return errors.New(fmt.Sprintf("リアクションを付与できません: %v", err))
+	}
+
+	if anotherChannelID != "" {
+		ei := &discordgo.MessageEmbed{
+			Title:       "👑 Winner 👑",
+			Description: fmt.Sprintf(anotherChannelTemplate, winner.ID),
+			Color:       0xff0000,
+		}
+
+		_, err := s.ChannelMessageSendEmbed(anotherChannelID, ei)
+		if err != nil {
+			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		}
 	}
 
 	return nil

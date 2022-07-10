@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/discord/shared"
 )
 
@@ -67,6 +68,15 @@ func GetRandomSoloTmpl() string {
 		"☀️｜**%s** はキャンプを楽しんでいる。",
 		"☀️｜**%s** はバナナを食べている。",
 		"☀️｜**%s** は豆の収穫をしている。ﾀﾉｼｲ!!",
+	}
+
+	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
+}
+
+// 復活のテンプレートをランダムに取得します
+func GetRandomRevivalTmpl(user *discordgo.User) string {
+	var tmpl = []string{
+		fmt.Sprintf("⚰️｜** %s ** は穢土転生により復活した。", user.Username),
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]

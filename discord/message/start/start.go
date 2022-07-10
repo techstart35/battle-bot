@@ -1,4 +1,4 @@
-package message
+package start
 
 import (
 	"errors"
@@ -9,17 +9,28 @@ import (
 	"strings"
 )
 
-var startTemplate = `
-⚡️挑戦者（%d名）：%s
-⚡️勝者：**1名**
-⚡️勝率：**%v％**
-`
-
-var startTemplateWithAnotherChannel = `
+// エントリーチャンネルに送信するメッセージです
+var entryChannelTemplate = `
 ⚡️挑戦者(%d名）：%s
 ⚡️勝者：**1名**
 ⚡️勝率：**%v％**
 ⚡️<#%s> チャンネルでも配信中 💬
+`
+
+// エントリーチャンネルに送信するメッセージです
+var entryChannelNoAnotherChannelTemplate = `
+⚡️挑戦者(%d名）：%s
+⚡️勝者：**1名**
+⚡️勝率：**%v％**
+`
+
+// 別チャンネルに送信するメッセージです
+//
+// 別チャンネルを指定していない場合のエントリーチャンネルもこちらのテンプレートを使用します。
+var anotherChannelTemplate = `
+⚡️挑戦者（%d名）：%s
+⚡️勝者：**1名**
+⚡️勝率：**%v％**
 `
 
 // 開始メッセージを送信します
@@ -39,33 +50,52 @@ func SendStartMessage(
 	}
 
 	userStr := strings.Join(challengers, ", ")
-	probability := 1 / float64(len(challengers)) * 100
 
+	p := 1 / float64(len(challengers)) * 100
+	probability := math.Round(p*10) / 10
+
+	// 別チャンネルがない場合を想定
 	embedInfo := &discordgo.MessageEmbed{
 		Title: "⚔️ Battle Start ⚔️",
 		Description: fmt.Sprintf(
-			startTemplate,
+			entryChannelNoAnotherChannelTemplate,
 			len(challengers),
 			userStr,
-			math.Round(probability*10)/10,
+			probability,
 		),
 		Color: 0xff0000,
 	}
 
-	// チャンネルIDが入っている場合は、別チャンネルに送信 & Descriptionの書き換えを行います。
+	// 別チャンネルがあった場合
 	if anotherChannelID != "" {
-		_, err := s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
+		// エントリーチャンネルに送信
+		embedInfo.Description = fmt.Sprintf(
+			entryChannelTemplate,
+			len(challengers),
+			userStr,
+			probability,
+			anotherChannelID,
+		)
+
+		_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 		if err != nil {
 			return nil, errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 		}
 
+		// 別チャンネルに送信
 		embedInfo.Description = fmt.Sprintf(
-			startTemplateWithAnotherChannel,
+			anotherChannelTemplate,
 			len(challengers),
 			userStr,
-			math.Round(probability*10)/10,
-			anotherChannelID,
+			probability,
 		)
+
+		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		}
+
+		return users, nil
 	}
 
 	_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
