@@ -8,7 +8,7 @@ import (
 
 // 別チャンネルの指定がなかった場合のテンプレートです
 var noAnotherChannelTemplate = `
-⚔️ Giveaway Battle ⚔️
+⚔️ Battle Royale ⚔️
 
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
@@ -36,7 +36,7 @@ func SendEntryMessage(
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
 	embedInfo := &discordgo.MessageEmbed{
-		Title:       "⚔️ Giveaway Battle ⚔️",
+		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),
 		Color:       0x0099ff,
 	}

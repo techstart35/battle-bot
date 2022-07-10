@@ -53,7 +53,7 @@ func SendCountDownMessage(
 
 	// 別チャンネルが無い場合を想定
 	embedInfo := &discordgo.MessageEmbed{
-		Title: "⚔️ Giveaway Battle ⚔️",
+		Title: "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(
 			noAnotherChannelTemplate,
 			beforeStart,
