@@ -39,6 +39,11 @@ func SendStartMessage(
 	entryMsg *discordgo.Message,
 	anotherChannelID string,
 ) ([]*discordgo.User, error) {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMsg.ChannelID] {
+		return nil, nil
+	}
+
 	users, err := shared.GetReactedUsers(s, entryMsg)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("リアクションしたユーザーの取得に失敗しました: %v", err))

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/shared"
 )
 
 // 別チャンネルの指定がなかった場合のテンプレートです
@@ -35,6 +36,10 @@ func SendEntryMessage(
 	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
+	if !shared.IsProcessing[m.ChannelID] {
+		return nil, nil
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),

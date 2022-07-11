@@ -31,6 +31,11 @@ func BattleMessageHandler(
 	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil
+	}
+
 	var (
 		survivor []*discordgo.User
 		losers   []*discordgo.User
@@ -49,6 +54,11 @@ func BattleMessageHandler(
 
 	round := 1
 	for {
+		// キャンセル指示を確認
+		if !shared.IsProcessing[entryMessage.ChannelID] {
+			return nil
+		}
+
 		shared.ShuffleDiscordUsers(survivor)
 
 		survivorLen := len(survivor)
@@ -68,7 +78,7 @@ func BattleMessageHandler(
 			stage = append(stage, survivor...)
 
 			// バトルメッセージを作成
-			res, err := createBattleMessage(stage)
+			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
 				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
@@ -117,7 +127,7 @@ func BattleMessageHandler(
 			var stage []*discordgo.User
 			stage = survivor[0:BaseStageNum]
 
-			res, err := createBattleMessage(stage)
+			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
 				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
@@ -149,7 +159,7 @@ func BattleMessageHandler(
 			var stage []*discordgo.User
 			stage = survivor[0:NextStageNum]
 
-			res, err := createBattleMessage(stage)
+			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
 				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
 			}
@@ -192,6 +202,11 @@ func sendBattleMessage(
 	round int,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("第%d回戦", round),
 		Description: description,
@@ -227,8 +242,13 @@ type CreateBattleLinesRes struct {
 // 生存数はこの関数を使う側で設定します。
 //
 // 1人以上のWinnerを返すため、最初の2名は必ずバトルとなります。
-func createBattleMessage(stage []*discordgo.User) (CreateBattleLinesRes, error) {
+func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.User) (CreateBattleLinesRes, error) {
 	var res CreateBattleLinesRes
+
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return res, nil
+	}
 
 	if len(stage) < 2 {
 		return res, errors.New("メッセージ作成に必要なユーザー数が不足しています")
@@ -249,6 +269,11 @@ func createBattleMessage(stage []*discordgo.User) (CreateBattleLinesRes, error) 
 	)
 
 	for {
+		// キャンセル指示を確認
+		if !shared.IsProcessing[entryMessage.ChannelID] {
+			return res, nil
+		}
+
 		num := soloBattle
 
 		// 2つ取得可能な場合のみ、ランダムで取得する
@@ -319,6 +344,11 @@ func execRevivalEvent(
 	anotherChannelID string,
 	losers []*discordgo.User,
 ) (*discordgo.User, error) {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil, nil
+	}
+
 	if len(losers) == 0 {
 		return nil, nil
 	}
