@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/shared"
 )
 
 // エントリーチャンネルに送信するメッセージです
@@ -25,6 +26,11 @@ func SendWinnerMessage(
 	winner *discordgo.User,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
 		Description: fmt.Sprintf(entryChannelTemplate, winner.ID),

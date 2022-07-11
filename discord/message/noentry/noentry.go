@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/shared"
 )
 
 var template = `
@@ -16,6 +17,11 @@ func SendNoEntryMessage(
 	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
 		Description: template,

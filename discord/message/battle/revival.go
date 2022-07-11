@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/discord/message/battle/template"
+	"github.com/techstart35/battle-bot/discord/shared"
 )
 
 // 復活メッセージを送信します
@@ -14,6 +15,11 @@ func SendRevivalMessage(
 	user *discordgo.User,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMessage.ChannelID] {
+		return nil
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "敗者復活🔥",
 		Description: template.GetRandomRevivalTmpl(user),

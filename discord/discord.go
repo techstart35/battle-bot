@@ -8,6 +8,7 @@ import (
 	"github.com/techstart35/battle-bot/discord/message/countdown"
 	"github.com/techstart35/battle-bot/discord/message/entry"
 	"github.com/techstart35/battle-bot/discord/message/start"
+	"github.com/techstart35/battle-bot/discord/shared"
 	"log"
 	"os"
 	"os/signal"
@@ -17,7 +18,8 @@ import (
 )
 
 const (
-	Command = "b"
+	Command     = "b"
+	StopCommand = "stopb"
 )
 
 // Discordでメッセージを送信します
@@ -32,6 +34,7 @@ func SendDiscord() {
 
 	//イベントハンドラを追加
 	session.AddHandler(BattleHandler)
+	session.AddHandler(StopHandler)
 
 	if err := session.Open(); err != nil {
 		log.Printf(fmt.Sprintf("discordを開けません: %v", err))
@@ -75,6 +78,9 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
+	// チャンネル一覧に追加
+	shared.IsProcessing[m.ChannelID] = true
+
 	msg, err := entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		log.Println(err)
@@ -111,6 +117,36 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	time.Sleep(10 * time.Second)
 
 	if err := battle.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
+		log.Println(err)
+	}
+
+	// チャンネル一覧から削除
+	delete(shared.IsProcessing, m.ChannelID)
+}
+
+// 停止処理を実行します
+func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	cmd := m.Content
+	if cmd != StopCommand {
+		return
+	}
+
+	if _, ok := shared.IsProcessing[m.ChannelID]; !ok {
+		if err := message.SendSimpleEmbedMessage(
+			s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルはありません",
+		); err != nil {
+			log.Println(err)
+		}
+
+		return
+	}
+
+	// チャンネル一覧から削除
+	delete(shared.IsProcessing, m.ChannelID)
+
+	if err := message.SendSimpleEmbedMessage(
+		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",
+	); err != nil {
 		log.Println(err)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/discord/shared"
 )
 
 // エントリーチャンネルに送信するカウントダウンメッセージです
@@ -41,6 +42,11 @@ func SendCountDownMessage(
 	beforeStart uint,
 	anotherChannelID string,
 ) error {
+	// キャンセル指示を確認
+	if !shared.IsProcessing[entryMsg.ChannelID] {
+		return nil
+	}
+
 	var color int
 	switch beforeStart {
 	case 60:
