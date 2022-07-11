@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	Command     = "c"
+	Command     = "b"
 	StopCommand = "stopb"
 )
 
