@@ -7,3 +7,4 @@ services:
     volumes:
       - ./:/go/src
     tty: true
+    restart: always
