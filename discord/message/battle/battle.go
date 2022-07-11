@@ -24,11 +24,6 @@ const (
 	NextStageNum = 15
 )
 
-var (
-	survivor []*discordgo.User
-	losers   []*discordgo.User
-)
-
 // バトルメッセージを送信します
 func BattleMessageHandler(
 	s *discordgo.Session,
@@ -36,6 +31,11 @@ func BattleMessageHandler(
 	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) error {
+	var (
+		survivor []*discordgo.User
+		losers   []*discordgo.User
+	)
+
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
 		if err := noentry.SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
@@ -94,8 +94,21 @@ func BattleMessageHandler(
 
 			// 復活イベントを作成
 			if len(survivor) > 1 && len(losers) >= 1 {
-				if err := execRevivalEvent(s, entryMessage, anotherChannelID); err != nil {
+				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
+				if err != nil {
 					return errors.New(fmt.Sprintf("復活イベントの起動に失敗しました: %v", err))
+				}
+
+				// 生き残りと敗者を集計
+				if revival != nil {
+					// 選択した1名をsurvivorに移行
+					survivor = append(survivor, revival)
+					// 選択した1名を敗者から削除
+					ls, err := shared.RemoveUserFromUsers(losers, 0)
+					if err != nil {
+						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
+					}
+					losers = ls
 				}
 			}
 
@@ -304,32 +317,28 @@ func execRevivalEvent(
 	s *discordgo.Session,
 	entryMessage *discordgo.Message,
 	anotherChannelID string,
-) error {
+	losers []*discordgo.User,
+) (*discordgo.User, error) {
 	if len(losers) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	// 30%の確率でイベントが発生
 	if shared.CustomProbability(3) {
+		var revival *discordgo.User
+
 		// 敗者の中から1名を選択
 		shared.ShuffleDiscordUsers(losers)
-		revival := losers[0]
-
-		// 選択した1名をsurvivorに移行
-		survivor = append(survivor, revival)
-		// 選択した1名を敗者から削除
-		ls, err := shared.RemoveUserFromUsers(losers, 0)
-		if err != nil {
-			return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
-		}
-		losers = ls
+		revival = losers[0]
 
 		time.Sleep(7 * time.Second)
 		// メッセージ送信
 		if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
-			return errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))
+			return nil, errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))
 		}
+
+		return revival, nil
 	}
 
-	return nil
+	return nil, nil
 }
