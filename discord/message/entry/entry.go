@@ -9,7 +9,7 @@ import (
 
 // 別チャンネルの指定がなかった場合のテンプレートです
 var noAnotherChannelTemplate = `
-⚔️ Battle Royale ⚔️
+ねだるな！勝ち取れ🔥🔥
 
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
