@@ -79,6 +79,7 @@ func GetRandomSoloTmpl() string {
 func GetRandomRevivalTmpl(user *discordgo.User) string {
 	var tmpl = []string{
 		fmt.Sprintf("⚰️｜** %s ** は穢土転生により復活した。", user.Username),
+		fmt.Sprintf("⚰️｜** %s ** は往復ビンタで叩き起こされた。復活。", user.Username),
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
