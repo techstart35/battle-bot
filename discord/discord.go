@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	Command     = "b"
-	StopCommand = "stopb"
+	Command        = "b"
+	StopCommand    = "stopb"
+	ProcessCommand = "processb"
 )
 
 // Discordでメッセージを送信します
@@ -35,6 +36,7 @@ func SendDiscord() {
 	//イベントハンドラを追加
 	session.AddHandler(BattleHandler)
 	session.AddHandler(StopHandler)
+	session.AddHandler(ProcessHandler)
 
 	if err := session.Open(); err != nil {
 		log.Printf(fmt.Sprintf("discordを開けません: %v", err))
@@ -146,6 +148,26 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if err := message.SendSimpleEmbedMessage(
 		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",
+	); err != nil {
+		log.Println(err)
+	}
+}
+
+// 停止処理を実行します
+func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	cmd := m.Content
+	if cmd != ProcessCommand {
+		return
+	}
+
+	msg := make([]string, 0)
+
+	for k, v := range shared.IsProcessing {
+		msg = append(msg, fmt.Sprintf("ChannelID: %s, Status: %v", k, v))
+	}
+
+	if err := message.SendSimpleEmbedMessage(
+		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"),
 	); err != nil {
 		log.Println(err)
 	}
