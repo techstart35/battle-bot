@@ -166,6 +166,10 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg = append(msg, fmt.Sprintf("ChannelID: %s, Status: %v", k, v))
 	}
 
+	if len(msg) == 0 {
+		msg = append(msg, "実行中のプロセスはありません")
+	}
+
 	if err := message.SendSimpleEmbedMessage(
 		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"),
 	); err != nil {
