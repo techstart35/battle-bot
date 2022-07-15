@@ -24,6 +24,7 @@ func SendDiscord() {
 	session.AddHandler(handler.BattleHandler)
 	session.AddHandler(handler.StopHandler)
 	session.AddHandler(handler.ProcessHandler)
+	session.AddHandler(handler.RejectStartHandler)
 
 	if err := session.Open(); err != nil {
 		log.Printf(fmt.Sprintf("discordを開けません: %v", err))

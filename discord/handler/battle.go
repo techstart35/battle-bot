@@ -13,13 +13,22 @@ import (
 	"time"
 )
 
-// battleを実行します
+// Battleを実行します
 func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	input := strings.Split(m.Content, " ")
 	cmd := input[0]
 
 	if cmd != Command {
 		return
+	}
+
+	// 新規の起動が停止されているかを確認します
+	if shared.IsStartRejected {
+		if err := message.SendSimpleEmbedMessage(
+			s, m.ChannelID, "Info", "メンテナンスのため、botの起動を一時停止しております。数分後に再度お試しください。",
+		); err != nil {
+			log.Println(err)
+		}
 	}
 
 	var anotherChannelID string
