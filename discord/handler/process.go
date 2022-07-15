@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// 停止処理を実行します
+// 起動中のプロせセスを確認します
 func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := m.Content
 	if cmd != ProcessCommand {
