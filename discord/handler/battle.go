@@ -29,6 +29,8 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		); err != nil {
 			log.Println(err)
 		}
+
+		return
 	}
 
 	var anotherChannelID string
