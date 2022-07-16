@@ -51,10 +51,10 @@ func GetRandomBattleTmpl(winner, loser string) string {
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にきゅうりで殴られ死亡。", loser, winner),
 		fmt.Sprintf("⚔️｜👑**%s** は写輪眼を開眼。 💀**%s** は幻術にかけられた。", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は北斗百烈拳で 💀**%s** を倒した。ほあたぁ!!", winner, loser),
-		fmt.Sprintf("⚔️｜南斗水鳥拳伝承者の 👑**%s** は奥義 飛翔白麗で 💀**%s** を倒した", winner, loser),
+		fmt.Sprintf("⚔️｜南斗水鳥拳伝承者の 👑**%s** は奥義 飛翔白麗で 💀**%s** を倒した。", winner, loser),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** に秘孔つかれてあべ死。", loser, winner),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の筋肉バスターで気絶。", loser, winner),
-		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の投げたじゃがいもに当たって死亡🥔", loser, winner),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の投げたじゃがいもに当たって死亡。", loser, winner),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を魔封波で封印！", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をちくわソードで成敗🗡", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をセクシーランジェリーで悩殺💋", winner, loser),
@@ -77,9 +77,8 @@ func GetRandomSoloTmpl() string {
 		"☀️｜**%s** は食べ物を求めて釣りに出かけたが、何も釣れなかった。",
 		"☀️｜**%s** は鹿の狩猟に成功しました。",
 		"☀️｜**%s** はお尻をポリポリかいている。なんて呑気な。",
-		"☀️｜**%s** は花の匂いを嗅ぐために立ち止まりました。",
-		"☀️｜**%s** は図書館を逆立ちで歩いている",
-		"☀️｜**%s** は1日1万回感謝の正拳突きをし、ついに音を置き去りにした。",
+		"☀️｜**%s** は立ち止まって花の匂いを嗅いでいる。",
+		"☀️｜**%s** は図書館を逆立ちで歩いている。",
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
