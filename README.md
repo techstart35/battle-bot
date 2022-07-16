@@ -6,7 +6,7 @@ Rumble loyalの日本語ver.を想定して作成しています。
 
 ## bot名
 
-Battle Loyale
+Battle Royale
 
 ## Bot管理コンパネ
 
