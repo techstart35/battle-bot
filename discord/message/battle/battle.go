@@ -20,8 +20,8 @@ var BattleMessageTemplate = `
 `
 
 const (
-	BaseStageNum = 8
-	NextStageNum = 15
+	BaseStageNum = 10
+	NextStageNum = 18
 )
 
 // バトルメッセージを送信します
@@ -189,7 +189,7 @@ func BattleMessageHandler(
 		}
 
 		if len(survivor) > 1 {
-			time.Sleep(18 * time.Second)
+			time.Sleep(17 * time.Second)
 		}
 	}
 }
