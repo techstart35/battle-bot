@@ -69,7 +69,7 @@ func GetRandomBattleTmpl(winner, loser string) string {
 func GetRandomSoloTmpl() string {
 	var tmpl = []string{
 		"☀️｜天気が良かったので、 **%s** はお散歩に出かけた。",
-		"☀️｜**%s** はナンパにことごとく失敗している。",
+		"☀️｜**%s** はようやくナンパに成功した。",
 		"☀️｜**%s** はキャンプを楽しんでいる。",
 		"☀️｜**%s** はバナナの皮をポイ捨てした。誰か引っかかるかな🍌",
 		"☀️｜**%s** は豆の収穫をしている。ﾀﾉｼｲ!!",

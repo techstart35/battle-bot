@@ -274,11 +274,27 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 			return res, nil
 		}
 
-		num := soloBattle
+		num := soloNoBattle
 
 		// 2つ取得可能な場合のみ、ランダムで取得する
 		if nextUsersIndex+1 != len(stage) {
-			num = shared.RandInt(soloBattle, soloNoBattle+1)
+			tmpWaitList := []int{
+				// soloNoBattle: 40%
+				soloNoBattle,
+				soloNoBattle,
+				soloNoBattle,
+				soloNoBattle,
+				// battle: 40%
+				battle,
+				battle,
+				battle,
+				battle,
+				// soloBattle: 20%
+				soloBattle,
+				soloBattle,
+			}
+
+			num = tmpWaitList[shared.RandInt(1, 11)-1]
 		}
 
 		// 必ずWinnerを設定するため、最初の2名は必ずバトルとする
