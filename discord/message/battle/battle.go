@@ -279,6 +279,9 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		// 2つ取得可能な場合のみ、ランダムで取得する
 		if nextUsersIndex+1 != len(stage) {
 			tmpWaitList := []int{
+				// soloBattle: 20%
+				soloBattle,
+				soloBattle,
 				// soloNoBattle: 40%
 				soloNoBattle,
 				soloNoBattle,
@@ -289,9 +292,6 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 				battle,
 				battle,
 				battle,
-				// soloBattle: 20%
-				soloBattle,
-				soloBattle,
 			}
 
 			num = tmpWaitList[shared.RandInt(1, 11)-1]
