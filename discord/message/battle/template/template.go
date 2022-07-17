@@ -25,7 +25,6 @@ func GetRandomSoloBattleTmpl() string {
 		"💥｜**%s** は飛んでいったカツラを追いかけて退場。",
 		"💥｜**%s** は白シャツにカレーを飛ばして戦意喪失。",
 		"💥｜**%s** は賞味期限切れの生卵を食す。腹を壊した。",
-		"💥｜**%s** はカンガルーのドロップキックで死",
 		"💥｜**%s** は快速特急に乗ってしまい下車するはずの駅で降りられず。脱落。",
 		"💥｜**%s** はランブルの勝ち方を解明すべくアマゾンの奥地へ向かった。",
 		"💥｜**%s** は木登りをしていたが、足を滑らせ滑落。",
@@ -60,6 +59,7 @@ func GetRandomBattleTmpl(winner, loser string) string {
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をセクシーランジェリーで悩殺💋", winner, loser),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にウンコを投げつけられて気絶。", loser, winner),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** の鼻の穴に致死量の小豆を詰めた🫘", winner, loser),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** のドロップキックで即死。", loser, winner),
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
