@@ -294,7 +294,10 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 				battle,
 			}
 
-			num = tmpWaitList[shared.RandInt(1, 11)-1]
+			// ランダムにするため、スライスをシャッフル
+			wl := shared.ShuffleInt(tmpWaitList)
+
+			num = wl[shared.RandInt(1, 11)-1]
 		}
 
 		// 必ずWinnerを設定するため、最初の2名は必ずバトルとする
