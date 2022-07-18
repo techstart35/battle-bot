@@ -26,3 +26,11 @@ func ShuffleDiscordUsers(slice []*discordgo.User) {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
 }
+
+// intのスライスをシャッフルします
+func ShuffleInt(slice []int) []int {
+	s := slice
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+	return s
+}
