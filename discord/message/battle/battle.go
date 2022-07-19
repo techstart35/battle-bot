@@ -288,7 +288,6 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		soloNoBattle = iota + 1 // 3
 	)
 
-	seedCount := 0
 	for {
 		// キャンセル指示を確認
 		if !shared.IsProcessing[entryMessage.ChannelID] {
@@ -300,11 +299,11 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		// 2つ取得可能な場合のみ、ランダムで取得する
 		if nextUsersIndex+1 != len(stage) {
 			tmpWaitList := []int{
-				// soloBattle: 20%
+				// soloBattle: 30%
 				soloBattle,
 				soloBattle,
-				// soloNoBattle: 40%
-				soloNoBattle,
+				soloBattle,
+				// soloNoBattle: 30%
 				soloNoBattle,
 				soloNoBattle,
 				soloNoBattle,
@@ -316,8 +315,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 			}
 
 			// ランダムにするため、スライスをシャッフル
-			wl := shared.ShuffleInt(tmpWaitList, seedCount)
-			seedCount++
+			wl := shared.ShuffleInt(tmpWaitList, nextUsersIndex)
 
 			num = wl[shared.RandInt(1, 11)-1]
 		}
@@ -394,8 +392,8 @@ func execRevivalEvent(
 		return nil, nil
 	}
 
-	// 10%の確率でイベントが発生
-	if shared.CustomProbability(1) {
+	// 20%の確率でイベントが発生
+	if shared.CustomProbability(2) {
 		var revival *discordgo.User
 
 		// 敗者の中から1名を選択
