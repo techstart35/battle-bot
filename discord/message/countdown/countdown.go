@@ -13,7 +13,7 @@ var entryChannelTemplate = `
 
 ⚔️-対戦
 💥-自滅
-☀️-対戦なし
+☀️-敗者なし
 
 Are You Ready?🔥🔥
 
@@ -28,7 +28,7 @@ var noAnotherChannelTemplate = `
 
 ⚔️-対戦
 💥-自滅
-☀️-対戦なし
+☀️-敗者なし
 
 Are You Ready?🔥🔥
 `
@@ -39,7 +39,7 @@ var anotherChannelTemplate = `
 
 ⚔️-対戦
 💥-自滅
-☀️-対戦なし
+☀️-敗者なし
 
 Are You Ready?🔥🔥
 
