@@ -21,7 +21,7 @@ func SendRevivalMessage(
 	}
 
 	embedInfo := &discordgo.MessageEmbed{
-		Title:       "敗者復活🔥",
+		Title:       "敗者復活",
 		Description: template.GetRandomRevivalTmpl(user),
 		Color:       0xff69b4,
 	}

@@ -59,7 +59,7 @@ func BattleMessageHandler(
 			return nil
 		}
 
-		shared.ShuffleDiscordUsers(survivor)
+		survivor = shared.ShuffleDiscordUsers(survivor)
 
 		survivorLen := len(survivor)
 		switch {
@@ -154,6 +154,26 @@ func BattleMessageHandler(
 
 			// カウントUP
 			round++
+
+			// 復活イベントを作成
+			if len(survivor) > 1 && len(losers) >= 1 {
+				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
+				if err != nil {
+					return errors.New(fmt.Sprintf("復活イベントの起動に失敗しました: %v", err))
+				}
+
+				// 生き残りと敗者を集計
+				if revival != nil {
+					// 選択した1名をsurvivorに移行
+					survivor = append(survivor, revival)
+					// 選択した1名を敗者から削除
+					ls, err := shared.RemoveUserFromUsers(losers, 0)
+					if err != nil {
+						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
+					}
+					losers = ls
+				}
+			}
 
 		case 60 <= survivorLen: // 60以上の場合は、次の基準値をステージングして対戦
 			var stage []*discordgo.User
@@ -268,6 +288,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		soloNoBattle = iota + 1 // 3
 	)
 
+	seedCount := 0
 	for {
 		// キャンセル指示を確認
 		if !shared.IsProcessing[entryMessage.ChannelID] {
@@ -295,7 +316,8 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 			}
 
 			// ランダムにするため、スライスをシャッフル
-			wl := shared.ShuffleInt(tmpWaitList)
+			wl := shared.ShuffleInt(tmpWaitList, seedCount)
+			seedCount++
 
 			num = wl[shared.RandInt(1, 11)-1]
 		}
@@ -372,15 +394,15 @@ func execRevivalEvent(
 		return nil, nil
 	}
 
-	// 30%の確率でイベントが発生
-	if shared.CustomProbability(3) {
+	// 10%の確率でイベントが発生
+	if shared.CustomProbability(1) {
 		var revival *discordgo.User
 
 		// 敗者の中から1名を選択
-		shared.ShuffleDiscordUsers(losers)
+		losers = shared.ShuffleDiscordUsers(losers)
 		revival = losers[0]
 
-		time.Sleep(7 * time.Second)
+		time.Sleep(3 * time.Second)
 		// メッセージ送信
 		if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
 			return nil, errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))
