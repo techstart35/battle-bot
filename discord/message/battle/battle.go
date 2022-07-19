@@ -300,17 +300,17 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		if nextUsersIndex+1 != len(stage) {
 			tmpWaitList := []int{
 				// soloBattle: 30%
-				soloBattle,
-				soloBattle,
-				soloBattle,
 				// soloNoBattle: 30%
-				soloNoBattle,
-				soloNoBattle,
-				soloNoBattle,
 				// battle: 40%
+				soloBattle,
+				soloNoBattle,
 				battle,
+				soloBattle,
 				battle,
+				soloNoBattle,
 				battle,
+				soloBattle,
+				soloNoBattle,
 				battle,
 			}
 
