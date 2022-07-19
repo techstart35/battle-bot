@@ -65,7 +65,7 @@ func BattleMessageHandler(
 		switch {
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case survivorLen == 1:
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			if err := winner.SendWinnerMessage(s, entryMessage, survivor[0], anotherChannelID); err != nil {
 				return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
 			}
