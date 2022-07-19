@@ -20,8 +20,8 @@ var BattleMessageTemplate = `
 `
 
 const (
-	BaseStageNum = 10
-	NextStageNum = 18
+	BaseStageNum = 12
+	NextStageNum = 20
 )
 
 // バトルメッセージを送信します
