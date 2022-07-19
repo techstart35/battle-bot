@@ -392,8 +392,8 @@ func execRevivalEvent(
 		return nil, nil
 	}
 
-	// 10%の確率でイベントが発生
-	if shared.CustomProbability(1) {
+	// 20%の確率でイベントが発生
+	if shared.CustomProbability(2) {
 		var revival *discordgo.User
 
 		// 敗者の中から1名を選択
