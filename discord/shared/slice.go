@@ -22,15 +22,17 @@ func RemoveUserFromUsers(s []*discordgo.User, i int) ([]*discordgo.User, error) 
 }
 
 // スライスの中身ををシャッフルします
-func ShuffleDiscordUsers(slice []*discordgo.User) {
+func ShuffleDiscordUsers(slice []*discordgo.User) []*discordgo.User {
+	s := slice
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(slice), func(i, j int) { slice[i], slice[j] = slice[j], slice[i] })
+	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+	return s
 }
 
 // intのスライスをシャッフルします
-func ShuffleInt(slice []int) []int {
+func ShuffleInt(slice []int, seed int) []int {
 	s := slice
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(int64(seed))
 	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
 	return s
 }
