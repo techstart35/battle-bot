@@ -341,7 +341,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 			w := stage[nextUsersIndex]
 			l := stage[nextUsersIndex+1]
 
-			line := template.GetRandomBattleTmpl(w.Username, l.Username)
+			line := template.GetRandomBattleTmpl(w.Username, l.Username, nextUsersIndex)
 
 			lines = append(lines, line)
 			ws = append(ws, w)
@@ -351,7 +351,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 		case soloNoBattle:
 			w := stage[nextUsersIndex]
 			line := fmt.Sprintf(
-				template.GetRandomSoloTmpl(),
+				template.GetRandomSoloTmpl(nextUsersIndex),
 				w.Username,
 			)
 
