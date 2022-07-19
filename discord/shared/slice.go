@@ -36,3 +36,11 @@ func ShuffleInt(slice []int, seed int) []int {
 	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
 	return s
 }
+
+// stringのスライスをシャッフルします
+func ShuffleString(slice []string, seed int) []string {
+	s := slice
+	rand.Seed(int64(seed))
+	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+	return s
+}

@@ -21,7 +21,7 @@ func GetRandomSoloBattleTmpl() string {
 		"💥｜**%s** は盗んだバイクで走り出したが事故。",
 		"💥｜**%s** は夏の暑さで溶けてしまった🫠",
 		"💥｜**%s** は冬の寒さで凍ってしまった🥶",
-		"💥｜**%s** は嫁から鬼電、即帰宅💨",
+		"💥｜**%s** は嫁から鬼電、即帰宅。",
 		"💥｜**%s** は飛んでいったカツラを追いかけて退場。",
 		"💥｜**%s** は白シャツにカレーを飛ばして戦意喪失。",
 		"💥｜**%s** は賞味期限切れの生卵を食す。腹を壊した。",
@@ -29,13 +29,18 @@ func GetRandomSoloBattleTmpl() string {
 		"💥｜**%s** はランブルの勝ち方を解明すべくアマゾンの奥地へ向かった。",
 		"💥｜**%s** は木登りをしていたが、足を滑らせ滑落。",
 		"💥｜**%s** はつま先立ちで歩いていたため、足の指を骨折。",
+		"💥｜**%s** は車に轢かれそうな子供を助けて代わりに事故死。",
+		"💥｜**%s** は神隠しにあった。",
+		"💥｜**%s** は料理中に指を切って出血死。",
+		"💥｜**%s** はつまづいて頭蓋骨粉砕。",
+		"💥｜**%s** はあつあつのおでんを食べてショック死。",
 	}
 
 	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // バトルギミックのテンプレートをランダムに取得します
-func GetRandomBattleTmpl(winner, loser string) string {
+func GetRandomBattleTmpl(winner, loser string, seed int) string {
 	var tmpl = []string{
 		fmt.Sprintf("⚔️｜👑**%s** は念能力を取得。百式観音を発動し 💀**%s** を駆逐した。", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をブロッコリーで殴った🥦", winner, loser),
@@ -57,16 +62,25 @@ func GetRandomBattleTmpl(winner, loser string) string {
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を魔封波で封印！", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をちくわソードで成敗🗡", winner, loser),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** をセクシーランジェリーで悩殺💋", winner, loser),
-		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にウンコを投げつけられて気絶。", loser, winner),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にウ◯コを投げつけられて気絶。", loser, winner),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** の鼻の穴に致死量の小豆を詰めた🫘", winner, loser),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** のドロップキックで即死。", loser, winner),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にパンツを被せられて窒息死。", loser, winner),
+		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を日本刀で一刀両断。", winner, loser),
+		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** にサボテンを投げつけて殺害。", winner, loser),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にデスノートに名前を書かれて心臓麻痺。", loser, winner),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の美しさに魅了され、敗けを認めた。", loser, winner),
+		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を熱湯風呂に落とした。", winner, loser),
 	}
 
-	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
+	// スライスをシャッフルする
+	s := shared.ShuffleString(tmpl, seed)
+
+	return s[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // ソロプレイ（無駄アクション）のテンプレートをランダムに取得します。
-func GetRandomSoloTmpl() string {
+func GetRandomSoloTmpl(seed int) string {
 	var tmpl = []string{
 		"☀️｜天気が良かったので、 **%s** はお散歩に出かけた。",
 		"☀️｜**%s** はようやくナンパに成功した。",
@@ -79,9 +93,29 @@ func GetRandomSoloTmpl() string {
 		"☀️｜**%s** はお尻をポリポリかいている。なんて呑気な。",
 		"☀️｜**%s** は立ち止まって花の匂いを嗅いでいる。",
 		"☀️｜**%s** は図書館を逆立ちで歩いている。",
+		"☀️｜**%s** はバイト代、日給1万円を受け取った。",
+		"☀️｜**%s** はパズルの最後の1ピースが見つからなくて困っている。",
+		"☀️｜**%s** の転職先はOpenSeaに決まった。",
+		"☀️｜**%s** は3億円を拾った。...どうする？",
+		"☀️｜**%s** は旅行の計画を立てている。どこに行きたい？",
+		"☀️｜**%s** は時間を止める能力を手に入れた。",
+		"☀️｜**%s** のあだ名は今日から「特攻隊長」だ。",
+		"☀️｜**%s** のあだ名は今日から「ダーウィン」だ。",
+		"☀️｜**%s** のあだ名は今日から「財閥」だ。",
+		"☀️｜**%s** のあだ名は今日から「破壊神」だ。",
+		"☀️｜**%s** のあだ名は今日から「マザー」だ。",
+		"☀️｜**%s** のあだ名は今日から「ダイナマイト」だ。",
+		"☀️｜**%s** は今回のバトルに勝てない。かもしれない。",
+		"☀️｜**%s** はゲーセンで大量のメダルをゲットした。",
+		"☀️｜**%s** は今時のプリクラが盛れすぎてびっくりしている。",
+		"☀️｜**%s** は通勤ラッシュの時間帯にPASMOがはじかれた。",
+		"☀️｜**%s** は新刊だと思って漫画を買ったが、すでに持っていた。",
 	}
 
-	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
+	// スライスをシャッフルする
+	s := shared.ShuffleString(tmpl, seed)
+
+	return s[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // 復活のテンプレートをランダムに取得します
