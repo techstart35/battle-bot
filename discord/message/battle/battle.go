@@ -314,8 +314,9 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 				battle,
 			}
 
-			// ランダムにするため、スライスをシャッフル
+			// ランダムにするため、スライスを2回シャッフル
 			wl := shared.ShuffleInt(tmpWaitList, nextUsersIndex)
+			wl = shared.ShuffleInt(wl, len(ls))
 
 			num = wl[shared.RandInt(1, 11)-1]
 		}
@@ -393,7 +394,8 @@ func execRevivalEvent(
 	}
 
 	// 20%の確率でイベントが発生
-	if shared.CustomProbability(2) {
+	// seedは敗者数を設定。変更可。
+	if shared.CustomProbability(2, len(losers)) {
 		var revival *discordgo.User
 
 		// 敗者の中から1名を選択
