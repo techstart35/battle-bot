@@ -54,7 +54,10 @@ func SendStartMessage(
 		challengers = append(challengers, v.Username)
 	}
 
-	userStr := strings.Join(challengers, ", ")
+	userStr := "100名を超えたため省略"
+	if len(challengers) < 100 {
+		userStr = strings.Join(challengers, ", ")
+	}
 
 	p := 1 / float64(len(challengers)) * 100
 	probability := math.Round(p*10) / 10
