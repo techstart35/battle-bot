@@ -9,8 +9,6 @@ import (
 
 // 別チャンネルの指定がなかった場合のテンプレートです
 var noAnotherChannelTemplate = `
-ねだるな！勝ち取れ🔥🔥
-
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
 ⚡️エントリー：以下の⚔️にリアクション
@@ -19,8 +17,6 @@ var noAnotherChannelTemplate = `
 
 // 別チャンネルの指定があった場合のテンプレートです
 var withAnotherChannelTemplate = `
-ねだるな！勝ち取れ🔥🔥
-
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
 ⚡️エントリー：以下の⚔️にリアクション
