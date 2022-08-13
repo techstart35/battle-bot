@@ -1,8 +1,6 @@
 package shared
 
 import (
-	"errors"
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"os"
 )
@@ -30,7 +28,7 @@ func GetReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*disc
 
 		us, err := s.MessageReactions(entryMsg.ChannelID, entryMsg.ID, "⚔️", 100, "", afterID)
 		if err != nil {
-			return users, errors.New(fmt.Sprintf("リアクションをしたユーザーを取得できません: %v", err))
+			return users, CreateErr("リアクションを取得できません", err)
 		}
 
 		if len(us) == 0 || len(us) == 1 && us[0].Username == botName {

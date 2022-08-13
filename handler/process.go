@@ -3,9 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/message"
 	"github.com/techstart35/battle-bot/shared"
-	"log"
 	"strings"
 )
 
@@ -26,9 +24,10 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg = append(msg, "実行中のプロセスはありません")
 	}
 
-	if err := message.SendSimpleEmbedMessage(
+	if err := shared.SendSimpleEmbedMessage(
 		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"),
 	); err != nil {
-		log.Println(err)
+		shared.SendErr(s, "実行中のプロセスメッセージを送信できません", m.GuildID, m.ChannelID, err)
+		return
 	}
 }

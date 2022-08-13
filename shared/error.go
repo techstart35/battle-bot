@@ -3,7 +3,6 @@ package shared
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/message"
 	"log"
 )
 
@@ -28,7 +27,7 @@ func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
 `
 	m := fmt.Sprintf(sendErrTmpl, guildID, channelID, msg, err.Error())
 
-	if err := message.SendSimpleEmbedMessage(s, "1003130506881277952", "", m); err != nil {
+	if err := SendSimpleEmbedMessage(s, "1003130506881277952", "", m); err != nil {
 		panic("エラーメッセージを送信できません")
 	}
 }
