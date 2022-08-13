@@ -12,10 +12,13 @@ import (
 )
 
 // Battleを実行します
+//
+// 1: b
+// 2: b <#channelID>
 func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	input := strings.Split(m.Content, " ")
-	cmd := input[0]
 
+	cmd := input[0]
 	if cmd != shared.Command().Start {
 		return
 	}
