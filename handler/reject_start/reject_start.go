@@ -1,4 +1,4 @@
-package handler
+package reject_start
 
 import (
 	"github.com/bwmarrin/discordgo"

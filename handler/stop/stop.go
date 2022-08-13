@@ -1,4 +1,4 @@
-package handler
+package stop
 
 import (
 	"github.com/bwmarrin/discordgo"
