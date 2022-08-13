@@ -12,7 +12,7 @@ import (
 // sharedのIsStartRejectedをtrueに変更します。
 func RejectStartHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := m.Content
-	if cmd != RejectStartCommand {
+	if cmd != shared.Command().RejectStart {
 		return
 	}
 

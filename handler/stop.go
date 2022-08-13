@@ -10,7 +10,7 @@ import (
 // 停止処理を実行します
 func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := m.Content
-	if cmd != StopCommand {
+	if cmd != shared.Command().Stop {
 		return
 	}
 

@@ -18,7 +18,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	input := strings.Split(m.Content, " ")
 	cmd := input[0]
 
-	if cmd != Command {
+	if cmd != shared.Command().Start {
 		return
 	}
 

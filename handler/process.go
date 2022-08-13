@@ -12,7 +12,7 @@ import (
 // 起動中のプロせセスを確認します
 func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := m.Content
-	if cmd != ProcessCommand {
+	if cmd != shared.Command().Process {
 		return
 	}
 

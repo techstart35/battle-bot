@@ -53,10 +53,7 @@ func StartDiscordGame() {
 	}
 
 	//イベントハンドラを追加
-	session.AddHandler(handler.BattleHandler)
-	session.AddHandler(handler.StopHandler)
-	session.AddHandler(handler.ProcessHandler)
-	session.AddHandler(handler.RejectStartHandler)
+	session.AddHandler(handler.TextHandler)
 
 	if err = session.Open(); err != nil {
 		shared.SendErr(
