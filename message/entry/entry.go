@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/shared"
 )
 
 // 別チャンネルの指定がなかった場合のテンプレートです

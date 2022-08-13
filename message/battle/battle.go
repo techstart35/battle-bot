@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message/battle/template"
-	"github.com/techstart35/battle-bot/discord/message/noentry"
-	"github.com/techstart35/battle-bot/discord/message/winner"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/message/battle/template"
+	"github.com/techstart35/battle-bot/message/noentry"
+	"github.com/techstart35/battle-bot/message/winner"
+	shared2 "github.com/techstart35/battle-bot/shared"
 	"strings"
 	"time"
 )
@@ -32,7 +32,7 @@ func BattleMessageHandler(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if !shared2.IsProcessing[entryMessage.ChannelID] {
 		return nil
 	}
 
@@ -55,11 +55,11 @@ func BattleMessageHandler(
 	round := 1
 	for {
 		// キャンセル指示を確認
-		if !shared.IsProcessing[entryMessage.ChannelID] {
+		if !shared2.IsProcessing[entryMessage.ChannelID] {
 			return nil
 		}
 
-		survivor = shared.ShuffleDiscordUsers(survivor)
+		survivor = shared2.ShuffleDiscordUsers(survivor)
 
 		survivorLen := len(survivor)
 		switch {
@@ -114,7 +114,7 @@ func BattleMessageHandler(
 					// 選択した1名をsurvivorに移行
 					survivor = append(survivor, revival)
 					// 選択した1名を敗者から削除
-					ls, err := shared.RemoveUserFromUsers(losers, 0)
+					ls, err := shared2.RemoveUserFromUsers(losers, 0)
 					if err != nil {
 						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
 					}
@@ -167,7 +167,7 @@ func BattleMessageHandler(
 					// 選択した1名をsurvivorに移行
 					survivor = append(survivor, revival)
 					// 選択した1名を敗者から削除
-					ls, err := shared.RemoveUserFromUsers(losers, 0)
+					ls, err := shared2.RemoveUserFromUsers(losers, 0)
 					if err != nil {
 						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
 					}
@@ -223,7 +223,7 @@ func sendBattleMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if !shared2.IsProcessing[entryMessage.ChannelID] {
 		return nil
 	}
 
@@ -266,7 +266,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 	var res CreateBattleLinesRes
 
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if !shared2.IsProcessing[entryMessage.ChannelID] {
 		return res, nil
 	}
 
@@ -290,7 +290,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 
 	for {
 		// キャンセル指示を確認
-		if !shared.IsProcessing[entryMessage.ChannelID] {
+		if !shared2.IsProcessing[entryMessage.ChannelID] {
 			return res, nil
 		}
 
@@ -315,10 +315,10 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 			}
 
 			// ランダムにするため、スライスを2回シャッフル
-			wl := shared.ShuffleInt(tmpWaitList, nextUsersIndex)
-			wl = shared.ShuffleInt(wl, len(ls))
+			wl := shared2.ShuffleInt(tmpWaitList, nextUsersIndex)
+			wl = shared2.ShuffleInt(wl, len(ls))
 
-			num = wl[shared.RandInt(1, 11)-1]
+			num = wl[shared2.RandInt(1, 11)-1]
 		}
 
 		// 必ずWinnerを設定するため、最初の2名は必ずバトルとする
@@ -385,7 +385,7 @@ func execRevivalEvent(
 	losers []*discordgo.User,
 ) (*discordgo.User, error) {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if !shared2.IsProcessing[entryMessage.ChannelID] {
 		return nil, nil
 	}
 
@@ -395,11 +395,11 @@ func execRevivalEvent(
 
 	// 20%の確率でイベントが発生
 	// seedは敗者数を設定。変更可。
-	if shared.CustomProbability(2, len(losers)) {
+	if shared2.CustomProbability(2, len(losers)) {
 		var revival *discordgo.User
 
 		// 敗者の中から1名を選択
-		losers = shared.ShuffleDiscordUsers(losers)
+		losers = shared2.ShuffleDiscordUsers(losers)
 		revival = losers[0]
 
 		time.Sleep(3 * time.Second)

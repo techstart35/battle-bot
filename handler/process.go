@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/message"
+	"github.com/techstart35/battle-bot/shared"
 	"log"
 	"strings"
 )

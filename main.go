@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
-	"github.com/techstart35/battle-bot/discord/handler"
+	"github.com/techstart35/battle-bot/handler"
+	"github.com/techstart35/battle-bot/shared"
 	"log"
 	"os"
 	"os/signal"
@@ -41,7 +42,14 @@ func StartDiscordGame() {
 	session, err := discordgo.New(Token)
 	session.Token = Token
 	if err != nil {
-		log.Printf(fmt.Sprintf("discordのクライアントを作成できません: %v", err))
+		shared.SendErr(
+			session,
+			"discordのクライアントを作成できません",
+			"none",
+			"none",
+			err,
+		)
+		return
 	}
 
 	//イベントハンドラを追加
@@ -50,15 +58,29 @@ func StartDiscordGame() {
 	session.AddHandler(handler.ProcessHandler)
 	session.AddHandler(handler.RejectStartHandler)
 
-	if err := session.Open(); err != nil {
-		log.Printf(fmt.Sprintf("discordを開けません: %v", err))
+	if err = session.Open(); err != nil {
+		shared.SendErr(
+			session,
+			"discordを開けません",
+			"none",
+			"none",
+			err,
+		)
+		return
 	}
 
 	// 直近の関数（main）の最後に実行される
 	defer func() {
-		if err := session.Close(); err != nil {
-			log.Printf(fmt.Sprintf("discordののクライアントを閉じれません: %v", err))
+		if err = session.Close(); err != nil {
+			shared.SendErr(
+				session,
+				"discordのクライアントを閉じれません",
+				"none",
+				"none",
+				err,
+			)
 		}
+		return
 	}()
 
 	stopBot := make(chan os.Signal, 1)

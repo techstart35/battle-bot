@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message/battle/template"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/message/battle/template"
+	"github.com/techstart35/battle-bot/shared"
 )
 
 // 復活メッセージを送信します
