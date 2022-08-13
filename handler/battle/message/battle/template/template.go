@@ -3,7 +3,7 @@ package template
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	shared2 "github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared"
 )
 
 // ソロバトルギミックのテンプレートをランダムに取得します
@@ -37,7 +37,7 @@ func GetRandomSoloBattleTmpl() string {
 		"💥｜**%s** は奥さんに送るはずのLINEを同僚に誤爆し、戦いどころではない。",
 	}
 
-	return tmpl[shared2.RandInt(1, len(tmpl)+1)-1]
+	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // バトルギミックのテンプレートをランダムに取得します
@@ -75,9 +75,9 @@ func GetRandomBattleTmpl(winner, loser string, seed int) string {
 	}
 
 	// スライスをシャッフルする
-	s := shared2.ShuffleString(tmpl, seed)
+	s := shared.ShuffleString(tmpl, seed)
 
-	return s[shared2.RandInt(1, len(tmpl)+1)-1]
+	return s[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // ソロプレイ（無駄アクション）のテンプレートをランダムに取得します。
@@ -114,9 +114,9 @@ func GetRandomSoloTmpl(seed int) string {
 	}
 
 	// スライスをシャッフルする
-	s := shared2.ShuffleString(tmpl, seed)
+	s := shared.ShuffleString(tmpl, seed)
 
-	return s[shared2.RandInt(1, len(tmpl)+1)-1]
+	return s[shared.RandInt(1, len(tmpl)+1)-1]
 }
 
 // 復活のテンプレートをランダムに取得します
@@ -127,5 +127,5 @@ func GetRandomRevivalTmpl(user *discordgo.User) string {
 		fmt.Sprintf("⚰️｜** %s ** は神によって蘇生させられた。", user.Username),
 	}
 
-	return tmpl[shared2.RandInt(1, len(tmpl)+1)-1]
+	return tmpl[shared.RandInt(1, len(tmpl)+1)-1]
 }
