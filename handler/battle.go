@@ -2,10 +2,10 @@ package handler
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/message/battle"
-	"github.com/techstart35/battle-bot/message/countdown"
-	"github.com/techstart35/battle-bot/message/entry"
-	"github.com/techstart35/battle-bot/message/start"
+	"github.com/techstart35/battle-bot/handler/message/battle"
+	"github.com/techstart35/battle-bot/handler/message/countdown"
+	"github.com/techstart35/battle-bot/handler/message/entry"
+	"github.com/techstart35/battle-bot/handler/message/start"
 	"github.com/techstart35/battle-bot/shared"
 	"strings"
 	"time"

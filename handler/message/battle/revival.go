@@ -2,7 +2,7 @@ package battle
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/message/battle/template"
+	"github.com/techstart35/battle-bot/handler/message/battle/template"
 	"github.com/techstart35/battle-bot/shared"
 )
 
