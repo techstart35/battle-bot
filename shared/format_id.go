@@ -11,3 +11,10 @@ func FormatMentionByUserID(userID string) string {
 func FormatChannelIDToLink(channelID string) string {
 	return fmt.Sprintf("<#%s>", channelID)
 }
+
+// チャンネルリンクを作成します
+func CreateChannelURL(guildID, channelID string) string {
+	base := "https://discord.com/channels/%s/%s"
+
+	return fmt.Sprintf(base, guildID, channelID)
+}
