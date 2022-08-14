@@ -18,10 +18,9 @@ func CreateErr(msg string, err error) error {
 
 // エラーをTestチャンネルに送付します
 func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
-	guildName := guildID
-
-	if name, ok := GuildName[guildID]; ok {
-		guildName = name
+	guildName, e := GetGuildName(s, guildID)
+	if e != nil {
+		log.Println("ギルドIDを取得できません", e)
 	}
 
 	var sendErrTmpl = `
