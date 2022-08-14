@@ -103,7 +103,7 @@ func BattleMessageHandler(
 			round++
 
 			// 復活イベントを作成
-			if len(survivor) > 1 && len(losers) >= 1 {
+			if len(survivor) > 2 && len(losers) >= 1 {
 				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
 					return shared.CreateErr("復活イベントの起動に失敗しました", err)
@@ -156,7 +156,7 @@ func BattleMessageHandler(
 			round++
 
 			// 復活イベントを作成
-			if len(survivor) > 1 && len(losers) >= 1 {
+			if len(survivor) > 2 && len(losers) >= 1 {
 				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
 					return shared.CreateErr("復活イベントの起動に失敗しました", err)
