@@ -32,7 +32,7 @@ func BattleMessageHandler(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.ChannelID) {
+	if shared.IsCanceled(entryMessage.GuildID) {
 		return nil
 	}
 
@@ -55,7 +55,7 @@ func BattleMessageHandler(
 	round := 1
 	for {
 		// キャンセル指示を確認
-		if shared.IsCanceled(entryMessage.ChannelID) {
+		if shared.IsCanceled(entryMessage.GuildID) {
 			return nil
 		}
 
@@ -223,7 +223,7 @@ func sendBattleMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.ChannelID) {
+	if shared.IsCanceled(entryMessage.GuildID) {
 		return nil
 	}
 
@@ -266,7 +266,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 	var res CreateBattleLinesRes
 
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.ChannelID) {
+	if shared.IsCanceled(entryMessage.GuildID) {
 		return res, nil
 	}
 
@@ -290,7 +290,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 
 	for {
 		// キャンセル指示を確認
-		if shared.IsCanceled(entryMessage.ChannelID) {
+		if shared.IsCanceled(entryMessage.GuildID) {
 			return res, nil
 		}
 
@@ -385,7 +385,7 @@ func execRevivalEvent(
 	losers []*discordgo.User,
 ) (*discordgo.User, error) {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.ChannelID) {
+	if shared.IsCanceled(entryMessage.GuildID) {
 		return nil, nil
 	}
 

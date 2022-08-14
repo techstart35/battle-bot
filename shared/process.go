@@ -10,33 +10,33 @@ import (
 var process = sync.Map{}
 
 // プロセスを新規追加します
-func SetNewProcess(channelID string) {
-	process.Store(channelID, true)
+func SetNewProcess(guildID string) {
+	process.Store(guildID, true)
 }
 
 // プロセスをキャンセルします
-func CancelProcess(channelID string) {
-	if value, ok := process.Load(channelID); ok {
+func CancelProcess(guildID string) {
+	if value, ok := process.Load(guildID); ok {
 		// すでにキャンセルされている場合はfalseを返す
 		if value == false {
 			return
 		}
 
-		process.Store(channelID, false)
+		process.Store(guildID, false)
 	}
 }
 
 // プロセスを削除します
-func DeleteProcess(channelID string) {
-	process.Delete(channelID)
+func DeleteProcess(guildID string) {
+	process.Delete(guildID)
 }
 
 // プロセスの一覧を取得します
 func GetProcess() map[string]bool {
 	res := map[string]bool{}
 
-	process.Range(func(key interface{}, value interface{}) bool {
-		res[key.(string)] = value.(bool)
+	process.Range(func(guildID interface{}, ok interface{}) bool {
+		res[guildID.(string)] = ok.(bool)
 		return true
 	})
 
@@ -44,8 +44,8 @@ func GetProcess() map[string]bool {
 }
 
 // キャンセルされているかを確認します
-func IsCanceled(channelID string) bool {
-	if value, ok := process.Load(channelID); ok {
+func IsCanceled(guildID string) bool {
+	if value, ok := process.Load(guildID); ok {
 		if value == true {
 			return false
 		} else {
@@ -57,8 +57,8 @@ func IsCanceled(channelID string) bool {
 }
 
 // プロセスが起動中か確認します
-func IsProcessing(channelID string) bool {
-	if _, ok := process.Load(channelID); ok {
+func IsProcessing(guildID string) bool {
+	if _, ok := process.Load(guildID); ok {
 		return true
 	}
 

@@ -31,7 +31,7 @@ func SendEntryMessage(
 	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
-	if shared.IsCanceled(m.ChannelID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil, nil
 	}
 

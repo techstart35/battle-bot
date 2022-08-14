@@ -39,7 +39,7 @@ func SendStartMessage(
 	anotherChannelID string,
 ) ([]*discordgo.User, error) {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMsg.ChannelID) {
+	if shared.IsCanceled(entryMsg.GuildID) {
 		return nil, nil
 	}
 
