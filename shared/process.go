@@ -58,6 +58,15 @@ func IsCanceled(guildID string) bool {
 
 // プロセスが起動中か確認します
 func IsProcessing(guildID string) bool {
+	if value, ok := process.Load(guildID); ok {
+		return value.(bool)
+	}
+
+	return false
+}
+
+// プロセスが存在しているか確認します
+func IsProcessExists(guildID string) bool {
 	if _, ok := process.Load(guildID); ok {
 		return true
 	}

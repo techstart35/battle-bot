@@ -14,7 +14,7 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if !shared.IsProcessing(m.GuildID) {
 		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルはありません",
+			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルがない、もしくはキャンセル済みとなっています。",
 		); err != nil {
 			shared.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return

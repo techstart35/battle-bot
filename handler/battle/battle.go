@@ -19,6 +19,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	input := strings.Split(m.Content, " ")
 
 	cmd := input[0]
+	// コマンドが一致するか確認します
 	if cmd != shared.Command().Start {
 		return
 	}
@@ -26,7 +27,19 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// 新規の起動が停止されているかを確認します
 	if shared.IsStartRejected {
 		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "Info", "メンテナンスのため、botの起動を一時停止しております。数分後に再度お試しください。",
+			s, m.ChannelID, "INFO", "メンテナンスのため、botの起動を一時停止しております。数分後に再度お試しください。",
+		); err != nil {
+			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
+			return
+		}
+
+		return
+	}
+
+	// すでに起動しているbattleを確認します
+	if shared.IsProcessExists(m.GuildID) {
+		if err := shared.SendSimpleEmbedMessage(
+			s, m.ChannelID, "INFO", "このサーバーで起動しているbattleが存在します。キャンセル済みの場合は反映までお待ちください。",
 		); err != nil {
 			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
