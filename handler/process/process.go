@@ -35,7 +35,7 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if err := shared.SendSimpleEmbedMessage(
-		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"),
+		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"), 0,
 	); err != nil {
 		shared.SendErr(s, "実行中のプロセスメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return

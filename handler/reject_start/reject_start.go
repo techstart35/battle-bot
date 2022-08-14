@@ -17,7 +17,7 @@ func RejectStartHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	shared.IsStartRejected = true
 
 	if err := shared.SendSimpleEmbedMessage(
-		s, m.ChannelID, "新規起動の停止", "新規起動を停止しました。",
+		s, m.ChannelID, "新規起動の停止", "新規起動を停止しました。", 0,
 	); err != nil {
 		shared.SendErr(s, "新規起動の停止メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return

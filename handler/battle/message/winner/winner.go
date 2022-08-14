@@ -33,7 +33,7 @@ func SendWinnerMessage(
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
 		Description: fmt.Sprintf(entryChannelTemplate, winner.ID),
-		Color:       0xff0000,
+		Color:       shared.ColorRed,
 	}
 
 	// エントリーチャンネルにメッセージを送信
@@ -61,7 +61,7 @@ func SendWinnerMessage(
 		ei := &discordgo.MessageEmbed{
 			Title:       "👑 Winner 👑",
 			Description: fmt.Sprintf(anotherChannelTemplate, winner.ID),
-			Color:       0xff0000,
+			Color:       shared.ColorRed,
 		}
 
 		msg, err := s.ChannelMessageSendEmbed(anotherChannelID, ei)

@@ -55,11 +55,11 @@ func SendCountDownMessage(
 	var color int
 	switch beforeStart {
 	case 60:
-		color = 0x0099ff
+		color = shared.ColorBlue
 	case 30:
-		color = 0x3cb371
+		color = shared.ColorGreen
 	case 10:
-		color = 0xffd700
+		color = shared.ColorYellow
 	}
 
 	// 別チャンネルが無い場合を想定
