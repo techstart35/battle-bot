@@ -24,7 +24,7 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []str
 **実行コマンド**
 %s
 
-**開始日時**
+**開始時刻**
 %s
 `
 
@@ -46,10 +46,15 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 	}
 
 	var template = `
-サーバー名: %s
+**サーバー名**
+%s
+
+**停止時間**
+%s
 `
 
-	msg := fmt.Sprintf(template, guildName)
+	now := time.Now().Format("2006-01-02 15:04:05")
+	msg := fmt.Sprintf(template, guildName, now)
 	if err := SendSimpleEmbedMessage(s, AdminChannelID, "停止コマンド通知", msg); err != nil {
 		return CreateErr("停止コマンド実行通知メッセージを送信できません", err)
 	}
