@@ -5,11 +5,16 @@ import (
 )
 
 // シンプルな埋め込みメッセージを送信します
-func SendSimpleEmbedMessage(s *discordgo.Session, channelID, title, description string) error {
+func SendSimpleEmbedMessage(s *discordgo.Session, channelID, title, description string, color int) error {
+	col := ColorBlack
+	if color != 0 {
+		col = color
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       title,
 		Description: description,
-		Color:       0x000000,
+		Color:       col,
 	}
 
 	_, err := s.ChannelMessageSendEmbed(channelID, embedInfo)

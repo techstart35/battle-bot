@@ -27,7 +27,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// 新規の起動が停止されているかを確認します
 	if shared.IsStartRejected {
 		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "INFO", "メンテナンスのため、botの起動を一時停止しております。数分後に再度お試しください。",
+			s, m.ChannelID, "INFO", "メンテナンスのため、botの起動を一時停止しております。数分後に再度お試しください。", 0,
 		); err != nil {
 			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
@@ -44,7 +44,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 キャンセル済みの場合は反映までお待ちください。
 （最大1分かかります）
 `
-		if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "INFO", msg); err != nil {
+		if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "INFO", msg, 0); err != nil {
 			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
 		}
@@ -61,7 +61,8 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// チャンネルIDが正しいことを検証
 		if _, err := s.Channel(anotherChannelID); err != nil {
-			if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "ERROR", "コマンドが間違っているか、チャンネルの権限が不足しています。"); err != nil {
+			msg := "コマンドが間違っているか、チャンネルの権限が不足しています。"
+			if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "ERROR", msg, 0); err != nil {
 				shared.SendErr(s, "コマンドエラーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 				return
 			}

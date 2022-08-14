@@ -23,7 +23,7 @@ func SendNoEntryMessage(
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
 		Description: template,
-		Color:       0xff0000,
+		Color:       shared.ColorRed,
 	}
 
 	if anotherChannelID != "" {

@@ -38,7 +38,7 @@ func SendEntryMessage(
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),
-		Color:       0x0099ff,
+		Color:       shared.ColorBlue,
 	}
 
 	// 別チャンネルの指定があった場合はテンプレートを差し替え

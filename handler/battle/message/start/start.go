@@ -70,7 +70,7 @@ func SendStartMessage(
 			userStr,
 			probability,
 		),
-		Color: 0xff0000,
+		Color: shared.ColorRed,
 	}
 
 	// 別チャンネルがあった場合

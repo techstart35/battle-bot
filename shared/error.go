@@ -35,7 +35,7 @@ func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
 `
 	m := fmt.Sprintf(sendErrTmpl, guildName, channelID, msg, err.Error())
 
-	if e := SendSimpleEmbedMessage(s, AdminChannelID, "エラーが発生しました", m); err != nil {
+	if e := SendSimpleEmbedMessage(s, AdminChannelID, "エラーが発生しました", m, ColorRed); err != nil {
 		LogErr("エラーメッセージをAdminサーバーに送信できません", e)
 	}
 }

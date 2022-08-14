@@ -30,7 +30,7 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []str
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 	msg := fmt.Sprintf(template, guildName, strings.Join(command, " "), now)
-	if err := SendSimpleEmbedMessage(s, AdminChannelID, "起動通知", msg); err != nil {
+	if err := SendSimpleEmbedMessage(s, AdminChannelID, "起動通知", msg, ColorCyan); err != nil {
 		return CreateErr("起動通知メッセージを送信できません", err)
 	}
 
@@ -55,7 +55,7 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 	msg := fmt.Sprintf(template, guildName, now)
-	if err := SendSimpleEmbedMessage(s, AdminChannelID, "停止コマンド通知", msg); err != nil {
+	if err := SendSimpleEmbedMessage(s, AdminChannelID, "停止コマンド通知", msg, ColorYellow); err != nil {
 		return CreateErr("停止コマンド実行通知メッセージを送信できません", err)
 	}
 
