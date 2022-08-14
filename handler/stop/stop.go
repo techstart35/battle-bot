@@ -33,8 +33,13 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// キャンセル処理を実行
 	shared.CancelProcess(m.GuildID)
 
+	msg := `
+このサーバーで起動されたバトルをキャンセルしました。
+（反映まで最大1分かかります）
+`
+
 	if err := shared.SendSimpleEmbedMessage(
-		s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルをキャンセルしました",
+		s, m.ChannelID, "キャンセル処理の実行", msg,
 	); err != nil {
 		shared.SendErr(s, "キャンセル処理実行メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
