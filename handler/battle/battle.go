@@ -84,15 +84,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(60 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(60, m.GuildID) {
 		return
 	}
 
@@ -102,15 +94,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(30 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(30, m.GuildID) {
 		return
 	}
 
@@ -120,15 +104,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(20 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(20, m.GuildID) {
 		return
 	}
 
@@ -138,15 +114,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(10 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(10, m.GuildID) {
 		return
 	}
 
@@ -157,15 +125,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(10 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(10, m.GuildID) {
 		return
 	}
 
@@ -174,4 +134,19 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		shared.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
+}
+
+// キャンセルされている場合はtrueを返します
+func isCanceledCheckAndSleep(second int, guildID string) bool {
+	if shared.IsCanceled(guildID) {
+		return true
+	}
+
+	time.Sleep(time.Duration(second) * time.Second)
+
+	if shared.IsCanceled(guildID) {
+		return true
+	}
+
+	return false
 }
