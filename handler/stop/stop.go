@@ -1,35 +1,35 @@
-package handler
+package stop
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message"
-	"github.com/techstart35/battle-bot/discord/shared"
-	"log"
+	"github.com/techstart35/battle-bot/shared"
 )
 
 // 停止処理を実行します
 func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := m.Content
-	if cmd != StopCommand {
+	if cmd != shared.Command().Stop {
 		return
 	}
 
-	if _, ok := shared.IsProcessing[m.ChannelID]; !ok {
-		if err := message.SendSimpleEmbedMessage(
+	if !shared.IsProcessing(m.ChannelID) {
+		if err := shared.SendSimpleEmbedMessage(
 			s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルはありません",
 		); err != nil {
-			log.Println(err)
+			shared.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
+			return
 		}
 
 		return
 	}
 
 	// チャンネル一覧から削除
-	delete(shared.IsProcessing, m.ChannelID)
+	shared.ProcessDelete(m.ChannelID)
 
-	if err := message.SendSimpleEmbedMessage(
+	if err := shared.SendSimpleEmbedMessage(
 		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",
 	); err != nil {
-		log.Println(err)
+		shared.SendErr(s, "キャンセル処理実行メッセージを送信できません", m.GuildID, m.ChannelID, err)
+		return
 	}
 }

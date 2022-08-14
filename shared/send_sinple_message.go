@@ -1,8 +1,6 @@
-package message
+package shared
 
 import (
-	"errors"
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -16,7 +14,7 @@ func SendSimpleEmbedMessage(s *discordgo.Session, channelID, title, description 
 
 	_, err := s.ChannelMessageSendEmbed(channelID, embedInfo)
 	if err != nil {
-		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		return CreateErr("メッセージの送信に失敗しました", err)
 	}
 
 	return nil

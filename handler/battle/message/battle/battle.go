@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/message/battle/template"
-	"github.com/techstart35/battle-bot/discord/message/noentry"
-	"github.com/techstart35/battle-bot/discord/message/winner"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/handler/battle/message/battle/template"
+	"github.com/techstart35/battle-bot/handler/battle/message/noentry"
+	"github.com/techstart35/battle-bot/handler/battle/message/winner"
+	"github.com/techstart35/battle-bot/shared"
 	"strings"
 	"time"
 )
@@ -32,7 +32,7 @@ func BattleMessageHandler(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if shared.IsCanceled(entryMessage.ChannelID) {
 		return nil
 	}
 
@@ -44,7 +44,7 @@ func BattleMessageHandler(
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
 		if err := noentry.SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
-			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+			return shared.CreateErr("メッセージの送信に失敗しました", err)
 		}
 
 		return nil
@@ -55,7 +55,7 @@ func BattleMessageHandler(
 	round := 1
 	for {
 		// キャンセル指示を確認
-		if !shared.IsProcessing[entryMessage.ChannelID] {
+		if shared.IsCanceled(entryMessage.ChannelID) {
 			return nil
 		}
 
@@ -67,7 +67,7 @@ func BattleMessageHandler(
 		case survivorLen == 1:
 			time.Sleep(2 * time.Second)
 			if err := winner.SendWinnerMessage(s, entryMessage, survivor[0], anotherChannelID); err != nil {
-				return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+				return shared.CreateErr("メッセージの送信に失敗しました", err)
 			}
 
 			return nil
@@ -80,7 +80,7 @@ func BattleMessageHandler(
 			// バトルメッセージを作成
 			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
-				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの送信に失敗しました", err)
 			}
 
 			// 生き残りと敗者を集計
@@ -96,7 +96,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			if err := sendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの送信に失敗しました", err)
 			}
 
 			// カウントUP
@@ -106,7 +106,7 @@ func BattleMessageHandler(
 			if len(survivor) > 1 && len(losers) >= 1 {
 				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
-					return errors.New(fmt.Sprintf("復活イベントの起動に失敗しました: %v", err))
+					return shared.CreateErr("復活イベントの起動に失敗しました", err)
 				}
 
 				// 生き残りと敗者を集計
@@ -116,7 +116,7 @@ func BattleMessageHandler(
 					// 選択した1名を敗者から削除
 					ls, err := shared.RemoveUserFromUsers(losers, 0)
 					if err != nil {
-						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
+						return shared.CreateErr("勝者の削除に失敗しました", err)
 					}
 					losers = ls
 				}
@@ -129,7 +129,7 @@ func BattleMessageHandler(
 
 			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
-				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの作成に失敗しました", err)
 			}
 
 			// 生き残りと敗者を集計
@@ -149,7 +149,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			if err := sendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの送信に失敗しました", err)
 			}
 
 			// カウントUP
@@ -159,7 +159,7 @@ func BattleMessageHandler(
 			if len(survivor) > 1 && len(losers) >= 1 {
 				revival, err := execRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
-					return errors.New(fmt.Sprintf("復活イベントの起動に失敗しました: %v", err))
+					return shared.CreateErr("復活イベントの起動に失敗しました", err)
 				}
 
 				// 生き残りと敗者を集計
@@ -169,7 +169,7 @@ func BattleMessageHandler(
 					// 選択した1名を敗者から削除
 					ls, err := shared.RemoveUserFromUsers(losers, 0)
 					if err != nil {
-						return errors.New(fmt.Sprintf("敗者の削除に失敗しました: %v", err))
+						return shared.CreateErr("敗者の削除に失敗しました", err)
 					}
 					losers = ls
 				}
@@ -181,7 +181,7 @@ func BattleMessageHandler(
 
 			res, err := createBattleMessage(entryMessage, stage)
 			if err != nil {
-				return errors.New(fmt.Sprintf("バトルメッセージの作成に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの作成に失敗しました", err)
 			}
 
 			// 生き残りと敗者を集計
@@ -201,7 +201,7 @@ func BattleMessageHandler(
 
 			// メッセージ送信
 			if err := sendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
-				return errors.New(fmt.Sprintf("Battleメッセージの送信に失敗しました: %v", err))
+				return shared.CreateErr("バトルメッセージの送信に失敗しました", err)
 			}
 
 			// カウントUP
@@ -223,7 +223,7 @@ func sendBattleMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if shared.IsCanceled(entryMessage.ChannelID) {
 		return nil
 	}
 
@@ -236,13 +236,13 @@ func sendBattleMessage(
 	if anotherChannelID != "" {
 		_, err := s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+			return shared.CreateErr("メッセージの送信に失敗しました", err)
 		}
 	}
 
 	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
-		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		return shared.CreateErr("メッセージの送信に失敗しました", err)
 	}
 
 	return nil
@@ -266,7 +266,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 	var res CreateBattleLinesRes
 
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if shared.IsCanceled(entryMessage.ChannelID) {
 		return res, nil
 	}
 
@@ -290,7 +290,7 @@ func createBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 
 	for {
 		// キャンセル指示を確認
-		if !shared.IsProcessing[entryMessage.ChannelID] {
+		if shared.IsCanceled(entryMessage.ChannelID) {
 			return res, nil
 		}
 
@@ -385,7 +385,7 @@ func execRevivalEvent(
 	losers []*discordgo.User,
 ) (*discordgo.User, error) {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if shared.IsCanceled(entryMessage.ChannelID) {
 		return nil, nil
 	}
 
@@ -405,7 +405,7 @@ func execRevivalEvent(
 		time.Sleep(3 * time.Second)
 		// メッセージ送信
 		if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
-			return nil, errors.New(fmt.Sprintf("復活メッセージの送信に失敗しました: %v", err))
+			return nil, shared.CreateErr("復活メッセージの送信に失敗しました", err)
 		}
 
 		return revival, nil

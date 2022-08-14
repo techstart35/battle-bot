@@ -1,10 +1,9 @@
 package countdown
 
 import (
-	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/discord/shared"
+	"github.com/techstart35/battle-bot/shared"
 )
 
 // エントリーチャンネルに送信するカウントダウンメッセージです
@@ -14,8 +13,6 @@ var entryChannelTemplate = `
 ⚔️-対戦
 💥-自滅
 ☀️-敗者なし
-
-Are You Ready?🔥🔥
 
 <#%s> でも配信中 💬
 `
@@ -29,8 +26,6 @@ var noAnotherChannelTemplate = `
 ⚔️-対戦
 💥-自滅
 ☀️-敗者なし
-
-Are You Ready?🔥🔥
 `
 
 // 別チャンネルに送信するカウントダウンメッセージです
@@ -40,8 +35,6 @@ var anotherChannelTemplate = `
 ⚔️-対戦
 💥-自滅
 ☀️-敗者なし
-
-Are You Ready?🔥🔥
 
 ▼エントリーはこちら
 <#%s>
@@ -55,7 +48,7 @@ func SendCountDownMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMsg.ChannelID] {
+	if shared.IsCanceled(entryMsg.ChannelID) {
 		return nil
 	}
 
@@ -90,7 +83,7 @@ func SendCountDownMessage(
 
 		_, err := s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 		if err != nil {
-			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+			return shared.CreateErr("メッセージの送信に失敗しました", err)
 		}
 
 		// 別チャンネルに送信
@@ -102,7 +95,7 @@ func SendCountDownMessage(
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+			return shared.CreateErr("メッセージの送信に失敗しました", err)
 		}
 
 		return nil
@@ -110,7 +103,7 @@ func SendCountDownMessage(
 
 	_, err := s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 	if err != nil {
-		return errors.New(fmt.Sprintf("メッセージの送信に失敗しました: %v", err))
+		return shared.CreateErr("メッセージの送信に失敗しました", err)
 	}
 
 	return nil
