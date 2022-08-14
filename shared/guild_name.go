@@ -1,5 +1,21 @@
 package shared
 
+import "github.com/bwmarrin/discordgo"
+
+// ギルドIDからギルド名を取得します
+func GetGuildName(s *discordgo.Session, guildID string) (string, error) {
+	guildName := ""
+	guild, err := s.Guild(guildID)
+	if err != nil {
+		return "", CreateErr("ギルドを取得できません", err)
+	}
+	if guild != nil {
+		guildName = guild.Name
+	}
+
+	return guildName, nil
+}
+
 // ギルドIDとギルド名をマッピングします
 var GuildName = map[string]string{
 	"984614055681613864":  "TEST SERVER",

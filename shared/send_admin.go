@@ -11,9 +11,9 @@ const AdminChannelID = "1003130506881277952"
 
 // 開始時に自分のサーバーにメッセージを送信します
 func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, command []string) error {
-	guildName := guildID
-	if name, ok := GuildName[guildID]; ok {
-		guildName = name
+	guildName, err := GetGuildName(s, guildID)
+	if err != nil {
+		return CreateErr("ギルドを取得できません", err)
 	}
 
 	var template = `
@@ -33,7 +33,7 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 		Timestamp:   now,
 	}
 
-	_, err := s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
 	if err != nil {
 		return CreateErr("起動通知メッセージを送信できません", err)
 	}
@@ -43,10 +43,9 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 
 // 停止コマンド実行時に自分のサーバーにメッセージを送信します
 func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
-	guildName := guildID
-
-	if name, ok := GuildName[guildID]; ok {
-		guildName = name
+	guildName, err := GetGuildName(s, guildID)
+	if err != nil {
+		return CreateErr("ギルドを取得できません", err)
 	}
 
 	var template = `
@@ -63,7 +62,7 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 		Timestamp:   now,
 	}
 
-	_, err := s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
 	if err != nil {
 		return CreateErr("起動通知メッセージを送信できません", err)
 	}
