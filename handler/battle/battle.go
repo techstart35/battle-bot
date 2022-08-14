@@ -57,12 +57,19 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// チャンネルIDが正しいことを検証
 		if _, err := s.Channel(anotherChannelID); err != nil {
-			if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "ERROR", "コマンドが正しくありません"); err != nil {
+			if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "ERROR", "コマンドが間違っているか、チャンネルの権限が不足しています。"); err != nil {
 				shared.SendErr(s, "コマンドエラーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 				return
 			}
 			return
 		}
+	}
+
+	// Adminサーバーに起動メッセージを送信します
+	//
+	// Notice: ここでエラーが発生しても処理は継続させます
+	if err := shared.SendStartMessageToAdmin(s, m.GuildID, input); err != nil {
+		shared.SendErr(s, "起動通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 	}
 
 	// チャンネル一覧に追加

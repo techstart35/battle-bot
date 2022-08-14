@@ -14,13 +14,20 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if !shared.IsProcessing(m.GuildID) {
 		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルがない、もしくはキャンセル済みとなっています。",
+			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルが無いか、キャンセル済みとなっています。",
 		); err != nil {
 			shared.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
 		}
 
 		return
+	}
+
+	// Adminサーバーに停止処理実行メッセージを送信します
+	//
+	// Notice: ここでエラーが発生しても処理は継続させます
+	if err := shared.SendStopMessageToAdmin(s, m.GuildID); err != nil {
+		shared.SendErr(s, "停止通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 	}
 
 	// キャンセル処理を実行
