@@ -28,4 +28,5 @@ var GuildName = map[string]string{
 	"994017569654702100":  "HyggePlus",
 	"983938567577423883":  "👻STARING GHOST CREW👻",
 	"986276630601281566":  "X SOLDIERS BASE",
+	"993168520550551582":  "Gamer Dogs Circle",
 }
