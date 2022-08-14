@@ -17,9 +17,9 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 	}
 
 	var template = `
-**⚔️｜サーバー名**：%s
-**🔗｜起動チャンネル**：%s
-**✅｜実行コマンド**：%s
+⚔️｜サーバー名：**%s**
+🔗｜起動チャンネル：%s
+✅｜実行コマンド：%s
 `
 
 	channelLink := FormatChannelIDToLink(channelID)
