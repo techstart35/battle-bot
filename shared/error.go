@@ -26,8 +26,11 @@ func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
 
 	var sendErrTmpl = `
 ギルド名: %s
+
 チャンネルID: %s
+
 メッセージ: %s
+
 継承したエラー: %s
 `
 	m := fmt.Sprintf(sendErrTmpl, guildName, channelID, msg, err.Error())

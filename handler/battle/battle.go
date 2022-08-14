@@ -38,9 +38,13 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// すでに起動しているbattleを確認します
 	if shared.IsProcessExists(m.GuildID) {
-		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "INFO", "このサーバーで起動しているbattleが存在します。キャンセル済みの場合は反映までお待ちください。",
-		); err != nil {
+		msg := `
+このサーバーで起動しているbattleが存在します。
+
+キャンセル済みの場合は反映までお待ちください。
+（最大1分かかります）
+`
+		if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "INFO", msg); err != nil {
 			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
 		}
@@ -84,15 +88,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(60 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(60, m.GuildID) {
 		return
 	}
 
@@ -102,15 +98,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(30 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(30, m.GuildID) {
 		return
 	}
 
@@ -120,15 +108,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(20 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(20, m.GuildID) {
 		return
 	}
 
@@ -138,15 +118,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(10 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(10, m.GuildID) {
 		return
 	}
 
@@ -157,15 +129,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
-		return
-	}
-
-	time.Sleep(10 * time.Second)
-
-	// キャンセル処理を確認
-	if shared.IsCanceled(m.GuildID) {
+	if isCanceledCheckAndSleep(10, m.GuildID) {
 		return
 	}
 
@@ -174,4 +138,19 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		shared.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
+}
+
+// キャンセルされている場合はtrueを返します
+func isCanceledCheckAndSleep(second int, guildID string) bool {
+	if shared.IsCanceled(guildID) {
+		return true
+	}
+
+	time.Sleep(time.Duration(second) * time.Second)
+
+	if shared.IsCanceled(guildID) {
+		return true
+	}
+
+	return false
 }

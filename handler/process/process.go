@@ -22,7 +22,12 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			status = "起動中"
 		}
 
-		msg = append(msg, fmt.Sprintf("%s｜ギルドID: %s", status, guildID))
+		guildName := guildID
+		if name, ok := shared.GuildName[guildID]; ok {
+			guildName = name
+		}
+
+		msg = append(msg, fmt.Sprintf("%s｜サーバー名: %s", status, guildName))
 	}
 
 	if len(msg) == 0 {
