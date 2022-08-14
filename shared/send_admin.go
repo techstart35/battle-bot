@@ -57,7 +57,7 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 	msg := fmt.Sprintf(template, guildName)
 
 	embedInfo := &discordgo.MessageEmbed{
-		Title:       "停止コマンド通知",
+		Title:       "停止コマンドが実行されました",
 		Description: msg,
 		Color:       ColorYellow,
 		Timestamp:   now,
