@@ -4,21 +4,39 @@ import (
 	"sync"
 )
 
-// チャンネル一覧です
+// 起動中のプロセスです
 //
-// 一時停止指示が出ていた場合はTrueになります。
+//
 var process = sync.Map{}
 
-func SetProcess(channelID string) {
+// プロセスを新規追加します
+func SetNewProcess(channelID string) {
 	process.Store(channelID, true)
 }
 
+// プロセスをキャンセルします
+func CancelProcess(channelID string) {
+	if value, ok := process.Load(channelID); ok {
+		// すでにキャンセルされている場合はfalseを返す
+		if value == false {
+			return
+		}
+
+		process.Store(channelID, false)
+	}
+}
+
+// プロセスを削除します
+func DeleteProcess(channelID string) {
+	process.Delete(channelID)
+}
+
 // プロセスの一覧を取得します
-func GetProcess() []string {
-	res := make([]string, 0)
+func GetProcess() map[string]bool {
+	res := map[string]bool{}
 
 	process.Range(func(key interface{}, value interface{}) bool {
-		res = append(res, key.(string))
+		res[key.(string)] = value.(bool)
 		return true
 	})
 
@@ -27,11 +45,15 @@ func GetProcess() []string {
 
 // キャンセルされているかを確認します
 func IsCanceled(channelID string) bool {
-	if _, ok := process.Load(channelID); ok {
-		return false
+	if value, ok := process.Load(channelID); ok {
+		if value == true {
+			return false
+		} else {
+			return true
+		}
 	}
 
-	return true
+	return false
 }
 
 // プロセスが起動中か確認します
@@ -41,11 +63,6 @@ func IsProcessing(channelID string) bool {
 	}
 
 	return false
-}
-
-// キャンセルします
-func ProcessDelete(channelID string) {
-	process.Delete(channelID)
 }
 
 // 新規起動を停止するフラグです

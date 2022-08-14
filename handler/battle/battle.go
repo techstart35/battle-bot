@@ -53,7 +53,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// チャンネル一覧に追加
-	shared.SetProcess(m.ChannelID)
+	shared.SetNewProcess(m.ChannelID)
 
 	msg, err := entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
@@ -103,5 +103,5 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// チャンネル一覧から削除
-	shared.ProcessDelete(m.ChannelID)
+	shared.DeleteProcess(m.ChannelID)
 }

@@ -23,8 +23,8 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// チャンネル一覧から削除
-	shared.ProcessDelete(m.ChannelID)
+	// キャンセル処理を実行
+	shared.CancelProcess(m.ChannelID)
 
 	if err := shared.SendSimpleEmbedMessage(
 		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",
