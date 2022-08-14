@@ -18,16 +18,21 @@ func CreateErr(msg string, err error) error {
 
 // エラーをTestチャンネルに送付します
 func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
+	guildName := guildID
+
+	if name, ok := GuildName[guildID]; ok {
+		guildName = name
+	}
+
 	var sendErrTmpl = `
-【エラーが発生しました】
-ギルドID: %s
+ギルド名: %s
 チャンネルID: %s
 メッセージ: %s
 継承したエラー: %s
 `
-	m := fmt.Sprintf(sendErrTmpl, guildID, channelID, msg, err.Error())
+	m := fmt.Sprintf(sendErrTmpl, guildName, channelID, msg, err.Error())
 
-	if err := SendSimpleEmbedMessage(s, "1003130506881277952", "", m); err != nil {
-		panic("エラーメッセージを送信できません")
+	if e := SendSimpleEmbedMessage(s, AdminChannelID, "エラーが発生しました", m); err != nil {
+		LogErr("エラーメッセージをAdminサーバーに送信できません", e)
 	}
 }
