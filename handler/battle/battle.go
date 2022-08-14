@@ -65,6 +65,9 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
+	// チャンネル一覧から削除
+	defer shared.DeleteProcess(m.GuildID)
+
 	// Adminサーバーに起動メッセージを送信します
 	//
 	// Notice: ここでエラーが発生しても処理は継続させます
@@ -81,7 +84,17 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
+
 	time.Sleep(60 * time.Second)
+
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
 
 	// 60秒後（残り60秒）にメッセージを送信
 	if err := countdown.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
@@ -89,7 +102,17 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
+
 	time.Sleep(30 * time.Second)
+
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
 
 	// 残り30秒アナウンス
 	if err := countdown.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
@@ -97,7 +120,17 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
+
 	time.Sleep(20 * time.Second)
+
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
 
 	// 残り10秒アナウンス
 	if err := countdown.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
@@ -105,7 +138,17 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
+
 	time.Sleep(10 * time.Second)
+
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
 
 	// 開始メッセージ
 	usrs, err := start.SendStartMessage(s, msg, anotherChannelID)
@@ -114,14 +157,21 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
+
 	time.Sleep(10 * time.Second)
+
+	// キャンセル処理を確認
+	if shared.IsCanceled(m.GuildID) {
+		return
+	}
 
 	// バトルメッセージ
 	if err := battle.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
 		shared.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
-
-	// チャンネル一覧から削除
-	shared.DeleteProcess(m.GuildID)
 }
