@@ -7,7 +7,7 @@ func FormatMentionByUserID(userID string) string {
 	return fmt.Sprintf("<@%s>", userID)
 }
 
-// ChannelIDをメンションのフォーマットに変換します
-func FormatMentionByChannelID(channelID string) string {
+// ChannelIDをチャンネルリンク(メンション)のフォーマットに変換します
+func FormatChannelIDToLink(channelID string) string {
 	return fmt.Sprintf("<#%s>", channelID)
 }

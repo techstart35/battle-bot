@@ -10,27 +10,31 @@ import (
 const AdminChannelID = "1003130506881277952"
 
 // 開始時に自分のサーバーにメッセージを送信します
-func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []string) error {
+func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, command []string) error {
 	guildName := guildID
 	if name, ok := GuildName[guildID]; ok {
 		guildName = name
 	}
 
 	var template = `
-
-**サーバー名**
-%s
-
-**実行コマンド**
-%s
-
-**開始時刻**
-%s
+**⚔️｜サーバー名**：%s
+**🔗｜起動チャンネル**：%s
+**✅｜実行コマンド**：%s
 `
 
-	now := time.Now().Format("2006-01-02 15:04:05")
-	msg := fmt.Sprintf(template, guildName, strings.Join(command, " "), now)
-	if err := SendSimpleEmbedMessage(s, AdminChannelID, "起動通知", msg, ColorCyan); err != nil {
+	channelLink := FormatChannelIDToLink(channelID)
+	now := time.Now().Format("2006-01-02T15:04:05+09:00")
+	msg := fmt.Sprintf(template, guildName, channelLink, strings.Join(command, " "))
+
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "Battle Royaleが起動されました",
+		Description: msg,
+		Color:       ColorCyan,
+		Timestamp:   now,
+	}
+
+	_, err := s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	if err != nil {
 		return CreateErr("起動通知メッセージを送信できません", err)
 	}
 
@@ -46,17 +50,22 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 	}
 
 	var template = `
-**サーバー名**
-%s
-
-**停止時間**
-%s
+**⚔️｜サーバー名**：%s
 `
 
-	now := time.Now().Format("2006-01-02 15:04:05")
-	msg := fmt.Sprintf(template, guildName, now)
-	if err := SendSimpleEmbedMessage(s, AdminChannelID, "停止コマンド通知", msg, ColorYellow); err != nil {
-		return CreateErr("停止コマンド実行通知メッセージを送信できません", err)
+	now := time.Now().Format("2006-01-02T15:04:05+09:00")
+	msg := fmt.Sprintf(template, guildName)
+
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "停止コマンド通知",
+		Description: msg,
+		Color:       ColorYellow,
+		Timestamp:   now,
+	}
+
+	_, err := s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	if err != nil {
+		return CreateErr("起動通知メッセージを送信できません", err)
 	}
 
 	return nil

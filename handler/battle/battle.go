@@ -76,7 +76,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Adminサーバーに起動メッセージを送信します
 	//
 	// Notice: ここでエラーが発生しても処理は継続させます
-	if err := shared.SendStartMessageToAdmin(s, m.GuildID, input); err != nil {
+	if err := shared.SendStartMessageToAdmin(s, m.GuildID, m.ChannelID, input); err != nil {
 		shared.SendErr(s, "起動通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 	}
 
