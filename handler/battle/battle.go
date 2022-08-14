@@ -38,9 +38,13 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// すでに起動しているbattleを確認します
 	if shared.IsProcessExists(m.GuildID) {
-		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "INFO", "このサーバーで起動しているbattleが存在します。キャンセル済みの場合は反映までお待ちください。",
-		); err != nil {
+		msg := `
+このサーバーで起動しているbattleが存在します。
+
+キャンセル済みの場合は反映までお待ちください。
+（最大1分かかります）
+`
+		if err := shared.SendSimpleEmbedMessage(s, m.ChannelID, "INFO", msg); err != nil {
 			shared.SendErr(s, "RejectStartメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
 		}
