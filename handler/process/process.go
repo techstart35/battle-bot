@@ -16,8 +16,13 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	msg := make([]string, 0)
 
-	for _, cID := range shared.GetProcess() {
-		msg = append(msg, fmt.Sprintf("ChannelID: %s", cID))
+	for guildID, isProcessing := range shared.GetProcess() {
+		status := "キャンセル済"
+		if isProcessing {
+			status = "起動中"
+		}
+
+		msg = append(msg, fmt.Sprintf("%s｜ギルドID: %s", status, guildID))
 	}
 
 	if len(msg) == 0 {

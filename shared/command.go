@@ -28,6 +28,4 @@ func Command() CMD {
 			RejectStart: "rejectstartb",
 		}
 	}
-
-	return CMD{}
 }

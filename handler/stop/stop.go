@@ -12,9 +12,9 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if !shared.IsProcessing(m.ChannelID) {
+	if !shared.IsProcessing(m.GuildID) {
 		if err := shared.SendSimpleEmbedMessage(
-			s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルはありません",
+			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルがない、もしくはキャンセル済みとなっています。",
 		); err != nil {
 			shared.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
@@ -23,11 +23,11 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// チャンネル一覧から削除
-	shared.ProcessDelete(m.ChannelID)
+	// キャンセル処理を実行
+	shared.CancelProcess(m.GuildID)
 
 	if err := shared.SendSimpleEmbedMessage(
-		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",
+		s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルをキャンセルしました",
 	); err != nil {
 		shared.SendErr(s, "キャンセル処理実行メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
