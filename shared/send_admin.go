@@ -10,7 +10,7 @@ import (
 const AdminChannelID = "1003130506881277952"
 
 // 開始時に自分のサーバーにメッセージを送信します
-func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []string) error {
+func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, command []string) error {
 	guildName := guildID
 	if name, ok := GuildName[guildID]; ok {
 		guildName = name
@@ -21,6 +21,9 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []str
 **サーバー名**
 %s
 
+**起動チャンネル**
+%s
+
 **実行コマンド**
 %s
 
@@ -28,8 +31,10 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID string, command []str
 %s
 `
 
+	channelLink := FormatChannelIDToLink(channelID)
 	now := time.Now().Format("2006-01-02 15:04:05")
-	msg := fmt.Sprintf(template, guildName, strings.Join(command, " "), now)
+
+	msg := fmt.Sprintf(template, guildName, channelLink, strings.Join(command, " "), now)
 	if err := SendSimpleEmbedMessage(s, AdminChannelID, "起動通知", msg, ColorCyan); err != nil {
 		return CreateErr("起動通知メッセージを送信できません", err)
 	}
