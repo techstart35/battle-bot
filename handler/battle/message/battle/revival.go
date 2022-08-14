@@ -14,7 +14,7 @@ func SendRevivalMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMessage.ChannelID] {
+	if shared.IsCanceled(entryMessage.ChannelID) {
 		return nil
 	}
 

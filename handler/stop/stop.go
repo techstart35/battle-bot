@@ -12,7 +12,7 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if _, ok := shared.IsProcessing[m.ChannelID]; !ok {
+	if !shared.IsProcessing(m.ChannelID) {
 		if err := shared.SendSimpleEmbedMessage(
 			s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルはありません",
 		); err != nil {
@@ -24,7 +24,7 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// チャンネル一覧から削除
-	delete(shared.IsProcessing, m.ChannelID)
+	shared.ProcessDelete(m.ChannelID)
 
 	if err := shared.SendSimpleEmbedMessage(
 		s, m.ChannelID, "キャンセル処理の実行", "このチャンネルで起動されたバトルをキャンセルしました",

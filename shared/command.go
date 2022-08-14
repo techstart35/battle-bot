@@ -9,13 +9,6 @@ type CMD struct {
 	RejectStart string
 }
 
-//const (
-//	Command            = "b"
-//	StopCommand        = "stopb"
-//	ProcessCommand     = "processb"
-//	RejectStartCommand = "rejectstartb"
-//)
-
 func Command() CMD {
 	env := os.Getenv("ENV")
 
@@ -27,7 +20,7 @@ func Command() CMD {
 			Process:     "!processb",
 			RejectStart: "!rejectstartb",
 		}
-	case "prd":
+	default:
 		return CMD{
 			Start:       "b",
 			Stop:        "stopb",

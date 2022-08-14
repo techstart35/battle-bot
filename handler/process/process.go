@@ -16,8 +16,8 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	msg := make([]string, 0)
 
-	for k, v := range shared.IsProcessing {
-		msg = append(msg, fmt.Sprintf("ChannelID: %s, Status: %v", k, v))
+	for _, cID := range shared.GetProcess() {
+		msg = append(msg, fmt.Sprintf("ChannelID: %s", cID))
 	}
 
 	if len(msg) == 0 {

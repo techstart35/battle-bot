@@ -48,7 +48,7 @@ func SendCountDownMessage(
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if !shared.IsProcessing[entryMsg.ChannelID] {
+	if shared.IsCanceled(entryMsg.ChannelID) {
 		return nil
 	}
 
