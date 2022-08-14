@@ -18,11 +18,11 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 
 	var template = `
 **⚔️｜サーバー名**：%s
-**🔗｜起動チャンネル**：[こちら](%s)
+**🔗｜起動チャンネル**：%s
 **✅｜実行コマンド**：%s
 `
 
-	channelLink := CreateChannelURL(guildID, channelID)
+	channelLink := FormatChannelIDToLink(channelID)
 	now := time.Now().Format("2006-01-02T15:04:05+09:00")
 	msg := fmt.Sprintf(template, guildName, channelLink, strings.Join(command, " "))
 
