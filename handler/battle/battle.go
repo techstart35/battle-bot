@@ -94,7 +94,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// 60秒後（残り60秒）にメッセージを送信
-	if err := countdown.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
+	if err = countdown.SendCountDownMessage(s, msg, 60, anotherChannelID); err != nil {
 		shared.SendErr(s, "60秒前カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
@@ -104,7 +104,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// 残り30秒アナウンス
-	if err := countdown.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
+	if err = countdown.SendCountDownMessage(s, msg, 30, anotherChannelID); err != nil {
 		shared.SendErr(s, "30秒前カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
@@ -114,7 +114,7 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// 残り10秒アナウンス
-	if err := countdown.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
+	if err = countdown.SendCountDownMessage(s, msg, 10, anotherChannelID); err != nil {
 		shared.SendErr(s, "10秒前カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
@@ -135,8 +135,14 @@ func BattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// バトルメッセージ
-	if err := battle.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
+	if err = battle.BattleMessageHandler(s, usrs, msg, anotherChannelID); err != nil {
 		shared.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
+		return
+	}
+
+	// 正常終了のメッセージを送信します
+	if err = shared.SendNormalFinishMessageToAdmin(s, m.GuildID); err != nil {
+		shared.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 }
