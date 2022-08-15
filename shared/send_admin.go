@@ -19,7 +19,7 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 	var template = `
 ⚔️｜サーバー名：**%s**
 🔗｜起動チャンネル：%s
-✅｜実行コマンド：%s
+🚀｜実行コマンド：%s
 `
 
 	channelLink := FormatChannelIDToLink(channelID)
@@ -30,6 +30,35 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 		Title:       "Battle Royaleが起動されました",
 		Description: msg,
 		Color:       ColorCyan,
+		Timestamp:   now,
+	}
+
+	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	if err != nil {
+		return CreateErr("起動通知メッセージを送信できません", err)
+	}
+
+	return nil
+}
+
+// 正常終了時に自分のサーバーにメッセージを送信します
+func SendNormalFinishMessageToAdmin(s *discordgo.Session, guildID string) error {
+	guildName, err := GetGuildName(s, guildID)
+	if err != nil {
+		return CreateErr("ギルドを取得できません", err)
+	}
+
+	var template = `
+✅️️｜サーバー名：**%s**
+`
+
+	now := time.Now().Format("2006-01-02T15:04:05+09:00")
+	msg := fmt.Sprintf(template, guildName)
+
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "正常に終了しました",
+		Description: msg,
+		Color:       ColorBlue,
 		Timestamp:   now,
 	}
 
