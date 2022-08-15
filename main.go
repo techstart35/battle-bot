@@ -5,7 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 	"github.com/techstart35/battle-bot/handler"
-	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/message"
 	"log"
 	"os"
 	"os/signal"
@@ -42,7 +42,7 @@ func StartDiscordGame() {
 	session, err := discordgo.New(Token)
 	session.Token = Token
 	if err != nil {
-		shared.SendErr(
+		message.SendErr(
 			session,
 			"discordのクライアントを作成できません",
 			"none",
@@ -56,7 +56,7 @@ func StartDiscordGame() {
 	session.AddHandler(handler.TextHandler)
 
 	if err = session.Open(); err != nil {
-		shared.SendErr(
+		message.SendErr(
 			session,
 			"discordを開けません",
 			"none",
@@ -69,7 +69,7 @@ func StartDiscordGame() {
 	// 直近の関数（main）の最後に実行される
 	defer func() {
 		if err = session.Close(); err != nil {
-			shared.SendErr(
+			message.SendErr(
 				session,
 				"discordのクライアントを閉じれません",
 				"none",

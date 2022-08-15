@@ -3,6 +3,7 @@ package reject_start
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/message"
 )
 
 // 新規起動を禁止します
@@ -16,10 +17,10 @@ func RejectStartHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	shared.IsStartRejected = true
 
-	if err := shared.SendSimpleEmbedMessage(
+	if err := message.SendSimpleEmbedMessage(
 		s, m.ChannelID, "新規起動の停止", "新規起動を停止しました。", 0,
 	); err != nil {
-		shared.SendErr(s, "新規起動の停止メッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "新規起動の停止メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 }

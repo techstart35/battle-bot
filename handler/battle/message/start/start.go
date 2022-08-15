@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 	"math"
 	"strings"
 )
@@ -45,7 +46,7 @@ func SendStartMessage(
 
 	users, err := shared.GetReactedUsers(s, entryMsg)
 	if err != nil {
-		return nil, shared.CreateErr("リアクションしたユーザーの取得に失敗しました", err)
+		return nil, errors.NewError("リアクションしたユーザーの取得に失敗しました", err)
 	}
 
 	var challengers []string
@@ -86,7 +87,7 @@ func SendStartMessage(
 
 		_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 		if err != nil {
-			return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+			return nil, errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		// 別チャンネルに送信
@@ -99,7 +100,7 @@ func SendStartMessage(
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+			return nil, errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		return users, nil
@@ -107,7 +108,7 @@ func SendStartMessage(
 
 	_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 	if err != nil {
-		return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+		return nil, errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	return users, nil

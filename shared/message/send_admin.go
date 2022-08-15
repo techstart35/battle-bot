@@ -1,8 +1,11 @@
-package shared
+package message
 
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
+	"github.com/techstart35/battle-bot/shared/guild"
 	"strings"
 	"time"
 )
@@ -11,9 +14,9 @@ const AdminChannelID = "1003130506881277952"
 
 // 開始時に自分のサーバーにメッセージを送信します
 func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, command []string) error {
-	guildName, err := GetGuildName(s, guildID)
+	guildName, err := guild.GetGuildName(s, guildID)
 	if err != nil {
-		return CreateErr("ギルドを取得できません", err)
+		return errors.NewError("ギルドを取得できません", err)
 	}
 
 	var template = `
@@ -22,20 +25,20 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 🚀｜実行コマンド：%s
 `
 
-	channelLink := FormatChannelIDToLink(channelID)
+	channelLink := shared.FormatChannelIDToLink(channelID)
 	now := time.Now().Format("2006-01-02T15:04:05+09:00")
 	msg := fmt.Sprintf(template, guildName, channelLink, strings.Join(command, " "))
 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "Battle Royaleが起動されました",
 		Description: msg,
-		Color:       ColorCyan,
+		Color:       shared.ColorCyan,
 		Timestamp:   now,
 	}
 
 	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
 	if err != nil {
-		return CreateErr("起動通知メッセージを送信できません", err)
+		return errors.NewError("起動通知メッセージを送信できません", err)
 	}
 
 	return nil
@@ -43,9 +46,9 @@ func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, co
 
 // 正常終了時に自分のサーバーにメッセージを送信します
 func SendNormalFinishMessageToAdmin(s *discordgo.Session, guildID string) error {
-	guildName, err := GetGuildName(s, guildID)
+	guildName, err := guild.GetGuildName(s, guildID)
 	if err != nil {
-		return CreateErr("ギルドを取得できません", err)
+		return errors.NewError("ギルドを取得できません", err)
 	}
 
 	var template = `
@@ -58,13 +61,13 @@ func SendNormalFinishMessageToAdmin(s *discordgo.Session, guildID string) error 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "正常に終了しました",
 		Description: msg,
-		Color:       ColorBlue,
+		Color:       shared.ColorBlue,
 		Timestamp:   now,
 	}
 
 	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
 	if err != nil {
-		return CreateErr("起動通知メッセージを送信できません", err)
+		return errors.NewError("起動通知メッセージを送信できません", err)
 	}
 
 	return nil
@@ -72,9 +75,9 @@ func SendNormalFinishMessageToAdmin(s *discordgo.Session, guildID string) error 
 
 // 停止コマンド実行時に自分のサーバーにメッセージを送信します
 func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
-	guildName, err := GetGuildName(s, guildID)
+	guildName, err := guild.GetGuildName(s, guildID)
 	if err != nil {
-		return CreateErr("ギルドを取得できません", err)
+		return errors.NewError("ギルドを取得できません", err)
 	}
 
 	var template = `
@@ -87,13 +90,13 @@ func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "停止コマンドが実行されました",
 		Description: msg,
-		Color:       ColorYellow,
+		Color:       shared.ColorYellow,
 		Timestamp:   now,
 	}
 
 	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
 	if err != nil {
-		return CreateErr("起動通知メッセージを送信できません", err)
+		return errors.NewError("起動通知メッセージを送信できません", err)
 	}
 
 	return nil

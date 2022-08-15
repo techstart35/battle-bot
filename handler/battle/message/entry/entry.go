@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 // 別チャンネルの指定がなかった場合のテンプレートです
@@ -52,12 +53,12 @@ func SendEntryMessage(
 
 	msg, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
 	if err != nil {
-		return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+		return nil, errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	// リアクションを付与
 	if err := s.MessageReactionAdd(m.ChannelID, msg.ID, "⚔️"); err != nil {
-		return nil, shared.CreateErr("リアクションを付与できません", err)
+		return nil, errors.NewError("リアクションを付与できません", err)
 	}
 
 	return msg, nil

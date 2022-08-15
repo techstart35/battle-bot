@@ -3,6 +3,7 @@ package stop
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/message"
 )
 
 // 停止処理を実行します
@@ -13,10 +14,10 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if !shared.IsProcessing(m.GuildID) {
-		if err := shared.SendSimpleEmbedMessage(
+		if err := message.SendSimpleEmbedMessage(
 			s, m.ChannelID, "キャンセル処理の実行", "このサーバーで起動されたバトルが無いか、キャンセル済みとなっています。", 0,
 		); err != nil {
-			shared.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
+			message.SendErr(s, "起動されたバトルが無い場合のメッセージを送信できません", m.GuildID, m.ChannelID, err)
 			return
 		}
 
@@ -26,8 +27,8 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Adminサーバーに停止処理実行メッセージを送信します
 	//
 	// Notice: ここでエラーが発生しても処理は継続させます
-	if err := shared.SendStopMessageToAdmin(s, m.GuildID); err != nil {
-		shared.SendErr(s, "停止通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
+	if err := message.SendStopMessageToAdmin(s, m.GuildID); err != nil {
+		message.SendErr(s, "停止通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 	}
 
 	// キャンセル処理を実行
@@ -38,10 +39,10 @@ func StopHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 （反映まで最大1分かかります）
 `
 
-	if err := shared.SendSimpleEmbedMessage(
+	if err := message.SendSimpleEmbedMessage(
 		s, m.ChannelID, "キャンセル処理の実行", msg, 0,
 	); err != nil {
-		shared.SendErr(s, "キャンセル処理実行メッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "キャンセル処理実行メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 }

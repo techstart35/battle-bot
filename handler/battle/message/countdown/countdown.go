@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 // エントリーチャンネルに送信するカウントダウンメッセージです
@@ -83,7 +84,7 @@ func SendCountDownMessage(
 
 		_, err := s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		// 別チャンネルに送信
@@ -95,7 +96,7 @@ func SendCountDownMessage(
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		return nil
@@ -103,7 +104,7 @@ func SendCountDownMessage(
 
 	_, err := s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
 	if err != nil {
-		return shared.CreateErr("メッセージの送信に失敗しました", err)
+		return errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	return nil
