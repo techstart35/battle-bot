@@ -1,9 +1,10 @@
-package premium
+package normal
 
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/handler/battle"
-	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle"
+	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario/normal"
+	"github.com/techstart35/battle-bot/handler/battle/message/countdown"
 	"github.com/techstart35/battle-bot/handler/battle/message/entry"
 	"github.com/techstart35/battle-bot/handler/battle/message/start"
 	"github.com/techstart35/battle-bot/shared"
@@ -13,14 +14,9 @@ import (
 
 // Battleを実行します
 //
-// channelID(#判定) > userID(@判定) > winner(数字判定)
-//
-// 1: pb
-// 2: pb <#channelID>
-// 3: pb <@userID>
-// 4: pb 3w
-// 5: pb <#channelID> <@userID> 3w
-func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+// 1: b
+// 2: b <#channelID>
+func NormalBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	input := strings.Split(m.Content, " ")
 
 	cmd := input[0]
@@ -29,6 +25,7 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// 起動可能な状態か確認します
 	ok, err := battle.CheckBeforeStartAndSendMessage(s, m.GuildID, m.ChannelID)
 	if err != nil {
 		message.SendErr(s, "起動前のチェックができません", m.GuildID, m.ChannelID, err)
@@ -38,11 +35,15 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	args, err := CheckInput(s, input)
+	var anotherChannelID string
+
+	// 引数の確認をします
+	anChID, err := CheckInput(s, m.ChannelID, input)
 	if err != nil {
-		message.SendErr(s, "コマンドが正しくありません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "引数チェックに失敗しました", m.GuildID, m.ChannelID, err)
 		return
 	}
+	anotherChannelID = anChID
 
 	// Adminサーバーに起動メッセージを送信します
 	//
@@ -51,26 +52,29 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message.SendErr(s, "起動通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 	}
 
-	// チャンネル一覧に追加
+	// チャンネル一覧に追加します
 	shared.SetNewProcess(m.GuildID)
 	defer shared.DeleteProcess(m.GuildID)
 
-	// エントリーメッセージ
-	msg, err := entry.SendEntryMessage(s, m, args.AnotherChannelID)
+	// エントリーメッセージを送信します
+	msg, err := entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		message.SendErr(s, "エントリーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
-	// カウントダウンメッセージ
-	ok, err = battle.CountDownScenario(s, msg, args.AnotherChannelID)
+	// カウントダウンメッセージを送信します
+	ok, err = countdown.CountDownScenario(s, msg, anotherChannelID)
 	if err != nil {
 		message.SendErr(s, "カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
+	if !ok {
+		return
+	}
 
-	// 開始メッセージ
-	usrs, err := start.SendStartMessage(s, msg, args.AnotherChannelID)
+	// 開始メッセージを送信します
+	usrs, err := start.SendStartMessage(s, msg, anotherChannelID)
 	if err != nil {
 		message.SendErr(s, "開始メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
@@ -80,13 +84,13 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// バトルメッセージ
-	if err = battleMessage.BattleMessageScenario(s, usrs, msg, args.AnotherChannelID); err != nil {
+	// バトルメッセージを送信します
+	if err = battleMessage.NormalBattleMessageScenario(s, usrs, msg, anotherChannelID); err != nil {
 		message.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
-	// 正常終了のメッセージを送信
+	// 正常終了のメッセージを送信します
 	if err = message.SendNormalFinishMessageToAdmin(s, m.GuildID); err != nil {
 		message.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 		return

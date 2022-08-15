@@ -2,7 +2,6 @@ package battle
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/techstart35/battle-bot/handler/battle/message/countdown"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/message"
@@ -62,44 +61,6 @@ func CheckBeforeStartAndSendMessage(
 			return false, errors.NewError("RejectStartメッセージを送信できません")
 		}
 
-		return false, nil
-	}
-
-	return true, nil
-}
-
-// カウントダウンのシナリオです
-//
-// キャンセルされている場合はfalseを返します。
-func CountDownScenario(s *discordgo.Session, m *discordgo.Message, anotherChannelID string) (bool, error) {
-	if IsCanceledCheckAndSleep(60, m.GuildID) {
-		return false, nil
-	}
-
-	// 60秒後（残り60秒）にメッセージを送信
-	if err := countdown.SendCountDownMessage(s, m, 60, anotherChannelID); err != nil {
-		return false, errors.NewError("60秒前カウントダウンメッセージを送信できません", err)
-	}
-
-	if IsCanceledCheckAndSleep(30, m.GuildID) {
-		return false, nil
-	}
-
-	// 残り30秒アナウンス
-	if err := countdown.SendCountDownMessage(s, m, 30, anotherChannelID); err != nil {
-		return false, errors.NewError("30秒前カウントダウンメッセージを送信できません", err)
-	}
-
-	if IsCanceledCheckAndSleep(20, m.GuildID) {
-		return false, nil
-	}
-
-	// 残り10秒アナウンス
-	if err := countdown.SendCountDownMessage(s, m, 10, anotherChannelID); err != nil {
-		return false, errors.NewError("10秒前カウントダウンメッセージを送信できません", err)
-	}
-
-	if IsCanceledCheckAndSleep(10, m.GuildID) {
 		return false, nil
 	}
 

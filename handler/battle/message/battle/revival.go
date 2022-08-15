@@ -5,7 +5,46 @@ import (
 	"github.com/techstart35/battle-bot/handler/battle/message/battle/template"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
+	"github.com/techstart35/battle-bot/shared/util"
+	"time"
 )
+
+// 復活イベントを起動
+func ExecRevivalEvent(
+	s *discordgo.Session,
+	entryMessage *discordgo.Message,
+	anotherChannelID string,
+	losers []*discordgo.User,
+) (*discordgo.User, error) {
+	// キャンセル指示を確認
+	if shared.IsCanceled(entryMessage.GuildID) {
+		return nil, nil
+	}
+
+	if len(losers) == 0 {
+		return nil, nil
+	}
+
+	// 20%の確率でイベントが発生
+	// seedは敗者数を設定。変更可。
+	if util.CustomProbability(2, len(losers)) {
+		var revival *discordgo.User
+
+		// 敗者の中から1名を選択
+		losers = util.ShuffleDiscordUsers(losers)
+		revival = losers[0]
+
+		time.Sleep(3 * time.Second)
+		// メッセージ送信
+		if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
+			return nil, errors.NewError("復活メッセージの送信に失敗しました", err)
+		}
+
+		return revival, nil
+	}
+
+	return nil, nil
+}
 
 // 復活メッセージを送信します
 func SendRevivalMessage(
