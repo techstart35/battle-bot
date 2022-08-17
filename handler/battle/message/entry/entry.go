@@ -27,15 +27,13 @@ var withAnotherChannelTemplate = `
 // エントリーメッセージを送信します
 //
 // 起動元のチャンネルのみに送信します。
+//
+// この関数ではキャンセル処理の確認を行いません。
 func SendEntryMessage(
 	s *discordgo.Session,
 	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
-	if shared.IsCanceled(m.GuildID) {
-		return nil, nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),

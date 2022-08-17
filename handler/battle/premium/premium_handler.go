@@ -3,12 +3,14 @@ package premium
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/handler/battle"
-	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario/normal"
+	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario"
 	"github.com/techstart35/battle-bot/handler/battle/message/countdown"
 	"github.com/techstart35/battle-bot/handler/battle/message/entry"
 	"github.com/techstart35/battle-bot/handler/battle/message/start"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/message"
+	"strconv"
 	"strings"
 )
 
@@ -57,14 +59,14 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	defer shared.DeleteProcess(m.GuildID)
 
 	// エントリーメッセージ
-	msg, err := entry.SendEntryMessage(s, m, args.AnotherChannelID)
+	_, err = entry.SendEntryMessage(s, m, args.AnotherChannelID)
 	if err != nil {
 		message.SendErr(s, "エントリーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
 	// カウントダウンメッセージ
-	ok, err = countdown.CountDownScenario(s, msg, args.AnotherChannelID)
+	err = countdown.CountDownScenario(s, m, args.AnotherChannelID)
 	if err != nil {
 		message.SendErr(s, "カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
@@ -74,7 +76,7 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// 開始メッセージ
-	usrs, err := start.SendStartMessage(s, msg, args.AnotherChannelID)
+	usrs, err := start.SendStartMessage(s, m, args.AnotherChannelID)
 	if err != nil {
 		message.SendErr(s, "開始メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
@@ -85,7 +87,7 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// バトルメッセージ
-	if err = battleMessage.NormalBattleMessageScenario(s, usrs, msg, args.AnotherChannelID); err != nil {
+	if err = battleMessage.NormalBattleMessageScenario(s, usrs, m, args.AnotherChannelID); err != nil {
 		message.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
@@ -95,4 +97,78 @@ func PremiumBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
+}
+
+// コマンドのレスポンスです
+type InputRes struct {
+	AnotherChannelID string
+	WinnerNum        uint
+	TargetUsers      []*discordgo.User
+}
+
+// コマンドの引数を確認します
+func CheckInput(s *discordgo.Session, input []string) (InputRes, error) {
+	res := InputRes{}
+
+	var anotherChannelID string
+	var winnerNum uint
+	targetUsers := make([]*discordgo.User, 0)
+
+	if len(input) < 2 {
+		return res, nil
+	}
+
+	for i, arg := range input {
+		if i == 0 {
+			continue
+		}
+
+		// 1.チャンネルID
+		// 2.ユーザーID
+		// 3.勝者数
+		if strings.Contains(arg, "<#") {
+			if anotherChannelID != "" {
+				return res, errors.NewError("チャンネルが複数設定されています")
+			}
+
+			t := strings.TrimLeft(arg, "<#")
+			anotherChannelID = strings.TrimRight(t, ">")
+
+			// チャンネルIDが正しいことを検証
+			if _, err := s.Channel(anotherChannelID); err != nil {
+				return res, errors.NewError("チャンネルの権限またはチャンネル名が不正です。", err)
+			}
+		} else if strings.Contains(arg, "<@") { // ユーザーID
+			if len(targetUsers) >= 3 {
+				return res, errors.NewError("ユーザー数が上限を超えています(上限3名)")
+			}
+
+			u := strings.TrimLeft(arg, "<@")
+			userID := strings.TrimRight(u, ">")
+
+			user, err := s.User(userID)
+			if err != nil {
+				return res, errors.NewError("ユーザーが不正な値です")
+			}
+
+			targetUsers = append(targetUsers, user)
+
+		} else if strings.Contains(arg, "w") { // 勝者数
+			wnStr := strings.TrimRight(arg, "w")
+			wnInt, err := strconv.Atoi(wnStr)
+			if err != nil {
+				return res, errors.NewError("文字列から数値に変換できません", err)
+			}
+
+			winnerNum = uint(wnInt)
+		} else {
+			return res, errors.NewError("コマンドに無効な値が含まれています")
+		}
+	}
+
+	res.AnotherChannelID = anotherChannelID
+	res.WinnerNum = winnerNum
+	res.TargetUsers = targetUsers
+
+	return res, nil
 }

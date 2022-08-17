@@ -10,16 +10,28 @@ import (
 	"strings"
 )
 
+// バトルメッセージ全体のテンプレートです
+var BattleMessageTemplate = `
+%s
+
+生き残り: **%d名**
+`
+
+const (
+	BaseStageNum = 12
+	NextStageNum = 20
+)
+
 // バトルメッセージを送信します
 func SendBattleMessage(
 	s *discordgo.Session,
-	entryMessage *discordgo.Message,
+	m *discordgo.MessageCreate,
 	description string,
 	round int,
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil
 	}
 
@@ -36,7 +48,7 @@ func SendBattleMessage(
 		}
 	}
 
-	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}
@@ -58,11 +70,14 @@ type CreateBattleLinesRes struct {
 // 生存数はこの関数を使う側で設定します。
 //
 // 1人以上のWinnerを返すため、最初の2名は必ずバトルとなります。
-func CreateBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.User) (CreateBattleLinesRes, error) {
+func CreateBattleMessage(
+	m *discordgo.MessageCreate,
+	stage []*discordgo.User,
+) (CreateBattleLinesRes, error) {
 	var res CreateBattleLinesRes
 
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return res, nil
 	}
 
@@ -86,7 +101,7 @@ func CreateBattleMessage(entryMessage *discordgo.Message, stage []*discordgo.Use
 
 	for {
 		// キャンセル指示を確認
-		if shared.IsCanceled(entryMessage.GuildID) {
+		if shared.IsCanceled(m.GuildID) {
 			return res, nil
 		}
 

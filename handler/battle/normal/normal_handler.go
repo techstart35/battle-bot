@@ -3,11 +3,12 @@ package normal
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/handler/battle"
-	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario/normal"
+	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario"
 	"github.com/techstart35/battle-bot/handler/battle/message/countdown"
 	"github.com/techstart35/battle-bot/handler/battle/message/entry"
 	"github.com/techstart35/battle-bot/handler/battle/message/start"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/message"
 	"strings"
 )
@@ -57,35 +58,44 @@ func NormalBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	defer shared.DeleteProcess(m.GuildID)
 
 	// エントリーメッセージを送信します
-	msg, err := entry.SendEntryMessage(s, m, anotherChannelID)
+	_, err = entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		message.SendErr(s, "エントリーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
 	// カウントダウンメッセージを送信します
-	ok, err = countdown.CountDownScenario(s, msg, anotherChannelID)
-	if err != nil {
+	if err = countdown.CountDownScenario(s, m, anotherChannelID); err != nil {
+		if errors.IsCanceledErr(err) {
+			return
+		}
+
 		message.SendErr(s, "カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
-		return
-	}
-	if !ok {
 		return
 	}
 
 	// 開始メッセージを送信します
-	usrs, err := start.SendStartMessage(s, msg, anotherChannelID)
+	usrs, err := start.SendStartMessage(s, m, anotherChannelID)
 	if err != nil {
+		if errors.IsCanceledErr(err) {
+			return
+		}
+
 		message.SendErr(s, "開始メッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
+	// 10秒sleepします
 	if battle.IsCanceledCheckAndSleep(10, m.GuildID) {
 		return
 	}
 
 	// バトルメッセージを送信します
-	if err = battleMessage.NormalBattleMessageScenario(s, usrs, msg, anotherChannelID); err != nil {
+	if err = battleMessage.NormalBattleMessageScenario(s, usrs, m, anotherChannelID); err != nil {
+		if errors.IsCanceledErr(err) {
+			return
+		}
+
 		message.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
@@ -95,4 +105,35 @@ func NormalBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
+}
+
+// 送信メッセージのテンプレートです
+const checkInputTmpl = `
+コマンドが間違っているか、チャンネルの権限が不足しています。
+`
+
+// コマンドの引数を確認します
+//
+// 配信チャンネルのチャンネルIDを返します。
+//
+// inputが1つの場合は空の文字列を返します。
+func CheckInput(s *discordgo.Session, channelID string, input []string) (string, error) {
+	if len(input) > 2 {
+		t := strings.TrimLeft(input[1], "<#")
+		anotherChannelID := strings.TrimRight(t, ">")
+
+		// 配信チャンネルのチャンネルIDが正しいことを検証
+		if _, err := s.Channel(anotherChannelID); err != nil {
+			// エラーメッセージを送信
+			if err = message.SendSimpleEmbedMessage(s, channelID, "ERROR", checkInputTmpl, 0); err != nil {
+				return "", errors.NewError("CheckInputメッセージの送信に失敗しました", err)
+			}
+
+			return "", nil
+		}
+
+		return anotherChannelID, nil
+	}
+
+	return "", nil
 }

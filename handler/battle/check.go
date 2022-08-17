@@ -1,5 +1,9 @@
 package battle
 
+// ---------------------------
+// Battleメッセージに関する共通処理を記述します
+// ---------------------------
+
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
@@ -9,8 +13,6 @@ import (
 )
 
 // キャンセル確認とSleep処理を実行します
-//
-// キャンセルされている場合はtrueを返します。
 func IsCanceledCheckAndSleep(second int, guildID string) bool {
 	if shared.IsCanceled(guildID) {
 		return true
@@ -42,6 +44,8 @@ const processExistsTmpl = `
 // 起動前のチェックを行います
 //
 // 起動停止の場合のみfalseを返します。
+//
+// 起動停止の場合は、この関数内でINFOメッセージを送信します。
 func CheckBeforeStartAndSendMessage(
 	s *discordgo.Session,
 	guildID, channelID string,

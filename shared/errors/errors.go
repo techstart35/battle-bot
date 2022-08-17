@@ -8,6 +8,18 @@ import (
 	"runtime"
 )
 
+// キャンセル時のエラーです
+var CancelErr = fmt.Errorf("キャンセルされています")
+
+// エラーがキャンセル時のエラーかを判定します
+func IsCanceledErr(err error) bool {
+	if err == CancelErr {
+		return true
+	}
+
+	return false
+}
+
 // エラーをログ出力します
 func LogErr(msg string, err error) {
 	log.Println(fmt.Sprintf("%s: %v", msg, err))

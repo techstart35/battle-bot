@@ -12,12 +12,12 @@ import (
 // 復活イベントを起動
 func ExecRevivalEvent(
 	s *discordgo.Session,
-	entryMessage *discordgo.Message,
+	m *discordgo.MessageCreate,
 	anotherChannelID string,
 	losers []*discordgo.User,
 ) (*discordgo.User, error) {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil, nil
 	}
 
@@ -36,7 +36,7 @@ func ExecRevivalEvent(
 
 		time.Sleep(3 * time.Second)
 		// メッセージ送信
-		if err := SendRevivalMessage(s, entryMessage, revival, anotherChannelID); err != nil {
+		if err := SendRevivalMessage(s, m, revival, anotherChannelID); err != nil {
 			return nil, errors.NewError("復活メッセージの送信に失敗しました", err)
 		}
 
@@ -49,12 +49,12 @@ func ExecRevivalEvent(
 // 復活メッセージを送信します
 func SendRevivalMessage(
 	s *discordgo.Session,
-	entryMessage *discordgo.Message,
+	m *discordgo.MessageCreate,
 	user *discordgo.User,
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil
 	}
 
@@ -64,7 +64,7 @@ func SendRevivalMessage(
 		Color:       shared.ColorPink,
 	}
 
-	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}

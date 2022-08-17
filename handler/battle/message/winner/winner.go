@@ -22,12 +22,12 @@ var anotherChannelTemplate = `
 // Winnerのメッセージを送信します
 func SendWinnerMessage(
 	s *discordgo.Session,
-	entryMessage *discordgo.Message,
+	m *discordgo.MessageCreate,
 	winner *discordgo.User,
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil
 	}
 
@@ -39,13 +39,13 @@ func SendWinnerMessage(
 
 	// エントリーチャンネルにメッセージを送信
 	{
-		_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
 		if err != nil {
 			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		msg, err := s.ChannelMessageSend(
-			entryMessage.ChannelID,
+			m.ChannelID,
 			fmt.Sprintf("<@%s>さん、おめでとうございます🎉", winner.ID),
 		)
 		if err != nil {

@@ -1,4 +1,4 @@
-package premium
+package scenario
 
 import (
 	"fmt"
@@ -12,27 +12,15 @@ import (
 	"time"
 )
 
-// バトルメッセージ全体のテンプレートです
-var BattleMessageTemplate = `
-%s
-
-生き残り: **%d名**
-`
-
-const (
-	BaseStageNum = 12
-	NextStageNum = 20
-)
-
 // バトルメッセージを送信します
 func PremiumBattleMessageScenario(
 	s *discordgo.Session,
 	users []*discordgo.User,
-	entryMessage *discordgo.Message,
+	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
+	if shared.IsCanceled(m.GuildID) {
 		return nil
 	}
 
@@ -41,7 +29,7 @@ func PremiumBattleMessageScenario(
 
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
-		if err := noentry.SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
+		if err := noentry.SendNoEntryMessage(s, m, anotherChannelID); err != nil {
 			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
@@ -53,7 +41,7 @@ func PremiumBattleMessageScenario(
 	round := 1
 	for {
 		// キャンセル指示を確認
-		if shared.IsCanceled(entryMessage.GuildID) {
+		if shared.IsCanceled(m.GuildID) {
 			return nil
 		}
 
@@ -64,19 +52,19 @@ func PremiumBattleMessageScenario(
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case survivorLen == 1:
 			time.Sleep(2 * time.Second)
-			if err := winner.SendWinnerMessage(s, entryMessage, survivors[0], anotherChannelID); err != nil {
+			if err := winner.SendWinnerMessage(s, m, survivors[0], anotherChannelID); err != nil {
 				return errors.NewError("メッセージの送信に失敗しました", err)
 			}
 
 			return nil
 
 		// 基準数以下の場合は、全員をステージングして対戦
-		case survivorLen <= BaseStageNum:
+		case survivorLen <= battleMessage.BaseStageNum:
 			var stage []*discordgo.User
 			stage = append(stage, survivors...)
 
 			// バトルメッセージを作成
-			res, err := battleMessage.CreateBattleMessage(entryMessage, stage)
+			res, err := battleMessage.CreateBattleMessage(m, stage)
 			if err != nil {
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
@@ -90,10 +78,10 @@ func PremiumBattleMessageScenario(
 			}
 
 			// バトルメッセージに生き残り数を追加
-			description := fmt.Sprintf(BattleMessageTemplate, res.Description, len(survivors))
+			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
@@ -102,7 +90,7 @@ func PremiumBattleMessageScenario(
 
 			// 復活イベントを作成
 			if len(survivors) > 2 && len(losers) >= 1 {
-				revival, err := battleMessage.ExecRevivalEvent(s, entryMessage, anotherChannelID, losers)
+				revival, err := battleMessage.ExecRevivalEvent(s, m, anotherChannelID, losers)
 				if err != nil {
 					return errors.NewError("復活イベントの起動に失敗しました", err)
 				}
@@ -121,11 +109,11 @@ func PremiumBattleMessageScenario(
 			}
 
 		// 基準数より多く、60未満の場合は、基準数のみをステージングして対戦
-		case BaseStageNum < survivorLen && survivorLen < 60:
+		case battleMessage.BaseStageNum < survivorLen && survivorLen < 60:
 			var stage []*discordgo.User
-			stage = survivors[0:BaseStageNum]
+			stage = survivors[0:battleMessage.BaseStageNum]
 
-			res, err := battleMessage.CreateBattleMessage(entryMessage, stage)
+			res, err := battleMessage.CreateBattleMessage(m, stage)
 			if err != nil {
 				return errors.NewError("バトルメッセージの作成に失敗しました", err)
 			}
@@ -135,7 +123,7 @@ func PremiumBattleMessageScenario(
 				// 生き残りを減らす
 				var newSurvivor []*discordgo.User
 				newSurvivor = append(newSurvivor, res.Winners...)
-				newSurvivor = append(newSurvivor, survivors[BaseStageNum:]...)
+				newSurvivor = append(newSurvivor, survivors[battleMessage.BaseStageNum:]...)
 				survivors = newSurvivor
 
 				// 敗者を追加
@@ -143,10 +131,10 @@ func PremiumBattleMessageScenario(
 			}
 
 			// バトルメッセージに生き残り数を追加
-			description := fmt.Sprintf(BattleMessageTemplate, res.Description, len(survivors))
+			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
@@ -155,7 +143,7 @@ func PremiumBattleMessageScenario(
 
 			// 復活イベントを作成
 			if len(survivors) > 2 && len(losers) >= 1 {
-				revival, err := battleMessage.ExecRevivalEvent(s, entryMessage, anotherChannelID, losers)
+				revival, err := battleMessage.ExecRevivalEvent(s, m, anotherChannelID, losers)
 				if err != nil {
 					return errors.NewError("復活イベントの起動に失敗しました", err)
 				}
@@ -176,9 +164,9 @@ func PremiumBattleMessageScenario(
 		// 60以上の場合は、次の基準値をステージングして対戦
 		case 60 <= survivorLen:
 			var stage []*discordgo.User
-			stage = survivors[0:NextStageNum]
+			stage = survivors[0:battleMessage.NextStageNum]
 
-			res, err := battleMessage.CreateBattleMessage(entryMessage, stage)
+			res, err := battleMessage.CreateBattleMessage(m, stage)
 			if err != nil {
 				return errors.NewError("バトルメッセージの作成に失敗しました", err)
 			}
@@ -188,7 +176,7 @@ func PremiumBattleMessageScenario(
 				// 生き残りを減らす
 				var newSurvivor []*discordgo.User
 				newSurvivor = append(newSurvivor, res.Winners...)
-				newSurvivor = append(newSurvivor, survivors[NextStageNum:]...)
+				newSurvivor = append(newSurvivor, survivors[battleMessage.NextStageNum:]...)
 				survivors = newSurvivor
 
 				// 敗者を追加
@@ -196,10 +184,10 @@ func PremiumBattleMessageScenario(
 			}
 
 			// バトルメッセージに生き残り数を追加
-			description := fmt.Sprintf(BattleMessageTemplate, res.Description, len(survivors))
+			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
