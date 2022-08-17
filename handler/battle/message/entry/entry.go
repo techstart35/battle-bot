@@ -5,6 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
+	"time"
 )
 
 // 別チャンネルの指定がなかった場合のテンプレートです
@@ -34,10 +35,12 @@ func SendEntryMessage(
 	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
+	now := time.Now().Format("2006-01-02T15:04:05+09:00")
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),
 		Color:       shared.ColorBlue,
+		Timestamp:   now,
 	}
 
 	// 別チャンネルの指定があった場合はテンプレートを差し替え
