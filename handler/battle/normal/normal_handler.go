@@ -119,7 +119,7 @@ const checkInputTmpl = `
 //
 // inputが1つの場合は空の文字列を返します。
 func CheckInput(s *discordgo.Session, channelID string, input []string) (string, error) {
-	if len(input) > 2 {
+	if len(input) > 1 {
 		t := strings.TrimLeft(input[1], "<#")
 		anotherChannelID := strings.TrimRight(t, ">")
 

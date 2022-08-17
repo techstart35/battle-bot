@@ -22,7 +22,7 @@ func CountDownScenario(
 	}
 
 	// 60秒後（残り60秒）にメッセージを送信
-	if err := SendCountDownMessage(s, entryMessage, 60, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 60, guildID, anotherChannelID); err != nil {
 		return errors.NewError("60秒前カウントダウンメッセージを送信できません", err)
 	}
 
@@ -32,7 +32,7 @@ func CountDownScenario(
 	}
 
 	// 残り30秒アナウンス
-	if err := SendCountDownMessage(s, entryMessage, 30, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 30, guildID, anotherChannelID); err != nil {
 		return errors.NewError("30秒前カウントダウンメッセージを送信できません", err)
 	}
 
@@ -42,7 +42,7 @@ func CountDownScenario(
 	}
 
 	// 残り10秒アナウンス
-	if err := SendCountDownMessage(s, entryMessage, 10, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 10, guildID, anotherChannelID); err != nil {
 		return errors.NewError("10秒前カウントダウンメッセージを送信できません", err)
 	}
 
@@ -62,6 +62,8 @@ var entryChannelTemplate = `
 💥-自滅
 ☀️-敗者なし
 
+[エントリーはこちら](%s)
+
 <#%s> でも配信中 💬
 `
 
@@ -74,6 +76,8 @@ var noAnotherChannelTemplate = `
 ⚔️-対戦
 💥-自滅
 ☀️-敗者なし
+
+[エントリーはこちら](%s)
 `
 
 // 別チャンネルに送信するカウントダウンメッセージです
@@ -84,9 +88,10 @@ var anotherChannelTemplate = `
 💥-自滅
 ☀️-敗者なし
 
-▼エントリーはこちら
-<#%s>
+[エントリーはこちら](%s)
 `
+
+const entryBaseURL = "https://discord.com/channels/%s/%s/%s"
 
 // カウントダウンメッセージを送信します
 //
@@ -96,7 +101,7 @@ func SendCountDownMessage(
 	s *discordgo.Session,
 	entryMessage *discordgo.Message,
 	beforeStart uint,
-	anotherChannelID string,
+	guildID, anotherChannelID string,
 ) error {
 	var color int
 	switch beforeStart {
@@ -108,12 +113,15 @@ func SendCountDownMessage(
 		color = shared.ColorYellow
 	}
 
+	entryURL := fmt.Sprintf(entryBaseURL, guildID, entryMessage.ChannelID, entryMessage.ID)
+
 	// 別チャンネルが無い場合を想定
 	embedInfo := &discordgo.MessageEmbed{
 		Title: "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(
 			noAnotherChannelTemplate,
 			beforeStart,
+			entryURL,
 		),
 		Color: color,
 	}
@@ -124,6 +132,7 @@ func SendCountDownMessage(
 		embedInfo.Description = fmt.Sprintf(
 			entryChannelTemplate,
 			beforeStart,
+			entryURL,
 			anotherChannelID,
 		)
 
@@ -136,7 +145,7 @@ func SendCountDownMessage(
 		embedInfo.Description = fmt.Sprintf(
 			anotherChannelTemplate,
 			beforeStart,
-			entryMessage.ChannelID,
+			entryURL,
 		)
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
