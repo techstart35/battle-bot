@@ -13,14 +13,16 @@ import (
 )
 
 // バトルメッセージを送信します
+//
+// キャンセル指示を確認します。
 func NormalBattleMessageScenario(
 	s *discordgo.Session,
 	users []*discordgo.User,
-	m *discordgo.MessageCreate,
-	anotherChannelID string,
+	entryMessage *discordgo.Message,
+	guildID, anotherChannelID string,
 ) error {
 	// キャンセル指示を確認
-	if shared.IsCanceled(m.GuildID) {
+	if shared.IsCanceled(guildID) {
 		return errors.CancelErr
 	}
 
@@ -29,7 +31,11 @@ func NormalBattleMessageScenario(
 
 	// エントリーが無い場合はNoEntryのメッセージを送信します
 	if len(users) == 0 {
-		if err := noentry.SendNoEntryMessage(s, m, anotherChannelID); err != nil {
+		if err := noentry.SendNoEntryMessage(s, entryMessage, anotherChannelID); err != nil {
+			if errors.IsCanceledErr(err) {
+				return errors.CancelErr
+			}
+
 			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
@@ -41,7 +47,7 @@ func NormalBattleMessageScenario(
 	round := 1
 	for {
 		// キャンセル指示を確認
-		if shared.IsCanceled(m.GuildID) {
+		if shared.IsCanceled(guildID) {
 			return errors.CancelErr
 		}
 
@@ -52,7 +58,11 @@ func NormalBattleMessageScenario(
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
 		case survivorLen == 1:
 			time.Sleep(2 * time.Second)
-			if err := winner.SendWinnerMessage(s, m, survivors[0], anotherChannelID); err != nil {
+			if err := winner.SendWinnerMessage(s, entryMessage, survivors[0], anotherChannelID); err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("メッセージの送信に失敗しました", err)
 			}
 
@@ -64,8 +74,12 @@ func NormalBattleMessageScenario(
 			stage = append(stage, survivors...)
 
 			// バトルメッセージを作成
-			res, err := battleMessage.CreateBattleMessage(m, stage)
+			res, err := battleMessage.CreateBattleMessage(stage)
 			if err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
@@ -81,7 +95,11 @@ func NormalBattleMessageScenario(
 			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
@@ -90,7 +108,7 @@ func NormalBattleMessageScenario(
 
 			// 復活イベントを作成
 			if len(survivors) > 2 && len(losers) >= 1 {
-				revival, err := battleMessage.ExecRevivalEvent(s, m, anotherChannelID, losers)
+				revival, err := battleMessage.ExecRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
 					return errors.NewError("復活イベントの起動に失敗しました", err)
 				}
@@ -113,8 +131,12 @@ func NormalBattleMessageScenario(
 			var stage []*discordgo.User
 			stage = survivors[0:battleMessage.BaseStageNum]
 
-			res, err := battleMessage.CreateBattleMessage(m, stage)
+			res, err := battleMessage.CreateBattleMessage(stage)
 			if err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("バトルメッセージの作成に失敗しました", err)
 			}
 
@@ -134,7 +156,11 @@ func NormalBattleMessageScenario(
 			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 
@@ -143,7 +169,7 @@ func NormalBattleMessageScenario(
 
 			// 復活イベントを作成
 			if len(survivors) > 2 && len(losers) >= 1 {
-				revival, err := battleMessage.ExecRevivalEvent(s, m, anotherChannelID, losers)
+				revival, err := battleMessage.ExecRevivalEvent(s, entryMessage, anotherChannelID, losers)
 				if err != nil {
 					return errors.NewError("復活イベントの起動に失敗しました", err)
 				}
@@ -166,7 +192,7 @@ func NormalBattleMessageScenario(
 			var stage []*discordgo.User
 			stage = survivors[0:battleMessage.NextStageNum]
 
-			res, err := battleMessage.CreateBattleMessage(m, stage)
+			res, err := battleMessage.CreateBattleMessage(stage)
 			if err != nil {
 				return errors.NewError("バトルメッセージの作成に失敗しました", err)
 			}
@@ -187,7 +213,11 @@ func NormalBattleMessageScenario(
 			description := fmt.Sprintf(battleMessage.BattleMessageTemplate, res.Description, len(survivors))
 
 			// メッセージ送信
-			if err := battleMessage.SendBattleMessage(s, m, description, round, anotherChannelID); err != nil {
+			if err := battleMessage.SendBattleMessage(s, entryMessage, description, round, anotherChannelID); err != nil {
+				if errors.IsCanceledErr(err) {
+					return errors.CancelErr
+				}
+
 				return errors.NewError("バトルメッセージの送信に失敗しました", err)
 			}
 

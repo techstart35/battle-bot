@@ -9,44 +9,45 @@ import (
 )
 
 // カウントダウンのシナリオです
+//
+// キャンセル指示を確認します。
 func CountDownScenario(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
-	anotherChannelID string,
+	entryMessage *discordgo.Message,
+	guildID, anotherChannelID string,
 ) error {
-	fmt.Println("guildID: ", m.GuildID)
 	// 60秒sleep
-	if battle.IsCanceledCheckAndSleep(60, m.GuildID) {
+	if battle.IsCanceledCheckAndSleep(60, guildID) {
 		return errors.CancelErr
 	}
 
 	// 60秒後（残り60秒）にメッセージを送信
-	if err := SendCountDownMessage(s, m, 60, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 60, anotherChannelID); err != nil {
 		return errors.NewError("60秒前カウントダウンメッセージを送信できません", err)
 	}
 
 	// 30秒sleep
-	if battle.IsCanceledCheckAndSleep(30, m.GuildID) {
+	if battle.IsCanceledCheckAndSleep(30, guildID) {
 		return errors.CancelErr
 	}
 
 	// 残り30秒アナウンス
-	if err := SendCountDownMessage(s, m, 30, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 30, anotherChannelID); err != nil {
 		return errors.NewError("30秒前カウントダウンメッセージを送信できません", err)
 	}
 
 	// 20秒sleep
-	if battle.IsCanceledCheckAndSleep(20, m.GuildID) {
+	if battle.IsCanceledCheckAndSleep(20, guildID) {
 		return errors.CancelErr
 	}
 
 	// 残り10秒アナウンス
-	if err := SendCountDownMessage(s, m, 10, anotherChannelID); err != nil {
+	if err := SendCountDownMessage(s, entryMessage, 10, anotherChannelID); err != nil {
 		return errors.NewError("10秒前カウントダウンメッセージを送信できません", err)
 	}
 
 	// 10秒sleep
-	if battle.IsCanceledCheckAndSleep(10, m.GuildID) {
+	if battle.IsCanceledCheckAndSleep(10, guildID) {
 		return errors.CancelErr
 	}
 
@@ -93,7 +94,7 @@ var anotherChannelTemplate = `
 // この関数内ではキャンセル確認を行いません。
 func SendCountDownMessage(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
+	entryMessage *discordgo.Message,
 	beforeStart uint,
 	anotherChannelID string,
 ) error {
@@ -126,7 +127,7 @@ func SendCountDownMessage(
 			anotherChannelID,
 		)
 
-		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+		_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 		if err != nil {
 			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
@@ -135,7 +136,7 @@ func SendCountDownMessage(
 		embedInfo.Description = fmt.Sprintf(
 			anotherChannelTemplate,
 			beforeStart,
-			m.ChannelID,
+			entryMessage.ChannelID,
 		)
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
@@ -146,7 +147,7 @@ func SendCountDownMessage(
 		return nil
 	}
 
-	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}

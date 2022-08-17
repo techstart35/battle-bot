@@ -36,16 +36,10 @@ var anotherChannelTemplate = `
 // 開始メッセージを送信します
 func SendStartMessage(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
+	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) ([]*discordgo.User, error) {
-	fmt.Println("guildID: ", m.GuildID)
-	// キャンセル指示を確認
-	if shared.IsCanceled(m.GuildID) {
-		return nil, errors.CancelErr
-	}
-
-	users, err := shared.GetReactedUsers(s, m)
+	users, err := shared.GetReactedUsers(s, entryMessage)
 	if err != nil {
 		return nil, errors.NewError("リアクションしたユーザーの取得に失敗しました", err)
 	}
@@ -86,7 +80,7 @@ func SendStartMessage(
 			anotherChannelID,
 		)
 
-		_, err = s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+		_, err = s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 		if err != nil {
 			return nil, errors.NewError("メッセージの送信に失敗しました", err)
 		}
@@ -107,7 +101,7 @@ func SendStartMessage(
 		return users, nil
 	}
 
-	_, err = s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+	_, err = s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
 		return nil, errors.NewError("メッセージの送信に失敗しました", err)
 	}

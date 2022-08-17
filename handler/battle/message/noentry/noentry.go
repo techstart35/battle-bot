@@ -13,14 +13,9 @@ var template = `
 // NoEntryのメッセージを送信します
 func SendNoEntryMessage(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
+	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) error {
-	// キャンセル指示を確認
-	if shared.IsCanceled(m.GuildID) {
-		return nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
 		Description: template,
@@ -34,7 +29,7 @@ func SendNoEntryMessage(
 		}
 	}
 
-	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}

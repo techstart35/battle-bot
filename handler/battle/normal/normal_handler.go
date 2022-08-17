@@ -58,30 +58,31 @@ func NormalBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	defer shared.DeleteProcess(m.GuildID)
 
 	// エントリーメッセージを送信します
-	_, err = entry.SendEntryMessage(s, m, anotherChannelID)
+	entryMessage, err := entry.SendEntryMessage(s, m, anotherChannelID)
 	if err != nil {
 		message.SendErr(s, "エントリーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 
 	// カウントダウンメッセージを送信します
-	if err = countdown.CountDownScenario(s, m, anotherChannelID); err != nil {
+	if err = countdown.CountDownScenario(s, entryMessage, m.GuildID, anotherChannelID); err != nil {
 		if errors.IsCanceledErr(err) {
 			return
 		}
 
-		message.SendErr(s, "カウントダウンメッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "カウントダウンメッセージを送信できません", m.GuildID, entryMessage.ChannelID, err)
+		return
+	}
+
+	// キャンセル指示の確認
+	if shared.IsCanceled(m.GuildID) {
 		return
 	}
 
 	// 開始メッセージを送信します
-	usrs, err := start.SendStartMessage(s, m, anotherChannelID)
+	usrs, err := start.SendStartMessage(s, entryMessage, anotherChannelID)
 	if err != nil {
-		if errors.IsCanceledErr(err) {
-			return
-		}
-
-		message.SendErr(s, "開始メッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "開始メッセージを送信できません", m.GuildID, entryMessage.ChannelID, err)
 		return
 	}
 
@@ -91,18 +92,18 @@ func NormalBattleHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// バトルメッセージを送信します
-	if err = battleMessage.NormalBattleMessageScenario(s, usrs, m, anotherChannelID); err != nil {
+	if err = battleMessage.NormalBattleMessageScenario(s, usrs, entryMessage, m.GuildID, anotherChannelID); err != nil {
 		if errors.IsCanceledErr(err) {
 			return
 		}
 
-		message.SendErr(s, "バトルメッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "バトルメッセージを送信できません", m.GuildID, entryMessage.ChannelID, err)
 		return
 	}
 
 	// 正常終了のメッセージを送信します
 	if err = message.SendNormalFinishMessageToAdmin(s, m.GuildID); err != nil {
-		message.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "終了通知をAdminサーバーに送信できません", m.GuildID, entryMessage.ChannelID, err)
 		return
 	}
 }

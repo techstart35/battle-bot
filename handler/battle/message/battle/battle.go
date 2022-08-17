@@ -25,16 +25,11 @@ const (
 // バトルメッセージを送信します
 func SendBattleMessage(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
+	entryMessage *discordgo.Message,
 	description string,
 	round int,
 	anotherChannelID string,
 ) error {
-	// キャンセル指示を確認
-	if shared.IsCanceled(m.GuildID) {
-		return nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       fmt.Sprintf("第%d回戦", round),
 		Description: description,
@@ -48,7 +43,7 @@ func SendBattleMessage(
 		}
 	}
 
-	_, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
+	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}
@@ -70,16 +65,8 @@ type CreateBattleLinesRes struct {
 // 生存数はこの関数を使う側で設定します。
 //
 // 1人以上のWinnerを返すため、最初の2名は必ずバトルとなります。
-func CreateBattleMessage(
-	m *discordgo.MessageCreate,
-	stage []*discordgo.User,
-) (CreateBattleLinesRes, error) {
+func CreateBattleMessage(stage []*discordgo.User) (CreateBattleLinesRes, error) {
 	var res CreateBattleLinesRes
-
-	// キャンセル指示を確認
-	if shared.IsCanceled(m.GuildID) {
-		return res, nil
-	}
 
 	if len(stage) < 2 {
 		return res, errors.NewError("メッセージ作成に必要なユーザー数が不足しています")
@@ -100,11 +87,6 @@ func CreateBattleMessage(
 	)
 
 	for {
-		// キャンセル指示を確認
-		if shared.IsCanceled(m.GuildID) {
-			return res, nil
-		}
-
 		num := soloNoBattle
 
 		// 2つ取得可能な場合のみ、ランダムで取得する

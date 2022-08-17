@@ -13,7 +13,11 @@ import (
 const AdminChannelID = "1003130506881277952"
 
 // 開始時に自分のサーバーにメッセージを送信します
-func SendStartMessageToAdmin(s *discordgo.Session, guildID, channelID string, command []string) error {
+func SendStartMessageToAdmin(
+	s *discordgo.Session,
+	guildID, channelID string,
+	command []string,
+) error {
 	guildName, err := guild.GetGuildName(s, guildID)
 	if err != nil {
 		return errors.NewError("ギルドを取得できません", err)

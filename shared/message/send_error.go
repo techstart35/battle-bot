@@ -19,15 +19,16 @@ func SendErr(s *discordgo.Session, msg, guildID, channelID string, err error) {
 	}
 
 	var sendErrTmpl = `
-ギルド名: %s
+ギルド名: **%s**
 
-チャンネルID: %s
+チャンネル: %s
 
-メッセージ: %s
+メッセージ: **%s**
 
 継承したエラー: %s
 `
-	m := fmt.Sprintf(sendErrTmpl, guildName, channelID, msg, err.Error())
+	channelLink := shared.FormatChannelIDToLink(channelID)
+	m := fmt.Sprintf(sendErrTmpl, guildName, channelLink, msg, err.Error())
 
 	if e = SendSimpleEmbedMessage(s, AdminChannelID, "エラーが発生しました", m, shared.ColorRed); e != nil {
 		errors.LogErr("エラーメッセージをAdminサーバーに送信できません", e)

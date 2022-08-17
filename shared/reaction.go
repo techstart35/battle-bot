@@ -13,7 +13,7 @@ import (
 // botしかリアクションしない場合は、戻り値のスライスは空となります。
 func GetReactedUsers(
 	s *discordgo.Session,
-	m *discordgo.MessageCreate,
+	entryMessage *discordgo.Message,
 ) ([]*discordgo.User, error) {
 	users := make([]*discordgo.User, 0)
 
@@ -30,7 +30,7 @@ func GetReactedUsers(
 			afterID = users[len(users)-1].ID
 		}
 
-		us, err := s.MessageReactions(m.ChannelID, m.ID, "⚔️", 100, "", afterID)
+		us, err := s.MessageReactions(entryMessage.ChannelID, entryMessage.ID, "⚔️", 100, "", afterID)
 		if err != nil {
 			return users, errors.NewError("リアクションを取得できません", err)
 		}
