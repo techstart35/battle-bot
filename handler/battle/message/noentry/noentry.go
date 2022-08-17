@@ -3,6 +3,7 @@ package noentry
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 var template = `
@@ -15,11 +16,6 @@ func SendNoEntryMessage(
 	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) error {
-	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
-		return nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
 		Description: template,
@@ -29,13 +25,13 @@ func SendNoEntryMessage(
 	if anotherChannelID != "" {
 		_, err := s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 	}
 
 	_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
-		return shared.CreateErr("メッセージの送信に失敗しました", err)
+		return errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	return nil

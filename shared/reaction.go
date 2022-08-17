@@ -2,6 +2,7 @@ package shared
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/shared/errors"
 	"os"
 )
 
@@ -10,7 +11,10 @@ import (
 // botのリアクションは除外します。
 //
 // botしかリアクションしない場合は、戻り値のスライスは空となります。
-func GetReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*discordgo.User, error) {
+func GetReactedUsers(
+	s *discordgo.Session,
+	entryMessage *discordgo.Message,
+) ([]*discordgo.User, error) {
 	users := make([]*discordgo.User, 0)
 
 	botName := os.Getenv("BOT_NAME")
@@ -26,9 +30,9 @@ func GetReactedUsers(s *discordgo.Session, entryMsg *discordgo.Message) ([]*disc
 			afterID = users[len(users)-1].ID
 		}
 
-		us, err := s.MessageReactions(entryMsg.ChannelID, entryMsg.ID, "⚔️", 100, "", afterID)
+		us, err := s.MessageReactions(entryMessage.ChannelID, entryMessage.ID, "⚔️", 100, "", afterID)
 		if err != nil {
-			return users, CreateErr("リアクションを取得できません", err)
+			return users, errors.NewError("リアクションを取得できません", err)
 		}
 
 		if len(us) == 0 || len(us) == 1 && us[0].Username == botName {

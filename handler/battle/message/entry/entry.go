@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 // 別チャンネルの指定がなかった場合のテンプレートです
@@ -26,15 +27,13 @@ var withAnotherChannelTemplate = `
 // エントリーメッセージを送信します
 //
 // 起動元のチャンネルのみに送信します。
+//
+// この関数ではキャンセル処理の確認を行いません。
 func SendEntryMessage(
 	s *discordgo.Session,
 	m *discordgo.MessageCreate,
 	anotherChannelID string,
 ) (*discordgo.Message, error) {
-	if shared.IsCanceled(m.GuildID) {
-		return nil, nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, m.Author.ID),
@@ -52,12 +51,12 @@ func SendEntryMessage(
 
 	msg, err := s.ChannelMessageSendEmbed(m.ChannelID, embedInfo)
 	if err != nil {
-		return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+		return nil, errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	// リアクションを付与
 	if err := s.MessageReactionAdd(m.ChannelID, msg.ID, "⚔️"); err != nil {
-		return nil, shared.CreateErr("リアクションを付与できません", err)
+		return nil, errors.NewError("リアクションを付与できません", err)
 	}
 
 	return msg, nil

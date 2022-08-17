@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 	"math"
 	"strings"
 )
@@ -35,17 +36,12 @@ var anotherChannelTemplate = `
 // 開始メッセージを送信します
 func SendStartMessage(
 	s *discordgo.Session,
-	entryMsg *discordgo.Message,
+	entryMessage *discordgo.Message,
 	anotherChannelID string,
 ) ([]*discordgo.User, error) {
-	// キャンセル指示を確認
-	if shared.IsCanceled(entryMsg.GuildID) {
-		return nil, nil
-	}
-
-	users, err := shared.GetReactedUsers(s, entryMsg)
+	users, err := shared.GetReactedUsers(s, entryMessage)
 	if err != nil {
-		return nil, shared.CreateErr("リアクションしたユーザーの取得に失敗しました", err)
+		return nil, errors.NewError("リアクションしたユーザーの取得に失敗しました", err)
 	}
 
 	var challengers []string
@@ -84,9 +80,9 @@ func SendStartMessage(
 			anotherChannelID,
 		)
 
-		_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
+		_, err = s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 		if err != nil {
-			return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+			return nil, errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		// 別チャンネルに送信
@@ -99,15 +95,15 @@ func SendStartMessage(
 
 		_, err = s.ChannelMessageSendEmbed(anotherChannelID, embedInfo)
 		if err != nil {
-			return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+			return nil, errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		return users, nil
 	}
 
-	_, err = s.ChannelMessageSendEmbed(entryMsg.ChannelID, embedInfo)
+	_, err = s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 	if err != nil {
-		return nil, shared.CreateErr("メッセージの送信に失敗しました", err)
+		return nil, errors.NewError("メッセージの送信に失敗しました", err)
 	}
 
 	return users, nil

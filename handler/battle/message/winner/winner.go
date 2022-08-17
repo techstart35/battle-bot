@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 // エントリーチャンネルに送信するメッセージです
@@ -25,11 +26,6 @@ func SendWinnerMessage(
 	winner *discordgo.User,
 	anotherChannelID string,
 ) error {
-	// キャンセル指示を確認
-	if shared.IsCanceled(entryMessage.GuildID) {
-		return nil
-	}
-
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
 		Description: fmt.Sprintf(entryChannelTemplate, winner.ID),
@@ -40,7 +36,7 @@ func SendWinnerMessage(
 	{
 		_, err := s.ChannelMessageSendEmbed(entryMessage.ChannelID, embedInfo)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		msg, err := s.ChannelMessageSend(
@@ -48,11 +44,11 @@ func SendWinnerMessage(
 			fmt.Sprintf("<@%s>さん、おめでとうございます🎉", winner.ID),
 		)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		if err := s.MessageReactionAdd(msg.ChannelID, msg.ID, "🎉"); err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 	}
 
@@ -66,11 +62,11 @@ func SendWinnerMessage(
 
 		msg, err := s.ChannelMessageSendEmbed(anotherChannelID, ei)
 		if err != nil {
-			return shared.CreateErr("メッセージの送信に失敗しました", err)
+			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
 
 		if err := s.MessageReactionAdd(msg.ChannelID, msg.ID, "🎉"); err != nil {
-			return shared.CreateErr("リアクションを付与できません", err)
+			return errors.NewError("リアクションを付与できません", err)
 		}
 	}
 

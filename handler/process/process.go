@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/shared"
+	"github.com/techstart35/battle-bot/shared/guild"
+	"github.com/techstart35/battle-bot/shared/message"
 	"strings"
 )
 
@@ -22,9 +24,9 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			status = "起動中"
 		}
 
-		guildName, err := shared.GetGuildName(s, guildID)
+		guildName, err := guild.GetGuildName(s, guildID)
 		if err != nil {
-			shared.SendErr(s, "ギルドIDを取得できません", m.GuildID, m.ChannelID, err)
+			message.SendErr(s, "ギルドIDを取得できません", m.GuildID, m.ChannelID, err)
 			return
 		}
 
@@ -35,10 +37,10 @@ func ProcessHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg = append(msg, "実行中のプロセスはありません")
 	}
 
-	if err := shared.SendSimpleEmbedMessage(
+	if err := message.SendSimpleEmbedMessage(
 		s, m.ChannelID, "実行中のプロセス", strings.Join(msg, "\n"), 0,
 	); err != nil {
-		shared.SendErr(s, "実行中のプロセスメッセージを送信できません", m.GuildID, m.ChannelID, err)
+		message.SendErr(s, "実行中のプロセスメッセージを送信できません", m.GuildID, m.ChannelID, err)
 		return
 	}
 }
