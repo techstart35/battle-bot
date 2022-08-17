@@ -125,12 +125,12 @@ func CheckInput(s *discordgo.Session, channelID string, input []string) (string,
 
 		// 配信チャンネルのチャンネルIDが正しいことを検証
 		if _, err := s.Channel(anotherChannelID); err != nil {
-			// エラーメッセージを送信
+			// エラーメッセージをUserに送信
 			if err = message.SendSimpleEmbedMessage(s, channelID, "ERROR", checkInputTmpl, 0); err != nil {
 				return "", errors.NewError("CheckInputメッセージの送信に失敗しました", err)
 			}
 
-			return "", nil
+			return "", errors.NewError("チャンネルIDが不正です", err)
 		}
 
 		return anotherChannelID, nil
