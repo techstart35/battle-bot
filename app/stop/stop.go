@@ -85,13 +85,13 @@ func (a *StopApp) sendStoppedMsgToUser(s *discordgo.Session, cID model.ChannelID
 （反映まで最大1分かかります）
 `
 
-	req := message.SendSimpleEmbedMessageReq{
-		ChannelID: cID.String(),
-		Title:     "キャンセル処理の実行",
-		Content:   MessageTmpl,
-		ColorCode: 0,
+	req := &discordgo.MessageEmbed{
+		Title:       "キャンセル処理の実行",
+		Description: MessageTmpl,
+		Color:       shared.ColorBlack,
 	}
-	if err := message.SendSimpleEmbedMessage(s, req); err != nil {
+	_, err := s.ChannelMessageSendEmbed(cID.String(), req)
+	if err != nil {
 		return errors.NewError("停止処理完了メッセージをユーザーに送信できません", err)
 	}
 
@@ -105,13 +105,13 @@ func (a *StopApp) sendValidateErrMsgToUser(s *discordgo.Session, cID model.Chann
 キャンセル済みとなっています。
 `
 
-	req := message.SendSimpleEmbedMessageReq{
-		ChannelID: cID.String(),
-		Title:     "ERROR",
-		Content:   MessageTmpl,
-		ColorCode: 0,
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "ERROR",
+		Description: MessageTmpl,
+		Color:       shared.ColorBlack,
 	}
-	if err := message.SendSimpleEmbedMessage(s, req); err != nil {
+	_, err := s.ChannelMessageSendEmbed(cID.String(), embedInfo)
+	if err != nil {
 		return errors.NewError("バリデーションエラーメッセージをユーザーに送信できません", err)
 	}
 

@@ -2,6 +2,7 @@ package list
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
 	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
@@ -63,13 +64,13 @@ func (a *ListApp) List() error {
 		return errors.NewError("実行中のプロセスの取得に失敗しました", err)
 	}
 
-	req := message.SendSimpleEmbedMessageReq{
-		ChannelID: message.AdminChannelID,
-		Title:     "一覧の表示",
-		Content:   msg,
-		ColorCode: shared.ColorPink,
+	req := &discordgo.MessageEmbed{
+		Title:       "一覧の表示",
+		Description: msg,
+		Color:       shared.ColorPink,
 	}
-	if err = message.SendSimpleEmbedMessage(a.Session, req); err != nil {
+	_, err = a.Session.ChannelMessageSendEmbed(message.AdminChannelID, req)
+	if err != nil {
 		return errors.NewError("一覧をAdminサーバーに送信できません", err)
 	}
 

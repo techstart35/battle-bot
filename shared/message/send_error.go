@@ -42,13 +42,14 @@ func SendErr(s *discordgo.Session, req SendErrReq) {
 
 	m := fmt.Sprintf(sendErrTmpl, guildName, channelLink, req.Message, req.Err.Error())
 
-	r := SendSimpleEmbedMessageReq{
-		ChannelID: AdminChannelID,
-		Title:     "エラーが発生しました",
-		Content:   m,
-		ColorCode: shared.ColorRed,
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "エラーが発生しました",
+		Description: m,
+		Color:       shared.ColorRed,
 	}
-	if e = SendSimpleEmbedMessage(s, r); e != nil {
+
+	_, e = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
+	if e != nil {
 		errors.LogErr("エラーメッセージをAdminサーバーに送信できません", e)
 	}
 }
