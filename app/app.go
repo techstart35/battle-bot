@@ -12,8 +12,6 @@ type Repository interface {
 	Update(btl battle.Battle) error
 	Delete(guildID model.GuildID) error
 	RejectStart()
-	FindByGuildID(guildID model.GuildID) (battle.Battle, error)
-	FindAll() ([]battle.Battle, error)
 }
 
 // アプリケーションです

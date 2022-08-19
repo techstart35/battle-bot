@@ -5,6 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
 	"github.com/techstart35/battle-bot/domain/model"
+	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/guild"
@@ -28,6 +29,11 @@ func NewStopApp(app *app.App) *StopApp {
 //
 // ユーザーへのメッセージはこの関数内でのみ記述します。
 func (a *StopApp) StopBattle(guildID, channelID string) error {
+	q, err := di.InitQuery()
+	if err != nil {
+		return errors.NewError("クエリーの初期化に失敗しました", err)
+	}
+
 	gID, err := model.NewGuildID(guildID)
 	if err != nil {
 		return errors.NewError("ギルドIDを作成できません", err)
@@ -39,11 +45,11 @@ func (a *StopApp) StopBattle(guildID, channelID string) error {
 	}
 
 	// Adminに停止コマンド起動メッセージを送信
-	if err := a.sendStopMsgToAdmin(a.Session, gID, cID); err != nil {
+	if err := a.sendStopMsgToAdmin(gID, cID); err != nil {
 		return errors.NewError("Adminに停止コマンド起動メッセージを送信できません", err)
 	}
 
-	btl, err := a.Repo.FindByGuildID(gID)
+	btl, err := q.FindByGuildID(gID)
 	if err != nil && err != errors.NotFoundErr {
 		return errors.NewError("ギルドIDでバトルを取得できません", err)
 	}
@@ -116,7 +122,6 @@ func (a *StopApp) sendValidateErrMsgToUser(s *discordgo.Session, cID model.Chann
 //
 // [注意]バトルを取得できない可能性もあるため、引数のIDはコマンド実行時のIDを入れます。
 func (a *StopApp) sendStopMsgToAdmin(
-	s *discordgo.Session,
 	guildID model.GuildID,
 	channelID model.ChannelID,
 ) error {
@@ -125,7 +130,7 @@ func (a *StopApp) sendStopMsgToAdmin(
 🔗｜チャンネル：**%s**
 `
 
-	guildName, err := guild.GetGuildName(s, guildID.String())
+	guildName, err := guild.GetGuildName(a.Session, guildID.String())
 	if err != nil {
 		return errors.NewError("ギルドを取得できません", err)
 	}
@@ -141,7 +146,7 @@ func (a *StopApp) sendStopMsgToAdmin(
 		Timestamp: shared.GetNowTimeStamp(),
 	}
 
-	_, err = s.ChannelMessageSendEmbed(message.AdminChannelID, embedInfo)
+	_, err = a.Session.ChannelMessageSendEmbed(message.AdminChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("起動通知メッセージを送信できません", err)
 	}

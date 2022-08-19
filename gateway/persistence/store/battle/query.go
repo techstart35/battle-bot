@@ -1,6 +1,7 @@
 package battle
 
 import (
+	"github.com/techstart35/battle-bot/domain/model"
 	"github.com/techstart35/battle-bot/domain/model/battle"
 	"github.com/techstart35/battle-bot/shared/errors"
 )
@@ -16,11 +17,11 @@ func NewQuery() (*Query, error) {
 // ギルドIDからバトルを取得します
 //
 // コールする場合は、NotFoundErrのエラーハンドリングをしてください。
-func (q *Query) FindByGuildID(guildID string) (battle.Battle, error) {
+func (q *Query) FindByGuildID(guildID model.GuildID) (battle.Battle, error) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
-	if btl, ok := store.battle[guildID]; ok {
+	if btl, ok := store.battle[guildID.String()]; ok {
 		return btl, nil
 	}
 

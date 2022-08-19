@@ -3,6 +3,7 @@ package battle
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app/list"
+	"github.com/techstart35/battle-bot/app/reject_start"
 	"github.com/techstart35/battle-bot/app/stop"
 	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
@@ -46,6 +47,19 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err = listApp.List(); err != nil {
 			req := message.SendErrReq{
 				Message:   "リストの送信に失敗しました",
+				GuildID:   m.GuildID,
+				ChannelID: m.ChannelID,
+				Err:       err,
+			}
+			message.SendErr(s, req)
+			return
+		}
+	case shared.Command().RejectStart:
+		rejectApp := reject_start.NewRejectStartApp(ap)
+
+		if err = rejectApp.RejectStart(); err != nil {
+			req := message.SendErrReq{
+				Message:   "新規起動の停止に失敗しました",
 				GuildID:   m.GuildID,
 				ChannelID: m.ChannelID,
 				Err:       err,
