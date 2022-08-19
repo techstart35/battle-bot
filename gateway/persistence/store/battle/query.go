@@ -1,0 +1,47 @@
+package battle
+
+import (
+	"github.com/techstart35/battle-bot/domain/model/battle"
+	"github.com/techstart35/battle-bot/shared/errors"
+)
+
+// クエリです
+type Query struct{}
+
+// クエリを生成します
+func NewQuery() (*Query, error) {
+	return &Query{}, nil
+}
+
+// ギルドIDからバトルを取得します
+//
+// コールする場合は、NotFoundErrのエラーハンドリングをしてください。
+func (q *Query) FindByGuildID(guildID string) (battle.Battle, error) {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	if btl, ok := store.battle[guildID]; ok {
+		return btl, nil
+	}
+
+	return battle.Battle{}, errors.NotFoundErr
+}
+
+// 全てのバトルを取得します
+func (q *Query) FindAll() []battle.Battle {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	res := make([]battle.Battle, 0)
+
+	for _, v := range store.battle {
+		res = append(res, v)
+	}
+
+	return res
+}
+
+// 新規起動停止フラグを取得します
+func (q *Query) IsStartRejected() bool {
+	return isStartRejected
+}

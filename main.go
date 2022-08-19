@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
-	"github.com/techstart35/battle-bot/handler/battle/normal"
-	"github.com/techstart35/battle-bot/handler/process"
-	"github.com/techstart35/battle-bot/handler/reject_start"
-	"github.com/techstart35/battle-bot/handler/stop"
+	"github.com/techstart35/battle-bot/expose/battle"
 	"github.com/techstart35/battle-bot/shared/message"
 	"log"
 	"os"
@@ -36,25 +33,40 @@ func main() {
 	session, err := discordgo.New(Token)
 	session.Token = Token
 	if err != nil {
-		message.SendErr(session, "discordのクライアントを作成できません", "none", "none", err)
+		req := message.SendErrReq{
+			Message:   "discordのクライアントを作成できません",
+			GuildID:   "none",
+			ChannelID: "none",
+			Err:       err,
+		}
+		message.SendErr(session, req)
 		return
 	}
 
 	//イベントハンドラを追加
-	session.AddHandler(normal.NormalBattleHandler)
-	session.AddHandler(stop.StopHandler)
-	session.AddHandler(process.ProcessHandler)
-	session.AddHandler(reject_start.RejectStartHandler)
+	session.AddHandler(battle.Handler)
 
 	if err = session.Open(); err != nil {
-		message.SendErr(session, "discordを開けません", "none", "none", err)
+		req := message.SendErrReq{
+			Message:   "discordを開けません",
+			GuildID:   "none",
+			ChannelID: "none",
+			Err:       err,
+		}
+		message.SendErr(session, req)
 		return
 	}
 
 	// 直近の関数（main）の最後に実行される
 	defer func() {
 		if err = session.Close(); err != nil {
-			message.SendErr(session, "discordのクライアントを閉じれません", "none", "none", err)
+			req := message.SendErrReq{
+				Message:   "discordのクライアントを閉じれません",
+				GuildID:   "none",
+				ChannelID: "none",
+				Err:       err,
+			}
+			message.SendErr(session, req)
 		}
 		return
 	}()

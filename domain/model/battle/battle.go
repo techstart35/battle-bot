@@ -4,6 +4,7 @@ import (
 	"github.com/techstart35/battle-bot/domain/model"
 	"github.com/techstart35/battle-bot/domain/model/battle/unit"
 	"github.com/techstart35/battle-bot/shared/errors"
+	"time"
 )
 
 // バトルです
@@ -13,7 +14,9 @@ type Battle struct {
 	anotherChannelID model.ChannelID
 	entryMessageID   model.MessageID
 	isCanceled       bool
+	isFinished       bool
 	unit             unit.Unit
+	created          time.Time
 }
 
 // バトルを作成します
@@ -27,7 +30,9 @@ func NewBattle(
 	b.anotherChannelID = anotherChannelID
 	b.entryMessageID = model.MessageID{}
 	b.isCanceled = false
+	b.isFinished = false
 	b.unit = unit.Unit{}
+	b.created = time.Now()
 
 	return b, nil
 }
@@ -58,7 +63,7 @@ func (b *Battle) UpdateUnit(unit unit.Unit) {
 }
 
 // ------------------
-// 以下 Getter
+// getter
 // ------------------
 
 // ギルドIDを取得します
@@ -84,6 +89,11 @@ func (b *Battle) EntryMessageID() model.MessageID {
 // キャンセルフラグを取得します
 func (b *Battle) IsCanceled() bool {
 	return b.isCanceled
+}
+
+// 終了フラグを取得します
+func (b *Battle) IsFinished() bool {
+	return b.isFinished
 }
 
 // ユニットを取得します

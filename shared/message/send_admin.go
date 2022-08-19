@@ -76,32 +76,3 @@ func SendNormalFinishMessageToAdmin(s *discordgo.Session, guildID string) error 
 
 	return nil
 }
-
-// 停止コマンド実行時に自分のサーバーにメッセージを送信します
-func SendStopMessageToAdmin(s *discordgo.Session, guildID string) error {
-	guildName, err := guild.GetGuildName(s, guildID)
-	if err != nil {
-		return errors.NewError("ギルドを取得できません", err)
-	}
-
-	var template = `
-**⚔️｜サーバー名**：%s
-`
-
-	now := time.Now().Format("2006-01-02T15:04:05+09:00")
-	msg := fmt.Sprintf(template, guildName)
-
-	embedInfo := &discordgo.MessageEmbed{
-		Title:       "停止コマンドが実行されました",
-		Description: msg,
-		Color:       shared.ColorYellow,
-		Timestamp:   now,
-	}
-
-	_, err = s.ChannelMessageSendEmbed(AdminChannelID, embedInfo)
-	if err != nil {
-		return errors.NewError("起動通知メッセージを送信できません", err)
-	}
-
-	return nil
-}
