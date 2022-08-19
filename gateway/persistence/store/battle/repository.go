@@ -97,3 +97,21 @@ func (r *Repository) FindByGuildID(guildID model.GuildID) (battle.Battle, error)
 
 	return btl, nil
 }
+
+// 全てのバトルを取得します
+func (r *Repository) FindAll() ([]battle.Battle, error) {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	res := make([]battle.Battle, 0)
+
+	if len(store.battle) == 0 {
+		return res, errors.NotFoundErr
+	}
+
+	for _, v := range store.battle {
+		res = append(res, v)
+	}
+
+	return res, nil
+}

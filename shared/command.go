@@ -5,7 +5,7 @@ import "os"
 type CMD struct {
 	Start       string
 	Stop        string
-	Process     string
+	List        string
 	RejectStart string
 }
 
@@ -17,14 +17,14 @@ func Command() CMD {
 		return CMD{
 			Start:       "!b",
 			Stop:        "!stopb",
-			Process:     "!processb",
+			List:        "!listb",
 			RejectStart: "!rejectstartb",
 		}
 	default:
 		return CMD{
 			Start:       "b",
 			Stop:        "stopb",
-			Process:     "processb",
+			List:        "listb",
 			RejectStart: "rejectstartb",
 		}
 	}

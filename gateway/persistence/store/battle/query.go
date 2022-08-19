@@ -28,17 +28,21 @@ func (q *Query) FindByGuildID(guildID string) (battle.Battle, error) {
 }
 
 // 全てのバトルを取得します
-func (q *Query) FindAll() []battle.Battle {
+func (q *Query) FindAll() ([]battle.Battle, error) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
 	res := make([]battle.Battle, 0)
 
+	if len(store.battle) == 0 {
+		return res, errors.NotFoundErr
+	}
+
 	for _, v := range store.battle {
 		res = append(res, v)
 	}
 
-	return res
+	return res, nil
 }
 
 // 新規起動停止フラグを取得します
