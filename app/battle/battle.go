@@ -18,6 +18,7 @@ var (
 	startRejectedErr = fmt.Errorf("StartRejectedErr")
 	isExistsErr      = fmt.Errorf("IsExistsErr")
 	commandErr       = fmt.Errorf("CommandErr")
+	isCanceledErr    = fmt.Errorf("IsCanceled")
 )
 
 // バトル構造体です
@@ -116,13 +117,18 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// カウントダウンメッセージを送信します
-	if err = a.countDownScenario(gID); err != nil {
+	switch err = a.countDownScenario(gID); err {
+	case nil:
+		break
+	case isCanceledErr:
+		return nil
+	default:
 		return errors.NewError("カウントダウンメッセージを送信できません", err)
 	}
 
 	// 正常終了通知を送信します
 	//
-	// [Attention] 一番最後に実行します
+	// [Notice] 一番最後に実行します
 	if err = a.sendFinishedMsgToAdmin(gID, cID); err != nil {
 		return errors.NewError("正常終了通知を送信できません", err)
 	}

@@ -37,6 +37,11 @@ func (a *BattleApp) sendEntryMessageToUser(guildID model.GuildID) error {
 		return errors.NewError("ギルドIDでバトルを取得できません", err)
 	}
 
+	// キャンセルを確認します
+	if btl.IsCanceled() {
+		return isCanceledErr
+	}
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(noAnotherChannelTemplate, btl.AuthorID().String()),
