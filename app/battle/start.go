@@ -13,32 +13,12 @@ import (
 	"strings"
 )
 
-// エントリーチャンネルに送信するメッセージです
-var entryChannelTemplate = `
-⚡️挑戦者(%d名）：%s
-⚡️勝者：**1名**
-⚡️勝率：**%v％**
-⚡️<#%s> チャンネルでも配信中
-`
-
-// エントリーチャンネルに送信するメッセージです
-var entryChannelNoAnotherChannelTemplate = `
-⚡️挑戦者(%d名）：%s
-⚡️勝者：**1名**
-⚡️勝率：**%v％**
-`
-
-// 別チャンネルに送信するメッセージです
+// 開始メッセージのシナリオです
 //
-// 別チャンネルを指定していない場合のエントリーチャンネルもこちらのテンプレートを使用します。
-var anotherChannelTemplate = `
-⚡️挑戦者（%d名）：%s
-⚡️勝者：**1名**
-⚡️勝率：**%v％**
-`
-
-// 開始メッセージを送信します
-func (a *BattleApp) sendStartMsgToUser(guildID model.GuildID) error {
+// エントリーが0名の場合はNoEntryメッセージを送信します。
+//
+// コールする側で NoEntryErr, IsCanceledErr のハンドリングをします。
+func (a *BattleApp) entryMsgScenario(guildID model.GuildID) error {
 	// クエリー
 	btl, err := a.Query.FindByGuildID(guildID)
 	if err != nil {
@@ -89,54 +69,77 @@ func (a *BattleApp) sendStartMsgToUser(guildID model.GuildID) error {
 		challengers = append(challengers, v.Name().String())
 	}
 
+	// 参加者が0名の場合はNoEntryメッセージを送信
+	if len(challengers) == 0 {
+		if err = a.sendNoEntryMsgToUser(
+			btl.ChannelID(),
+			btl.AnotherChannelID(),
+		); err != nil {
+			return errors.NewError("NoEntryメッセージを送信できません", err)
+		}
+
+		return noEntryErr
+	}
+
+	// 開始メッセージを送信します
+	if err = a.sendStartMsgToUser(
+		btl.ChannelID(),
+		btl.AnotherChannelID(),
+		challengers,
+	); err != nil {
+		return errors.NewError("開始メッセージを送信できません", err)
+	}
+
+	return nil
+}
+
+// エントリーメッセージのテンプレートです
+//
+// 配信chは必ずこれが送信されます。
+const entryTmpl = `
+⚡️挑戦者(%d名）：%s
+⚡️勝者：**1名**
+⚡️勝率：**%v％**
+`
+
+// 開始メッセージを送信します
+func (a *BattleApp) sendStartMsgToUser(
+	chID model.ChannelID,
+	anChID model.AnotherChannelID,
+	userNames []string,
+) error {
+	userNum := len(userNames)
+
 	userStr := "100名を超えたため省略"
-	if len(challengers) < 100 {
-		userStr = strings.Join(challengers, ", ")
+	if userNum < 100 {
+		userStr = strings.Join(userNames, ", ")
 	}
 
 	var probability float64 = 0
-	if len(challengers) > 0 {
-		p := 1 / float64(len(challengers)) * 100
+	if userNum > 0 {
+		p := 1 / float64(userNum) * 100
 		probability = math.Round(p*10) / 10
 	}
 
-	// 別チャンネルがない場合を想定
+	// エントリーチャンネルに送信
 	embedInfo := &discordgo.MessageEmbed{
-		Title: "⚔️ Battle Start ⚔️",
-		Description: fmt.Sprintf(
-			entryChannelNoAnotherChannelTemplate,
-			len(challengers),
-			userStr,
-			probability,
-		),
-		Color: shared.ColorRed,
+		Title:       "⚔️ Battle Start ⚔️",
+		Description: fmt.Sprintf(entryTmpl, userNum, userStr, probability),
+		Color:       shared.ColorRed,
 	}
 
-	// 別チャンネルがあった場合
-	if !btl.AnotherChannelID().IsEmpty() {
-		// エントリーチャンネルに送信
+	_, err := a.Session.ChannelMessageSendEmbed(chID.String(), embedInfo)
+	if err != nil {
+		return errors.NewError("メッセージの送信に失敗しました", err)
+	}
+
+	// 配信チャンネルに送信
+	if !anChID.IsEmpty() {
 		embedInfo.Description = fmt.Sprintf(
-			entryChannelTemplate,
-			len(challengers),
-			userStr,
-			probability,
-			btl.AnotherChannelID().String(),
+			entryTmpl, userNum, userStr, probability,
 		)
 
-		_, err = a.Session.ChannelMessageSendEmbed(btl.ChannelID().String(), embedInfo)
-		if err != nil {
-			return errors.NewError("メッセージの送信に失敗しました", err)
-		}
-
-		// 別チャンネルに送信
-		embedInfo.Description = fmt.Sprintf(
-			anotherChannelTemplate,
-			len(challengers),
-			userStr,
-			probability,
-		)
-
-		_, err = a.Session.ChannelMessageSendEmbed(btl.AnotherChannelID().String(), embedInfo)
+		_, err = a.Session.ChannelMessageSendEmbed(anChID.String(), embedInfo)
 		if err != nil {
 			return errors.NewError("メッセージの送信に失敗しました", err)
 		}
@@ -144,7 +147,31 @@ func (a *BattleApp) sendStartMsgToUser(guildID model.GuildID) error {
 		return nil
 	}
 
-	_, err = a.Session.ChannelMessageSendEmbed(btl.ChannelID().String(), embedInfo)
+	return nil
+}
+
+// NoEntryメッセージを送信します
+func (a *BattleApp) sendNoEntryMsgToUser(
+	chID model.ChannelID,
+	anChID model.AnotherChannelID,
+) error {
+	const MsgTmpl = `
+エントリーが無かったため、試合は開始されません
+`
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "No Entry",
+		Description: MsgTmpl,
+		Color:       shared.ColorRed,
+	}
+
+	if !anChID.IsEmpty() {
+		_, err := a.Session.ChannelMessageSendEmbed(anChID.String(), embedInfo)
+		if err != nil {
+			return errors.NewError("メッセージの送信に失敗しました", err)
+		}
+	}
+
+	_, err := a.Session.ChannelMessageSendEmbed(chID.String(), embedInfo)
 	if err != nil {
 		return errors.NewError("メッセージの送信に失敗しました", err)
 	}

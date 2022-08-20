@@ -18,7 +18,8 @@ var (
 	startRejectedErr = fmt.Errorf("StartRejectedErr")
 	isExistsErr      = fmt.Errorf("IsExistsErr")
 	commandErr       = fmt.Errorf("CommandErr")
-	isCanceledErr    = fmt.Errorf("IsCanceled")
+	isCanceledErr    = fmt.Errorf("IsCanceledErr")
+	noEntryErr       = fmt.Errorf("NoEntryErr")
 )
 
 // バトル構造体です
@@ -49,35 +50,40 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// 起動確認のバリデーションを行います
-	switch err = a.validateEnabled(gID); err {
-	case nil:
-		break
-	case startRejectedErr:
-		if err = a.sendStartRejectedErrMsgToUser(cID); err != nil {
-			return errors.NewError("起動停止済みメッセージを送信できません", err)
+	{
+		switch err = a.validateEnabled(gID); err {
+		case nil:
+			break
+		case startRejectedErr:
+			if err = a.sendStartRejectedErrMsgToUser(cID); err != nil {
+				return errors.NewError("起動停止済みメッセージを送信できません", err)
+			}
+			return nil
+		case isExistsErr:
+			if err = a.sendIsExistsErrToUser(cID); err != nil {
+				return errors.NewError("重複起動エラーメッセージを送信できません", err)
+			}
+			return nil
+		default:
+			return errors.NewError("検証に失敗しました", err)
 		}
-		return nil
-	case isExistsErr:
-		if err = a.sendIsExistsErrToUser(cID); err != nil {
-			return errors.NewError("重複起動エラーメッセージを送信できません", err)
-		}
-		return nil
-	default:
-		return errors.NewError("検証に失敗しました", err)
 	}
 
+	var anChID string
 	// コマンドのバリデーションを行います
-	anChID, err := a.validateInput(input)
-	switch err {
-	case nil:
-		break
-	case commandErr:
-		if err = a.sendCommandErrMsgToUser(cID); err != nil {
-			return errors.NewError("コマンドエラーメッセージを送信できません", err)
+	{
+		anChID, err = a.validateInput(input)
+		switch err {
+		case nil:
+			break
+		case commandErr:
+			if err = a.sendCommandErrMsgToUser(cID); err != nil {
+				return errors.NewError("コマンドエラーメッセージを送信できません", err)
+			}
+			return nil
+		default:
+			return errors.NewError("検証に失敗しました", err)
 		}
-		return nil
-	default:
-		return errors.NewError("検証に失敗しました", err)
 	}
 
 	// battle構造体を作成します
@@ -87,8 +93,15 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// Adminサーバーに起動メッセージを送信します
-	if err = a.sendStartMsgToAdmin(gID, cID, input); err != nil {
-		return errors.NewError("起動通知を送信できません")
+	{
+		if err = a.sendStartMsgToAdmin(gID, cID, input); err != nil {
+			return errors.NewError("起動通知を送信できません")
+		}
+
+		// --------------------------------------
+		// これ以降のカスタムエラーでの正常終了時は、
+		// Adminサーバーに終了通知を送信します
+		// --------------------------------------
 	}
 
 	// 永続化します
@@ -113,31 +126,59 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// エントリーメッセージを送信します
-	if err = a.sendEntryMsgToUser(gID); err != nil {
-		return errors.NewError("エントリーメッセージを送信できません", err)
+	{
+		if err = a.sendEntryMsgToUser(gID); err != nil {
+			return errors.NewError("エントリーメッセージを送信できません", err)
+		}
 	}
 
 	// カウントダウンメッセージを送信します
-	switch err = a.countDownScenario(gID); err {
-	case nil:
-		break
-	case isCanceledErr:
-		return nil
-	default:
-		return errors.NewError("カウントダウンメッセージを送信できません", err)
+	{
+		switch err = a.countDownScenario(gID); err {
+		case nil:
+			break
+		case isCanceledErr:
+			// 正常にCXLが完了した通知をAdminに送信します
+			if err = a.sendCxlAndSafeFinishedMsgToAdmin(gID); err != nil {
+				return errors.NewError("キャンセル処理完了メッセージを送信できません", err)
+			}
+			return nil
+		default:
+			return errors.NewError("カウントダウンメッセージを送信できません", err)
+		}
 	}
 
 	// 開始メッセージを送信します
-	if err = a.sendStartMsgToUser(gID); err != nil {
-		return errors.NewError("開始メッセージを送信できません", err)
+	{
+		switch err = a.entryMsgScenario(gID); err {
+		case nil:
+			break
+		case isCanceledErr:
+			// 正常にCXLが完了した通知をAdminに送信します
+			if err = a.sendCxlAndSafeFinishedMsgToAdmin(gID); err != nil {
+				return errors.NewError("キャンセル処理完了メッセージを送信できません", err)
+			}
+			return nil
+		case noEntryErr:
+			// NoEntryで正常終了した通知をAdminに送信します
+			if err = a.sendNoEntryAndSafeFinishedMsgToAdmin(gID); err != nil {
+				return errors.NewError("NoEntryで正常終了したメッセージを送信できません", err)
+			}
+			return nil
+		default:
+			return errors.NewError("開始メッセージを送信できません", err)
+		}
 	}
 
-	// TODO: バトルメッセージを送信
+	// バトルメッセージを送信します
+	{
+		// TODO: バトルメッセージを送信
+	}
 
 	// 正常終了通知を送信します
 	//
 	// [Notice] メソッドの一番最後に実行します
-	if err = a.sendFinishedMsgToAdmin(gID, cID); err != nil {
+	if err = a.sendSafeFinishedMsgToAdmin(gID); err != nil {
 		return errors.NewError("正常終了通知を送信できません", err)
 	}
 
@@ -297,10 +338,7 @@ func (a *BattleApp) sendStartMsgToAdmin(
 }
 
 // 正常終了時にAdminサーバーに通知します
-func (a *BattleApp) sendFinishedMsgToAdmin(
-	guildID model.GuildID,
-	channelID model.ChannelID,
-) error {
+func (a *BattleApp) sendSafeFinishedMsgToAdmin(guildID model.GuildID) error {
 	var MessageTmpl = `
 ✅️️｜サーバー名：**%s**
 `
@@ -312,6 +350,58 @@ func (a *BattleApp) sendFinishedMsgToAdmin(
 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "正常に終了しました",
+		Description: fmt.Sprintf(MessageTmpl, guildName),
+		Color:       shared.ColorBlue,
+		Timestamp:   shared.GetNowTimeStamp(),
+	}
+
+	_, err = a.Session.ChannelMessageSendEmbed(message.AdminChannelID, embedInfo)
+	if err != nil {
+		return errors.NewError("起動通知メッセージを送信できません", err)
+	}
+
+	return nil
+}
+
+// キャンセル後、正常に処理が完了した時にAdminサーバーに通知します
+func (a *BattleApp) sendCxlAndSafeFinishedMsgToAdmin(guildID model.GuildID) error {
+	var MessageTmpl = `
+✅️️｜サーバー名：**%s**
+`
+
+	guildName, err := guild.GetGuildName(a.Session, guildID.String())
+	if err != nil {
+		return errors.NewError("ギルド名を取得できません", err)
+	}
+
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "キャンセル処理が正常に終了しました",
+		Description: fmt.Sprintf(MessageTmpl, guildName),
+		Color:       shared.ColorBlue,
+		Timestamp:   shared.GetNowTimeStamp(),
+	}
+
+	_, err = a.Session.ChannelMessageSendEmbed(message.AdminChannelID, embedInfo)
+	if err != nil {
+		return errors.NewError("起動通知メッセージを送信できません", err)
+	}
+
+	return nil
+}
+
+// NoEntryで正常に処理が完了した時にAdminサーバーに通知します
+func (a *BattleApp) sendNoEntryAndSafeFinishedMsgToAdmin(guildID model.GuildID) error {
+	var MessageTmpl = `
+✅️️｜サーバー名：**%s**
+`
+
+	guildName, err := guild.GetGuildName(a.Session, guildID.String())
+	if err != nil {
+		return errors.NewError("ギルド名を取得できません", err)
+	}
+
+	embedInfo := &discordgo.MessageEmbed{
+		Title:       "NoEntryで正常に終了しました",
 		Description: fmt.Sprintf(MessageTmpl, guildName),
 		Color:       shared.ColorBlue,
 		Timestamp:   shared.GetNowTimeStamp(),

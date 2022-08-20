@@ -66,7 +66,7 @@ func (a *BattleApp) countDownScenario(guildID model.GuildID) error {
 
 // 基本的なカウントダウンテンプレートです
 //
-// 配信Chは必ずこれが送信されます。
+// 配信chは必ずこれが送信されます。
 const countdownTmpl = `
 開始まで **%d秒**
 
@@ -79,8 +79,8 @@ const countdownTmpl = `
 
 // 別チャンネルありの場合のカウントダウンテンプレートです
 //
-// エントリーChのみ使用されます。
-const countdownTmplToEntryChWithAnotherCH = `
+// エントリーchのみ使用されます。
+const countdownTmplToEntryChWithAnotherCh = `
 開始まで **%d秒**
 
 ⚔️｜対戦
@@ -129,7 +129,7 @@ func (a *BattleApp) sendCountDownMessage(btl *battle.Battle, second int) error {
 		// エントリーチャンネルに送信
 		{
 			embedInfo.Description = fmt.Sprintf(
-				countdownTmplToEntryChWithAnotherCH,
+				countdownTmplToEntryChWithAnotherCh,
 				second,
 				entryURL,
 				btl.AnotherChannelID().String(),
