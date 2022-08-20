@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
-	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/guild"
@@ -29,20 +28,15 @@ func NewList(app *app.App) *ListApp {
 func (a *ListApp) List() error {
 	var msg string
 
-	q, err := di.InitQuery()
-	if err != nil {
-		return errors.NewError("クエリーの初期化に失敗しました", err)
-	}
-
-	btls, err := q.FindAll()
+	btls, err := a.Query.FindAll()
 	switch err {
 	// 正常な場合: ステータスを付与して送信
 	case nil:
 		m := make([]string, 0)
 		for _, btl := range btls {
-			status := "起動中"
+			status := "✅｜起動中"
 			if btl.IsCanceled() {
-				status = "キャンセル済"
+				status = "🌙｜キャンセル済"
 			}
 
 			guildName, err := guild.GetGuildName(a.Session, btl.GuildID().String())
@@ -50,7 +44,7 @@ func (a *ListApp) List() error {
 				return errors.NewError("一覧を送信できません")
 			}
 
-			m = append(m, fmt.Sprintf("%s｜サーバー名: %s", status, guildName))
+			m = append(m, fmt.Sprintf("%s｜サーバー名: **%s**", status, guildName))
 		}
 
 		msg = strings.Join(m, "\n")

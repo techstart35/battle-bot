@@ -2,6 +2,7 @@ package battle
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/app/battle"
 	"github.com/techstart35/battle-bot/app/list"
 	"github.com/techstart35/battle-bot/app/reject_start"
 	"github.com/techstart35/battle-bot/app/stop"
@@ -28,6 +29,19 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd := input[0]
 
 	switch cmd {
+	case shared.Command().Start:
+		battleApp := battle.NewBattleApp(ap)
+
+		if err = battleApp.Battle(m.GuildID, m.ChannelID, m.Author.ID, input); err != nil {
+			req := message.SendErrReq{
+				Message:   "バトルの実行に失敗しました",
+				GuildID:   m.GuildID,
+				ChannelID: m.ChannelID,
+				Err:       err,
+			}
+			message.SendErr(s, req)
+			return
+		}
 	case shared.Command().Stop:
 		stopApp := stop.NewStopApp(ap)
 

@@ -1,12 +1,11 @@
 package normal
 
-//
 //import (
 //	"github.com/bwmarrin/discordgo"
+//	battle2 "github.com/techstart35/battle-bot/app/battle"
 //	"github.com/techstart35/battle-bot/handler/battle"
 //	battleMessage "github.com/techstart35/battle-bot/handler/battle/message/battle/scenario"
 //	"github.com/techstart35/battle-bot/handler/battle/message/countdown"
-//	"github.com/techstart35/battle-bot/handler/battle/message/entry"
 //	"github.com/techstart35/battle-bot/handler/battle/message/start"
 //	"github.com/techstart35/battle-bot/shared"
 //	"github.com/techstart35/battle-bot/shared/errors"
@@ -28,14 +27,14 @@ package normal
 //	}
 //
 //	// 起動可能な状態か確認します
-//	ok, err := battle.CheckBeforeStartAndSendMessage(s, m.GuildID, m.ChannelID)
-//	if err != nil {
-//		message.SendErr(s, "起動前のチェックができません", m.GuildID, m.ChannelID, err)
-//		return
-//	}
-//	if !ok {
-//		return
-//	}
+//	//ok, err := battle.CheckBeforeStartAndSendMessage(s, m.GuildID, m.ChannelID)
+//	//if err != nil {
+//	//	message.SendErr(s, "起動前のチェックができません", m.GuildID, m.ChannelID, err)
+//	//	return
+//	//}
+//	//if !ok {
+//	//	return
+//	//}
 //
 //	var anotherChannelID string
 //
@@ -59,7 +58,7 @@ package normal
 //	defer shared.DeleteStore(m.GuildID)
 //
 //	// エントリーメッセージを送信します
-//	entryMessage, err := entry.SendEntryMessage(s, m, anotherChannelID)
+//	entryMessage, err := battle2.SendEntryMessage(s, m, anotherChannelID)
 //	if err != nil {
 //		message.SendErr(s, "エントリーメッセージを送信できません", m.GuildID, m.ChannelID, err)
 //		return

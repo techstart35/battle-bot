@@ -5,7 +5,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
 	"github.com/techstart35/battle-bot/domain/model"
-	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/guild"
@@ -29,11 +28,6 @@ func NewStopApp(app *app.App) *StopApp {
 //
 // ユーザーへのメッセージはこの関数内でのみ記述します。
 func (a *StopApp) StopBattle(guildID, channelID string) error {
-	q, err := di.InitQuery()
-	if err != nil {
-		return errors.NewError("クエリーの初期化に失敗しました", err)
-	}
-
 	gID, err := model.NewGuildID(guildID)
 	if err != nil {
 		return errors.NewError("ギルドIDを作成できません", err)
@@ -49,19 +43,21 @@ func (a *StopApp) StopBattle(guildID, channelID string) error {
 		return errors.NewError("Adminに停止コマンド起動メッセージを送信できません", err)
 	}
 
-	btl, err := q.FindByGuildID(gID)
+	btl, err := a.Query.FindByGuildID(gID)
 	if err != nil && err != errors.NotFoundErr {
 		return errors.NewError("ギルドIDでバトルを取得できません", err)
 	}
 
-	// バリデーション
-	if err == errors.NotFoundErr || btl.IsCanceled() || btl.IsFinished() {
-		// ユーザーに停止不可メッセージを送信
-		if err = a.sendValidateErrMsgToUser(a.Session, cID); err != nil {
-			return errors.NewError("ユーザーに停止不可メッセージを送信できません", err)
-		}
+	// バリデーションを行います
+	{
+		if err == errors.NotFoundErr || btl.IsCanceled() {
+			// ユーザーに停止不可メッセージを送信します
+			if err = a.sendValidateErrMsgToUser(a.Session, cID); err != nil {
+				return errors.NewError("ユーザーに停止不可メッセージを送信できません", err)
+			}
 
-		return nil
+			return nil
+		}
 	}
 
 	// 停止処理を実行

@@ -20,7 +20,11 @@ func InitApp(session *discordgo.Session) (*app.App, error) {
 	if err != nil {
 		return nil, err
 	}
-	appApp := app.NewApp(repository, session)
+	query, err := battle.NewQuery()
+	if err != nil {
+		return nil, err
+	}
+	appApp := app.NewApp(repository, query, session)
 	return appApp, nil
 }
 

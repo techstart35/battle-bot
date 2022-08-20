@@ -15,7 +15,9 @@ func InitApp(session *discordgo.Session) (*app.App, error) {
 	wire.Build(
 		app.NewApp,
 		battle.NewRepository,
+		battle.NewQuery,
 		wire.Bind(new(app.Repository), new(*battle.Repository)),
+		wire.Bind(new(app.Query), new(*battle.Query)),
 	)
 	return nil, nil
 }

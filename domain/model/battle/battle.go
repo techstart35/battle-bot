@@ -11,10 +11,10 @@ import (
 type Battle struct {
 	guildID          model.GuildID
 	channelID        model.ChannelID
-	anotherChannelID model.ChannelID
+	anotherChannelID model.AnotherChannelID
 	entryMessageID   model.MessageID
+	authorID         model.UserID
 	isCanceled       bool
-	isFinished       bool
 	unit             unit.Unit
 	created          time.Time
 }
@@ -22,15 +22,17 @@ type Battle struct {
 // バトルを作成します
 func NewBattle(
 	guildID model.GuildID,
-	channelID, anotherChannelID model.ChannelID,
+	channelID model.ChannelID,
+	anotherChannelID model.AnotherChannelID,
+	authorID model.UserID,
 ) (*Battle, error) {
 	b := &Battle{}
 	b.guildID = guildID
 	b.channelID = channelID
 	b.anotherChannelID = anotherChannelID
 	b.entryMessageID = model.MessageID{}
+	b.authorID = authorID
 	b.isCanceled = false
-	b.isFinished = false
 	b.unit = unit.Unit{}
 	b.created = time.Now()
 
@@ -77,7 +79,7 @@ func (b *Battle) ChannelID() model.ChannelID {
 }
 
 // 配信チャンネルのIDを取得します
-func (b *Battle) AnotherChannelID() model.ChannelID {
+func (b *Battle) AnotherChannelID() model.AnotherChannelID {
 	return b.anotherChannelID
 }
 
@@ -86,14 +88,14 @@ func (b *Battle) EntryMessageID() model.MessageID {
 	return b.entryMessageID
 }
 
+// 起動者のIDを取得します
+func (b *Battle) AuthorID() model.UserID {
+	return b.authorID
+}
+
 // キャンセルフラグを取得します
 func (b *Battle) IsCanceled() bool {
 	return b.isCanceled
-}
-
-// 終了フラグを取得します
-func (b *Battle) IsFinished() bool {
-	return b.isFinished
 }
 
 // ユニットを取得します

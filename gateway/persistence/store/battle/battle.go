@@ -9,14 +9,17 @@ import (
 //
 // ギルドID: battle構造体
 type Store struct {
-	battle map[string]battle.Battle
+	battle map[string]*battle.Battle
 	mu     sync.Mutex
 }
 
 // 状態の保存領域です
 //
 // 今後DBに変更を予定しています。
-var store = Store{}
+var store = Store{
+	battle: map[string]*battle.Battle{},
+	mu:     sync.Mutex{},
+}
 
 // 新規起動を停止するフラグです
 var isStartRejected bool

@@ -17,7 +17,7 @@ func NewQuery() (*Query, error) {
 // ギルドIDからバトルを取得します
 //
 // コールする場合は、NotFoundErrのエラーハンドリングをしてください。
-func (q *Query) FindByGuildID(guildID model.GuildID) (battle.Battle, error) {
+func (q *Query) FindByGuildID(guildID model.GuildID) (*battle.Battle, error) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
@@ -25,15 +25,17 @@ func (q *Query) FindByGuildID(guildID model.GuildID) (battle.Battle, error) {
 		return btl, nil
 	}
 
-	return battle.Battle{}, errors.NotFoundErr
+	return &battle.Battle{}, errors.NotFoundErr
 }
 
 // 全てのバトルを取得します
-func (q *Query) FindAll() ([]battle.Battle, error) {
+//
+// コールする側で NotFoundErr の検証をします。
+func (q *Query) FindAll() ([]*battle.Battle, error) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 
-	res := make([]battle.Battle, 0)
+	res := make([]*battle.Battle, 0)
 
 	if len(store.battle) == 0 {
 		return res, errors.NotFoundErr

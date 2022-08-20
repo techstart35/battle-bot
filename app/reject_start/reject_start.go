@@ -3,7 +3,6 @@ package reject_start
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
-	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/message"
@@ -24,14 +23,9 @@ func NewRejectStartApp(app *app.App) *RejectStartApp {
 
 // 新規起動を停止します
 func (a *RejectStartApp) RejectStart() error {
-	q, err := di.InitQuery()
-	if err != nil {
-		return errors.NewError("クエリーの初期化に失敗しました", err)
-	}
-
 	// 起動停止済かを確認
-	if q.IsStartRejected() {
-		if err = a.sendAlreadyRejectedMsgToAdmin(); err != nil {
+	if a.Query.IsStartRejected() {
+		if err := a.sendAlreadyRejectedMsgToAdmin(); err != nil {
 			return errors.NewError("起動停止済メッセージを送信できません", err)
 		}
 		return nil
@@ -40,7 +34,7 @@ func (a *RejectStartApp) RejectStart() error {
 	a.Repo.RejectStart()
 
 	// 停止完了メッセージを送信
-	if err = a.sendStartRejectedMsgToAdmin(); err != nil {
+	if err := a.sendStartRejectedMsgToAdmin(); err != nil {
 		return errors.NewError("起動停止完了メッセージを送信できません", err)
 	}
 
