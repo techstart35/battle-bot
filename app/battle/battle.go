@@ -36,7 +36,7 @@ func NewBattleApp(app *app.App) *BattleApp {
 
 // バトルを実行します
 //
-// ユーザーへのメッセージはこの関数ないでのみ記述します。
+// ユーザーへのメッセージはこの関数内でのみ記述します。
 func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) error {
 	gID, err := model.NewGuildID(guildID)
 	if err != nil {
@@ -96,6 +96,7 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 		if err = a.Repo.Create(btl); err != nil {
 			return errors.NewError("battleを作成できません", err)
 		}
+
 		// deferで発生したエラーのみ、直接Adminサーバーに送信します
 		defer func() {
 			if err = a.Repo.Delete(btl.GuildID()); err != nil {
@@ -112,7 +113,7 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// エントリーメッセージを送信します
-	if err = a.sendEntryMessageToUser(gID); err != nil {
+	if err = a.sendEntryMsgToUser(gID); err != nil {
 		return errors.NewError("エントリーメッセージを送信できません", err)
 	}
 
@@ -126,9 +127,16 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 		return errors.NewError("カウントダウンメッセージを送信できません", err)
 	}
 
+	// 開始メッセージを送信します
+	if err = a.sendStartMsgToUser(gID); err != nil {
+		return errors.NewError("開始メッセージを送信できません", err)
+	}
+
+	// TODO: バトルメッセージを送信
+
 	// 正常終了通知を送信します
 	//
-	// [Notice] 一番最後に実行します
+	// [Notice] メソッドの一番最後に実行します
 	if err = a.sendFinishedMsgToAdmin(gID, cID); err != nil {
 		return errors.NewError("正常終了通知を送信できません", err)
 	}
@@ -309,7 +317,7 @@ func (a *BattleApp) sendFinishedMsgToAdmin(
 		Timestamp:   shared.GetNowTimeStamp(),
 	}
 
-	_, err = a.Session.ChannelMessageSendEmbed(channelID.String(), embedInfo)
+	_, err = a.Session.ChannelMessageSendEmbed(message.AdminChannelID, embedInfo)
 	if err != nil {
 		return errors.NewError("起動通知メッセージを送信できません", err)
 	}

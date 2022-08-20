@@ -30,7 +30,7 @@ var withAnotherChannelTemplate = `
 // 起動元のチャンネルのみに送信します。
 //
 // この関数ではキャンセル処理の確認を行いません。
-func (a *BattleApp) sendEntryMessageToUser(guildID model.GuildID) error {
+func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 	// クエリー
 	btl, err := a.Query.FindByGuildID(guildID)
 	if err != nil {

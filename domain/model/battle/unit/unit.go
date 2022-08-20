@@ -2,7 +2,6 @@ package unit
 
 import (
 	"github.com/techstart35/battle-bot/domain/model/battle/unit/user"
-	"github.com/techstart35/battle-bot/shared/errors"
 )
 
 // ユニットです
@@ -18,10 +17,6 @@ func NewUnit(survivor, loser []user.User, nextRound Round) (Unit, error) {
 	u.survivor = survivor
 	u.loser = loser
 	u.nextRound = nextRound
-
-	if err := u.validate(); err != nil {
-		return Unit{}, errors.NewError("検証に失敗しました", err)
-	}
 
 	return u, nil
 }
@@ -39,13 +34,4 @@ func (u Unit) Loser() []user.User {
 // ラウンド数を取得します
 func (u Unit) Round() Round {
 	return u.nextRound
-}
-
-// 検証します
-func (u Unit) validate() error {
-	if len(u.survivor) < 1 {
-		return errors.NewError("生き残りが0名です")
-	}
-
-	return nil
 }
