@@ -73,18 +73,18 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 
 		// バトルを更新して永続化
 		{
-			b, err := updateBattleIncrementDead(btl, res.Loser, round)
+			btl, err = updateBattleIncrementDead(btl, res.Loser, round)
 			if err != nil {
 				return errors.NewError("バトルを更新できません", err)
 			}
 
-			if err := a.Repo.Update(b); err != nil {
+			if err = a.Repo.Update(btl); err != nil {
 				return errors.NewError("更新できません", err)
 			}
 		}
 
 		// ユニットメッセージを送信
-		if err := a.sendUnitMsg(
+		if err = a.sendUnitMsg(
 			btl.ChannelID(),
 			btl.AnotherChannelID(),
 			res.Description,
@@ -118,7 +118,7 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 					return errors.NewError("バトルを更新できません", err)
 				}
 
-				if err := a.Repo.Update(b); err != nil {
+				if err = a.Repo.Update(b); err != nil {
 					return errors.NewError("更新できません", err)
 				}
 				isRevived = true
@@ -132,7 +132,11 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			canRevive = true
 		}
 
-		return nil
+		if len(btl.Unit().Survivor()) > 1 {
+			time.Sleep(17 * time.Second)
+		}
+
+		round++
 	}
 }
 
@@ -283,7 +287,6 @@ const (
 // Unitメッセージ作成のレスポンスです
 type CreateUnitMsgRes struct {
 	Description string
-	Winner      []user.User // TODO: Winner不要?
 	Loser       []user.User
 }
 
@@ -294,26 +297,24 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	res := CreateUnitMsgRes{}
 
 	// ユーザーのシャッフルを行います
-	stage = util.ShuffleUser(stage)
+	stg := util.ShuffleUser(stage)
 
-	winner := make([]user.User, 0)
 	loser := make([]user.User, 0)
 	line := make([]string, 0)
 	count := 0
 
 	// 1回のループで、1文が作成されます。
 	for {
-		switch a.getBattleKind(len(stage), count) {
+		switch a.getBattleKind(len(stg), count) {
 		case battle:
-			w := stage[0] // index[0]をwinnerとします
-			l := stage[1] // index[1]をloserとします
+			w := stg[0] // index[0]をwinnerとします
+			l := stg[1] // index[1]をloserとします
 			li := template.GetRandomBattleTmpl(
 				w.Name().String(), l.Name().String(), count,
 			)
 
 			// 結果を追加
 			{
-				winner = append(winner, w)
 				loser = append(loser, l)
 				line = append(line, li)
 			}
@@ -321,15 +322,15 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 			// stgから2名を削除
 			{
 				for i := 0; i < 2; i++ {
-					s, err := util.RemoveUserByIndex(stage, 0)
+					s, err := util.RemoveUserByIndex(stg, 0)
 					if err != nil {
 						return res, errors.NewError("Userのスライスから指定のindexを削除できません", err)
 					}
-					stage = s
+					stg = s
 				}
 			}
 		case soloBattle:
-			l := stage[0]
+			l := stg[0]
 			li := template.GetRandomSoloBattleTmpl(l.Name().String(), count)
 
 			// 結果を追加
@@ -340,35 +341,34 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 
 			// stgから1名を削除
 			{
-				s, err := util.RemoveUserByIndex(stage, 0)
+				s, err := util.RemoveUserByIndex(stg, 0)
 				if err != nil {
 					return res, errors.NewError("Userのスライスから指定のindexを削除できません", err)
 				}
-				stage = s
+				stg = s
 			}
 		case none:
-			w := stage[0]
+			w := stg[0]
 			li := template.GetRandomNoneTmpl(w.Name().String(), count)
 
 			// 結果を追加
 			{
-				winner = append(winner, w)
 				line = append(line, li)
 			}
 
 			// stgから1名を削除
 			{
-				s, err := util.RemoveUserByIndex(stage, 0)
+				s, err := util.RemoveUserByIndex(stg, 0)
 				if err != nil {
 					return res, errors.NewError("Userのスライスから指定のindexを削除できません", err)
 				}
-				stage = s
+				stg = s
 			}
 		default:
 			return res, errors.NewError("バトルの種類が指定の値ではありません")
 		}
 
-		if len(stage) == 0 {
+		if len(stg) == 0 {
 			break
 		}
 
@@ -377,7 +377,6 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	}
 
 	res.Description = strings.Join(line, "\n")
-	res.Winner = winner
 	res.Loser = loser
 
 	return res, nil

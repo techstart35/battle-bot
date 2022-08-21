@@ -8,14 +8,18 @@ import (
 )
 
 // Userのスライスから指定のindexを削除します
-func RemoveUserByIndex(s []user.User, i int) ([]user.User, error) {
-	if i >= len(s) {
+func RemoveUserByIndex(s []user.User, index int) ([]user.User, error) {
+	if index >= len(s) {
 		return nil, errors.New("indexが不正な値です")
 	}
 
-	res := s
+	res := make([]user.User, 0)
 
-	res = append(res[:i], res[i+1:]...)
+	for i, v := range s {
+		if i != index {
+			res = append(res, v)
+		}
+	}
 
 	return res, nil
 }
