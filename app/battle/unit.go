@@ -3,11 +3,11 @@ package battle
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/techstart35/battle-bot/app/battle/template"
 	"github.com/techstart35/battle-bot/domain/model"
 	domainBattle "github.com/techstart35/battle-bot/domain/model/battle"
 	"github.com/techstart35/battle-bot/domain/model/battle/unit"
 	"github.com/techstart35/battle-bot/domain/model/battle/unit/user"
-	"github.com/techstart35/battle-bot/handler/battle/message/battle/template"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/util"
