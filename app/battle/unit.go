@@ -73,7 +73,6 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			}
 		case svNum >= 60:
 			// 20名をステージング
-			// 12名をステージング
 			for i, v := range btl.Unit().Survivor() {
 				if i > 19 {
 					break
