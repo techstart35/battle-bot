@@ -33,13 +33,20 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			return errors.NewError("ギルドIDでバトルを取得できません", err)
 		}
 
+		svNum := len(btl.Unit().Survivor())
+		stage := make([]user.User, 0)
+
+		// 初回 & 生き残りが1名より多い場合にsleepを入れます
+		{
+			if round == 1 && svNum > 1 {
+				time.Sleep(10 * time.Second)
+			}
+		}
+
 		// キャンセルを確認します
 		if btl.IsCanceled() {
 			return isCanceledErr
 		}
-
-		svNum := len(btl.Unit().Survivor())
-		stage := make([]user.User, 0)
 
 		switch {
 		// 生き残りが1名になった時点で、Winnerメッセージを送信
@@ -55,13 +62,24 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			return nil
 		case svNum <= 12:
 			// 全員をステージング
-			stage = btl.Unit().Survivor()
+			stage = append(stage, btl.Unit().Survivor()...)
 		case 12 < svNum && svNum < 60:
 			// 12名をステージング
-			stage = btl.Unit().Survivor()[0:12]
+			for i, v := range btl.Unit().Survivor() {
+				if i > 11 {
+					break
+				}
+				stage = append(stage, v)
+			}
 		case svNum >= 60:
 			// 20名をステージング
-			stage = btl.Unit().Survivor()[0:20]
+			// 12名をステージング
+			for i, v := range btl.Unit().Survivor() {
+				if i > 19 {
+					break
+				}
+				stage = append(stage, v)
+			}
 			canRevive = false
 		}
 
@@ -71,7 +89,9 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			return errors.NewError("ユニットメッセージを作成できません", err)
 		}
 
-		// バトルを更新して永続化
+		// バトルを更新して永続化します
+		//
+		// Battle構造体も上書きします
 		{
 			btl, err = updateBattleIncrementDead(btl, res.Loser, round)
 			if err != nil {
@@ -94,43 +114,48 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 			return errors.NewError("ユニットメッセージを送信できません", err)
 		}
 
-		// 死者が1名未満の場合は復活イベントは発生しない
-		if len(btl.Unit().Dead()) < 1 {
-			canRevive = false
-		}
-
-		var isRevived bool
-		// 復活イベント
-		if canRevive {
-			revival, err := a.revivalScenario(
-				btl.ChannelID(),
-				btl.AnotherChannelID(),
-				btl.Unit().Dead(),
-			)
-			if err != nil {
-				return errors.NewError("復活イベントを起動できません", err)
+		// 復活
+		{
+			// 死者が1名未満、または生き残りが2名以下の場合は復活イベントは発生しない
+			if len(btl.Unit().Dead()) < 1 || len(btl.Unit().Survivor()) <= 2 {
+				canRevive = false
 			}
 
-			// 復活イベントが送信された場合、集計して永続化します
-			if !reflect.DeepEqual(revival, user.User{}) {
-				b, err := updateBattleByRevive(btl, revival, round)
+			var isRevived bool
+			// 復活イベント
+			if canRevive {
+				revival, err := a.revivalScenario(
+					btl.ChannelID(),
+					btl.AnotherChannelID(),
+					btl.Unit().Dead(),
+				)
 				if err != nil {
-					return errors.NewError("バトルを更新できません", err)
+					return errors.NewError("復活イベントを起動できません", err)
 				}
 
-				if err = a.Repo.Update(b); err != nil {
-					return errors.NewError("更新できません", err)
+				// 復活イベントが送信された場合、集計して永続化します
+				if !reflect.DeepEqual(revival, user.User{}) {
+					b, err := updateBattleByRevive(btl, revival, round)
+					if err != nil {
+						return errors.NewError("バトルを更新できません", err)
+					}
+
+					if err = a.Repo.Update(b); err != nil {
+						return errors.NewError("更新できません", err)
+					}
+					isRevived = true
 				}
-				isRevived = true
+			}
+
+			// 今回復活した場合は、次回の復活無し
+			if isRevived {
+				canRevive = false
+			} else {
+				canRevive = true
 			}
 		}
 
-		// 今回復活した場合は、次回の復活無し
-		if isRevived {
-			canRevive = false
-		} else {
-			canRevive = true
-		}
+		fmt.Println("survivorLen: ", len(btl.Unit().Survivor()))
 
 		if len(btl.Unit().Survivor()) > 1 {
 			time.Sleep(17 * time.Second)
@@ -297,7 +322,8 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	res := CreateUnitMsgRes{}
 
 	// ユーザーのシャッフルを行います
-	stg := util.ShuffleUser(stage)
+	stg := make([]user.User, len(stage))
+	copy(stg, util.ShuffleUser(stage))
 
 	loser := make([]user.User, 0)
 	line := make([]string, 0)

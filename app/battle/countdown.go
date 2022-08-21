@@ -22,9 +22,8 @@ func (a *BattleApp) countDownScenario(guildID model.GuildID) error {
 		return errors.NewError("ギルドIDでバトルを取得できません", err)
 	}
 
-	// TODO: コメントアウト削除
 	// 60秒sleep
-	//time.Sleep(60 * time.Second)
+	time.Sleep(60 * time.Second)
 	if btl.IsCanceled() {
 		return isCanceledErr
 	}
@@ -34,9 +33,8 @@ func (a *BattleApp) countDownScenario(guildID model.GuildID) error {
 		return errors.NewError("60秒前カウントダウンメッセージを送信できません", err)
 	}
 
-	// TODO: コメントアウト削除
 	// 30秒sleep
-	//time.Sleep(30 * time.Second)
+	time.Sleep(30 * time.Second)
 	if btl.IsCanceled() {
 		return isCanceledErr
 	}
@@ -58,7 +56,7 @@ func (a *BattleApp) countDownScenario(guildID model.GuildID) error {
 	}
 
 	// 10秒sleep
-	//time.Sleep(10 * time.Second)
+	time.Sleep(10 * time.Second)
 	if btl.IsCanceled() {
 		return isCanceledErr
 	}
