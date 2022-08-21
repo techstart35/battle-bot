@@ -7,15 +7,15 @@ import (
 // ユニットです
 type Unit struct {
 	survivor  []user.User
-	loser     []user.User
+	dead      []user.User
 	nextRound Round
 }
 
 // ユニットを作成します
-func NewUnit(survivor, loser []user.User, nextRound Round) (Unit, error) {
+func NewUnit(survivor, dead []user.User, nextRound Round) (Unit, error) {
 	u := Unit{}
 	u.survivor = survivor
-	u.loser = loser
+	u.dead = dead
 	u.nextRound = nextRound
 
 	return u, nil
@@ -26,9 +26,9 @@ func (u Unit) Survivor() []user.User {
 	return u.survivor
 }
 
-// 敗者を取得します
-func (u Unit) Loser() []user.User {
-	return u.loser
+// 死者を取得します
+func (u Unit) Dead() []user.User {
+	return u.dead
 }
 
 // ラウンド数を取得します

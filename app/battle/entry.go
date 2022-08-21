@@ -8,16 +8,16 @@ import (
 	"github.com/techstart35/battle-bot/shared/errors"
 )
 
-// 別チャンネルの指定がなかった場合のテンプレートです
-var noAnotherChannelTemplate = `
+// エントリーメッセージのテンプレートです
+const entryTmpl = `
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
 ⚡️開始：**2分後**
 ⚡️参加：⚔️にリアクション
 `
 
-// 別チャンネルの指定があった場合のテンプレートです
-var withAnotherChannelTemplate = `
+// 配信chがあった場合のエントリーメッセージのテンプレートです
+const entryTmplWithAnCh = `
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
 ⚡️開始：**2分後**
@@ -44,7 +44,7 @@ func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
-		Description: fmt.Sprintf(noAnotherChannelTemplate, btl.AuthorID().String()),
+		Description: fmt.Sprintf(entryTmpl, btl.AuthorID().String()),
 		Color:       shared.ColorBlue,
 		Timestamp:   shared.GetNowTimeStamp(),
 	}
@@ -52,7 +52,7 @@ func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 	// 別チャンネルの指定があった場合はテンプレートを差し替え
 	if !btl.AnotherChannelID().IsEmpty() {
 		embedInfo.Description = fmt.Sprintf(
-			withAnotherChannelTemplate,
+			entryTmplWithAnCh,
 			btl.AuthorID().String(),
 			btl.AnotherChannelID().String(),
 		)

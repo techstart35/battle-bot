@@ -93,10 +93,10 @@ func (a *BattleApp) entryMsgScenario(guildID model.GuildID) error {
 	return nil
 }
 
-// エントリーメッセージのテンプレートです
+// 開始メッセージのテンプレートです
 //
 // 配信chは必ずこれが送信されます。
-const entryTmpl = `
+const startTmpl = `
 ⚡️挑戦者(%d名）：%s
 ⚡️勝者：**1名**
 ⚡️勝率：**%v％**
@@ -124,7 +124,7 @@ func (a *BattleApp) sendStartMsgToUser(
 	// エントリーチャンネルに送信
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Start ⚔️",
-		Description: fmt.Sprintf(entryTmpl, userNum, userStr, probability),
+		Description: fmt.Sprintf(startTmpl, userNum, userStr, probability),
 		Color:       shared.ColorRed,
 	}
 
@@ -136,7 +136,7 @@ func (a *BattleApp) sendStartMsgToUser(
 	// 配信チャンネルに送信
 	if !anChID.IsEmpty() {
 		embedInfo.Description = fmt.Sprintf(
-			entryTmpl, userNum, userStr, probability,
+			startTmpl, userNum, userStr, probability,
 		)
 
 		_, err = a.Session.ChannelMessageSendEmbed(anChID.String(), embedInfo)

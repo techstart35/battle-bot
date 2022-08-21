@@ -5,7 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
 	"github.com/techstart35/battle-bot/domain/model"
-	"github.com/techstart35/battle-bot/domain/model/battle"
+	domainBattle "github.com/techstart35/battle-bot/domain/model/battle"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/guild"
@@ -87,7 +87,7 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// battle構造体を作成します
-	btl, err := battle.BuildBattle(guildID, channelID, anChID, authorID)
+	btl, err := domainBattle.BuildBattle(guildID, channelID, anChID, authorID)
 	if err != nil {
 		return errors.NewError("battleを作成できません", err)
 	}
@@ -170,9 +170,20 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 		}
 	}
 
-	// バトルメッセージを送信します
+	// ユニットメッセージを送信します
 	{
-		// TODO: バトルメッセージを送信
+		switch err = a.unitScenario(gID); err {
+		case nil:
+			break
+		case isCanceledErr:
+			// 正常にCXLが完了した通知をAdminに送信します
+			if err = a.sendCxlAndSafeFinishedMsgToAdmin(gID); err != nil {
+				return errors.NewError("キャンセル処理完了メッセージを送信できません", err)
+			}
+			return nil
+		default:
+			return errors.NewError("ユニットメッセージを送信できません", err)
+		}
 	}
 
 	// 正常終了通知を送信します

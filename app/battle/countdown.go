@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/domain/model"
-	"github.com/techstart35/battle-bot/domain/model/battle"
+	domainBattle "github.com/techstart35/battle-bot/domain/model/battle"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/errors"
 	"time"
@@ -96,7 +96,7 @@ const countdownTmplToEntryChWithAnotherCh = `
 //
 // 本メッセージ送信前にキャンセル指示を確認するため、
 // この関数内ではキャンセル確認を行いません。
-func (a *BattleApp) sendCountDownMessage(btl *battle.Battle, second int) error {
+func (a *BattleApp) sendCountDownMessage(btl *domainBattle.Battle, second int) error {
 	const entryBaseURL = "https://discord.com/channels/%s/%s/%s"
 
 	secondToColor := map[int]int{
