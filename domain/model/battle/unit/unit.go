@@ -19,6 +19,10 @@ func NewUnit(survivor, dead []user.User, nextRound Round) (Unit, error) {
 	u.dead = dead
 	u.nextRound = nextRound
 
+	if err := u.validate(); err != nil {
+		return u, errors.NewError("検証に失敗しました", err)
+	}
+
 	return u, nil
 }
 

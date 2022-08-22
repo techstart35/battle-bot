@@ -78,7 +78,7 @@ func (a *StopApp) StopBattle(guildID, channelID string) error {
 func (a *StopApp) sendStoppedMsgToUser(s *discordgo.Session, cID model.ChannelID) error {
 	const MessageTmpl = `
 このサーバーで起動されたバトルをキャンセルしました。
-（反映まで最大1分かかります）
+（次の起動まで最大1分かかります）
 `
 
 	req := &discordgo.MessageEmbed{

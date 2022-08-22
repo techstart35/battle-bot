@@ -45,7 +45,7 @@ func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
 		Description: fmt.Sprintf(entryTmpl, btl.AuthorID().String()),
-		Color:       shared.ColorCyan,
+		Color:       shared.ColorBlue,
 		Timestamp:   shared.GetNowTimeStamp(),
 	}
 

@@ -155,9 +155,8 @@ func (a *BattleApp) sendNoEntryMsgToUser(
 	chID model.ChannelID,
 	anChID model.AnotherChannelID,
 ) error {
-	const MsgTmpl = `
-エントリーが無かったため、試合は開始されません
-`
+	const MsgTmpl = "エントリーがありませんでした"
+
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "No Entry",
 		Description: MsgTmpl,

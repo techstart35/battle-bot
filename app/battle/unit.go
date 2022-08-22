@@ -36,7 +36,7 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 		svNum := len(btl.Unit().Survivor())
 		stage := make([]user.User, 0)
 
-		// 初回 & 生き残りが1名より多い場合にsleepを入れます
+		// 初回 & 生き残りが1名超の場合にsleepを入れます
 		{
 			if round == 1 && svNum > 1 {
 				time.Sleep(10 * time.Second)
@@ -92,7 +92,7 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 		//
 		// Battle構造体も上書きします
 		{
-			btl, err = updateBattleIncrementDead(btl, res.Loser, round)
+			btl, err = updateBattleByLoser(btl, res.Loser, round)
 			if err != nil {
 				return errors.NewError("バトルを更新できません", err)
 			}
@@ -153,8 +153,6 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 				canRevive = true
 			}
 		}
-
-		fmt.Println("survivorLen: ", len(btl.Unit().Survivor()))
 
 		if len(btl.Unit().Survivor()) > 1 {
 			time.Sleep(17 * time.Second)
@@ -226,7 +224,7 @@ func (a *BattleApp) sendWinnerMsgToUser(
 // battleを更新します
 //
 // 生き残りから敗者を除外し、死者に追加します。
-func updateBattleIncrementDead(
+func updateBattleByLoser(
 	btl *domainBattle.Battle,
 	loser []user.User,
 	round int,
@@ -235,9 +233,14 @@ func updateBattleIncrementDead(
 
 	survivor := make([]user.User, 0)
 	// 既存の生き残りから敗者を削除
-	for _, sv := range btl.Unit().Survivor() {
-		for _, lo := range loser {
-			if !sv.ID().Equal(lo.ID()) {
+	{
+		loserMap := map[string]user.User{}
+		for _, v := range loser {
+			loserMap[v.ID().String()] = v
+		}
+
+		for _, sv := range btl.Unit().Survivor() {
+			if _, ok := loserMap[sv.ID().String()]; !ok {
 				survivor = append(survivor, sv)
 			}
 		}
@@ -321,8 +324,11 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	res := CreateUnitMsgRes{}
 
 	// ユーザーのシャッフルを行います
-	stg := make([]user.User, len(stage))
-	copy(stg, util.ShuffleUser(stage))
+	stg := make([]user.User, 0)
+	for _, v := range stage {
+		stg = append(stg, v)
+	}
+	stg = util.ShuffleUser(stg)
 
 	loser := make([]user.User, 0)
 	line := make([]string, 0)
@@ -330,12 +336,15 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 
 	// 1回のループで、1文が作成されます。
 	for {
-		switch a.getBattleKind(len(stg), count) {
+		kind := a.getBattleKind(len(stg), count)
+		switch kind {
 		case battle:
 			w := stg[0] // index[0]をwinnerとします
 			l := stg[1] // index[1]をloserとします
 			li := template.GetRandomBattleTmpl(
-				w.Name().String(), l.Name().String(), count,
+				w.Name().String(),
+				l.Name().String(),
+				count,
 			)
 
 			// 結果を追加
@@ -356,7 +365,10 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 			}
 		case soloBattle:
 			l := stg[0]
-			li := template.GetRandomSoloBattleTmpl(l.Name().String(), count)
+			li := template.GetRandomSoloBattleTmpl(
+				l.Name().String(),
+				count,
+			)
 
 			// 結果を追加
 			{
@@ -374,7 +386,10 @@ func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 			}
 		case none:
 			w := stg[0]
-			li := template.GetRandomNoneTmpl(w.Name().String(), count)
+			li := template.GetRandomNoneTmpl(
+				w.Name().String(),
+				count,
+			)
 
 			// 結果を追加
 			{
@@ -414,7 +429,7 @@ func (a *BattleApp) getBattleKind(stageNum, count int) string {
 		return battle
 	}
 
-	kind := none
+	kind := soloBattle
 
 	// 2人以上いる場合にkindの選択をします
 	if stageNum > 1 {
