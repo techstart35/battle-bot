@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
-	"github.com/techstart35/battle-bot/handler"
+	"github.com/techstart35/battle-bot/expose/battle"
 	"github.com/techstart35/battle-bot/shared/message"
 	"log"
 	"os"
@@ -21,61 +21,52 @@ func init() {
 		loc = time.FixedZone(location, 9*60*60)
 	}
 	time.Local = loc
-}
 
-func main() {
-	loadEnv()
-	StartDiscordGame()
-}
-
-// .envファイルを読み込みます
-func loadEnv() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal(fmt.Sprintf(".envを読み込めません: %v", err))
 	}
 }
 
-// Discordのゲーム(battle)を開始します
-func StartDiscordGame() {
+func main() {
 	var Token = "Bot " + os.Getenv("APP_BOT_TOKEN")
 
 	session, err := discordgo.New(Token)
 	session.Token = Token
 	if err != nil {
-		message.SendErr(
-			session,
-			"discordのクライアントを作成できません",
-			"none",
-			"none",
-			err,
-		)
+		req := message.SendErrReq{
+			Message:   "discordのクライアントを作成できません",
+			GuildID:   "none",
+			ChannelID: "none",
+			Err:       err,
+		}
+		message.SendErr(session, req)
 		return
 	}
 
 	//イベントハンドラを追加
-	session.AddHandler(handler.TextHandler)
+	session.AddHandler(battle.Handler)
 
 	if err = session.Open(); err != nil {
-		message.SendErr(
-			session,
-			"discordを開けません",
-			"none",
-			"none",
-			err,
-		)
+		req := message.SendErrReq{
+			Message:   "discordを開けません",
+			GuildID:   "none",
+			ChannelID: "none",
+			Err:       err,
+		}
+		message.SendErr(session, req)
 		return
 	}
 
 	// 直近の関数（main）の最後に実行される
 	defer func() {
 		if err = session.Close(); err != nil {
-			message.SendErr(
-				session,
-				"discordのクライアントを閉じれません",
-				"none",
-				"none",
-				err,
-			)
+			req := message.SendErrReq{
+				Message:   "discordのクライアントを閉じれません",
+				GuildID:   "none",
+				ChannelID: "none",
+				Err:       err,
+			}
+			message.SendErr(session, req)
 		}
 		return
 	}()
