@@ -35,6 +35,16 @@ func GetRandomSoloBattleTmpl(loser string, seed int) string {
 		fmt.Sprintf("💥｜**%s** はあつあつのおでんを食べてショック死。", loser),
 		fmt.Sprintf("💥｜**%s** はドアに挟まって死んだ。", loser),
 		fmt.Sprintf("💥｜**%s** は生け贄に選ばれた。", loser),
+		fmt.Sprintf("💥｜**%s** は宇宙に連れて行かれ、酸欠で死亡。", loser),
+		fmt.Sprintf("💥｜**%s** はテレポートには成功したが、服が転送できず恥ずか死。", loser),
+		fmt.Sprintf("💥｜**%s** は自分の枕が臭すぎて失神。", loser),
+		fmt.Sprintf("💥｜**%s** は助けた亀に連れられて竜宮城へ向かう途中に溺死。", loser),
+		fmt.Sprintf("💥｜**%s** は夜中のトイレを我慢して膀胱破裂。", loser),
+		fmt.Sprintf("💥｜**%s** は先生を「お母さん」と呼んでしまい恥ずか死。", loser),
+		fmt.Sprintf("💥｜**%s** よ、お前はもう死んでいる。", loser),
+		fmt.Sprintf("💥｜**%s** は凍ったバナナの強度を、自らの頭で試して他界。", loser),
+		fmt.Sprintf("💥｜**%s** はパンを加えて走ってた女子高生と曲がり角でぶつかり死亡。", loser),
+		fmt.Sprintf("💥｜**%s** は石の上に3年いて餓死した。", loser),
 	}
 
 	// スライスをシャッフルする
@@ -75,6 +85,8 @@ func GetRandomBattleTmpl(winner, loser string, seed int) string {
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** にデスノートに名前を書かれて心臓麻痺。", loser, winner),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の美しさに魅了され、敗けを認めた。", loser, winner),
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を熱湯風呂に落とした。", winner, loser),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** のオナラが臭すぎて死亡。", loser, winner),
+		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の靴下の匂いで気絶。", loser, winner),
 	}
 
 	// スライスをシャッフルする
