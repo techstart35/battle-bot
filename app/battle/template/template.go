@@ -39,7 +39,7 @@ func GetRandomSoloBattleTmpl(loser string, seed int) string {
 		fmt.Sprintf("💥｜**%s** はテレポートには成功したが、服が転送できず恥ずか死。", loser),
 		fmt.Sprintf("💥｜**%s** は自分の枕が臭すぎて失神。", loser),
 		fmt.Sprintf("💥｜**%s** は助けた亀に連れられて竜宮城へ向かう途中に溺死。", loser),
-		fmt.Sprintf("💥｜**%s** は夜中のトイレを我慢して膀胱破裂した。", loser),
+		fmt.Sprintf("💥｜**%s** は夜中のトイレを我慢して膀胱破裂。", loser),
 		fmt.Sprintf("💥｜**%s** は先生を「お母さん」と呼んでしまい恥ずか死。", loser),
 		fmt.Sprintf("💥｜**%s** よ、お前はもう死んでいる。", loser),
 		fmt.Sprintf("💥｜**%s** は凍ったバナナの強度を、自らの頭で試して他界。", loser),
