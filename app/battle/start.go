@@ -35,10 +35,19 @@ func (a *BattleApp) entryMsgScenario(guildID model.GuildID) error {
 		return errors.NewError("リアクションしたユーザーを取得できません", err)
 	}
 
+	// usersの重複を排除します
+	// 重複検証用のmapです
+	idToUser := map[string]*discordgo.User{}
+	{
+		for _, u := range users {
+			idToUser[u.ID] = u
+		}
+	}
+
 	// usersを更新して永続化
 	{
 		survivor := make([]user.User, 0)
-		for _, u := range users {
+		for _, u := range idToUser {
 			us, err := user.BuildUser(u.ID, u.Username)
 			if err != nil {
 				return errors.NewError("ユーザーを作成できません", err)
