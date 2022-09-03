@@ -6,6 +6,7 @@ import (
 	"github.com/techstart35/battle-bot/app/list"
 	"github.com/techstart35/battle-bot/app/reject_start"
 	"github.com/techstart35/battle-bot/app/stop"
+	"github.com/techstart35/battle-bot/app/tanaka_battle"
 	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/message"
@@ -33,6 +34,19 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		battleApp := battle.NewBattleApp(ap)
 
 		if err = battleApp.Battle(m.GuildID, m.ChannelID, m.Author.ID, input); err != nil {
+			req := message.SendErrReq{
+				Message:   "バトルの実行に失敗しました",
+				GuildID:   m.GuildID,
+				ChannelID: m.ChannelID,
+				Err:       err,
+			}
+			message.SendErr(s, req)
+			return
+		}
+	case shared.Command().Tanaka:
+		tanakaApp := tanaka_battle.NewTanakaBattleApp(ap)
+
+		if err = tanakaApp.TanakaBattle(m.GuildID, m.ChannelID, m.Author.ID, input); err != nil {
 			req := message.SendErrReq{
 				Message:   "バトルの実行に失敗しました",
 				GuildID:   m.GuildID,
