@@ -318,8 +318,6 @@ type CreateUnitMsgRes struct {
 }
 
 // Unitのメッセージを作成します
-//
-// Winner,Loserも返します。
 func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	res := CreateUnitMsgRes{}
 
