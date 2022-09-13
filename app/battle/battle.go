@@ -93,16 +93,14 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 	}
 
 	// Adminサーバーに起動メッセージを送信します
-	{
-		if err = a.sendStartMsgToAdmin(gID, cID, input); err != nil {
-			return errors.NewError("起動通知を送信できません")
-		}
-
-		// --------------------------------------
-		// これ以降のカスタムエラーでの正常終了時は、
-		// Adminサーバーに終了通知を送信します
-		// --------------------------------------
+	if err = a.sendStartMsgToAdmin(gID, cID, input); err != nil {
+		return errors.NewError("起動通知を送信できません")
 	}
+
+	// --------------------------------------
+	// これ以降のカスタムエラーでの正常終了時は、
+	// Adminサーバーに終了通知を送信します
+	// --------------------------------------
 
 	// 永続化します
 	{

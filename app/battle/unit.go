@@ -318,8 +318,6 @@ type CreateUnitMsgRes struct {
 }
 
 // Unitのメッセージを作成します
-//
-// Winner,Loserも返します。
 func (a *BattleApp) createUnitMsg(stage []user.User) (CreateUnitMsgRes, error) {
 	res := CreateUnitMsgRes{}
 
@@ -434,8 +432,8 @@ func (a *BattleApp) getBattleKind(stageNum, count int) string {
 	// 2人以上いる場合にkindの選択をします
 	if stageNum > 1 {
 		prob := map[string]int{
-			battle:     40,
-			soloBattle: 30,
+			battle:     55,
+			soloBattle: 15,
 			none:       30,
 		}
 		kind = util.ProbWithWeight(prob, count)
