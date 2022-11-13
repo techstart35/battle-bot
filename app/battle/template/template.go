@@ -27,12 +27,11 @@ func GetRandomSoloBattleTmpl(loser string, seed int) string {
 		fmt.Sprintf("💥｜**%s** は快速特急に乗ってしまい、下車するはずの駅で降りられず。脱落。", loser),
 		fmt.Sprintf("💥｜**%s** はランブルの勝ち方を解明すべくアマゾンの奥地へ向かった。", loser),
 		fmt.Sprintf("💥｜**%s** は木登りをしていたが、足を滑らせ滑落した。", loser),
-		fmt.Sprintf("💥｜**%s** はつま先立ちで歩いていたため、足の指を骨折した。", loser),
+		fmt.Sprintf("💥｜**%s** はつま先立ちで歩き、足の指を骨折した。", loser),
 		fmt.Sprintf("💥｜**%s** は車に轢かれそうな子供を助けて代わりに事故死。", loser),
 		fmt.Sprintf("💥｜**%s** は神隠しにあった。", loser),
 		fmt.Sprintf("💥｜**%s** は料理中に指を切って出血死。", loser),
 		fmt.Sprintf("💥｜**%s** は転んで頭蓋骨粉砕した。", loser),
-		fmt.Sprintf("💥｜**%s** はあつあつのおでんを食べてショック死。", loser),
 		fmt.Sprintf("💥｜**%s** はドアに挟まって死んだ。", loser),
 		fmt.Sprintf("💥｜**%s** は生け贄に選ばれた。", loser),
 		fmt.Sprintf("💥｜**%s** は宇宙に連れて行かれ、酸欠で死亡。", loser),
@@ -42,9 +41,10 @@ func GetRandomSoloBattleTmpl(loser string, seed int) string {
 		fmt.Sprintf("💥｜**%s** は夜中のトイレを我慢して膀胱破裂。", loser),
 		fmt.Sprintf("💥｜**%s** は先生を「お母さん」と呼んでしまい恥ずか死。", loser),
 		fmt.Sprintf("💥｜**%s** よ、お前はもう死んでいる。", loser),
-		fmt.Sprintf("💥｜**%s** は凍ったバナナの強度を、自らの頭で試して他界。", loser),
+		fmt.Sprintf("💥｜**%s** は凍ったバナナの強度を、自らの頭で試して死亡。", loser),
 		fmt.Sprintf("💥｜**%s** はパンを咥えて走ってた女子高生と曲がり角でぶつかり死亡。", loser),
-		fmt.Sprintf("💥｜**%s** は石の上に3年いて餓死した。", loser),
+		fmt.Sprintf("💥｜**%s** は石の上に3年いて餓死。", loser),
+		fmt.Sprintf("💥｜**%s** は猫を追いかけて行方不明になった。", loser),
 	}
 
 	// スライスをシャッフルする
@@ -87,6 +87,7 @@ func GetRandomBattleTmpl(winner, loser string, seed int) string {
 		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を熱湯風呂に落とした。", winner, loser),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** のオナラが臭すぎて死亡。", loser, winner),
 		fmt.Sprintf("⚔️｜💀**%s** は 👑**%s** の靴下の匂いで気絶。", loser, winner),
+		fmt.Sprintf("⚔️｜👑**%s** は 💀**%s** を猫パンチで倒した。", winner, loser),
 	}
 
 	// スライスをシャッフルする
@@ -127,6 +128,7 @@ func GetRandomNoneTmpl(winner string, seed int) string {
 		fmt.Sprintf("☀️｜**%s** は今時のプリクラが盛れすぎてびっくりしている。", winner),
 		fmt.Sprintf("☀️｜**%s** は通勤ラッシュの時間帯にPASMOがはじかれた。", winner),
 		fmt.Sprintf("☀️｜**%s** は新刊だと思って漫画を買ったが、すでに持っていた。", winner),
+		fmt.Sprintf("☀️｜**%s** は猫になった。語尾は「にゃん」", winner),
 	}
 
 	// スライスをシャッフルする
