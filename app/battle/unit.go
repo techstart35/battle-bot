@@ -180,7 +180,7 @@ func (a *BattleApp) sendWinnerMsgToUser(
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
-		Description: fmt.Sprintf(WinnerMsgTmpl, winner.ID().String(), winner.ID().String()),
+		Description: fmt.Sprintf(WinnerMsgTmpl, winner.ID().String(), winner.Name().String()),
 		Color:       shared.ColorRed,
 	}
 
