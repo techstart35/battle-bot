@@ -166,6 +166,12 @@ func (a *BattleApp) unitScenario(guildID model.GuildID) error {
 // Winnerメッセージの送信
 // ----------------------------------------
 
+// Winnerメッセージのテンプレートです
+const WinnerMsgTmpl = `
+<@%s>
+(%s)
+`
+
 // Winnerのメッセージを送信します
 func (a *BattleApp) sendWinnerMsgToUser(
 	winner user.User,
@@ -174,7 +180,7 @@ func (a *BattleApp) sendWinnerMsgToUser(
 ) error {
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "👑 Winner 👑",
-		Description: fmt.Sprintf("<@%s>", winner.ID().String()),
+		Description: fmt.Sprintf(WinnerMsgTmpl, winner.ID().String(), winner.ID().String()),
 		Color:       shared.ColorRed,
 	}
 
