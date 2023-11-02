@@ -7,7 +7,7 @@ type CMD struct {
 	Stop        string
 	List        string
 	RejectStart string
-	Tanaka      string
+	Start5Min   string
 }
 
 func Command() CMD {
@@ -20,7 +20,7 @@ func Command() CMD {
 			Stop:        "!stopb",
 			List:        "!listb",
 			RejectStart: "!rejectstartb",
-			Tanaka:      "!tanaka",
+			Start5Min:   "!b5",
 		}
 	default:
 		return CMD{
@@ -28,7 +28,7 @@ func Command() CMD {
 			Stop:        "stopb",
 			List:        "listb",
 			RejectStart: "rejectstartb",
-			Tanaka:      "!tanaka",
+			Start5Min:   "b5",
 		}
 	}
 }

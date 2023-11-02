@@ -2,6 +2,8 @@ package battle
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app"
 	"github.com/techstart35/battle-bot/domain/model"
@@ -10,7 +12,6 @@ import (
 	"github.com/techstart35/battle-bot/shared/errors"
 	"github.com/techstart35/battle-bot/shared/guild"
 	"github.com/techstart35/battle-bot/shared/message"
-	"strings"
 )
 
 // カスタムエラーです
@@ -38,7 +39,7 @@ func NewBattleApp(app *app.App) *BattleApp {
 // バトルを実行します
 //
 // ユーザーへのメッセージはこの関数内でのみ記述します。
-func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) error {
+func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string, min int) error {
 	gID, err := model.NewGuildID(guildID)
 	if err != nil {
 		return errors.NewError("ギルドIDを作成できません", err)
@@ -125,14 +126,14 @@ func (a *BattleApp) Battle(guildID, channelID, authorID string, input []string) 
 
 	// エントリーメッセージを送信します
 	{
-		if err = a.sendEntryMsgToUser(gID); err != nil {
+		if err = a.sendEntryMsgToUser(gID, min); err != nil {
 			return errors.NewError("エントリーメッセージを送信できません", err)
 		}
 	}
 
 	// カウントダウンメッセージを送信します
 	{
-		switch err = a.countDownScenario(gID); err {
+		switch err = a.countDownScenario(gID, min); err {
 		case nil:
 			break
 		case isCanceledErr:
