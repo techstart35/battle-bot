@@ -2,6 +2,7 @@ package battle
 
 import (
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/domain/model"
 	"github.com/techstart35/battle-bot/shared"
@@ -12,7 +13,7 @@ import (
 const entryTmpl = `
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
-⚡️開始：**2分後**
+⚡️開始：**%d分後**
 ⚡️参加：⚔️にリアクション
 `
 
@@ -20,7 +21,7 @@ const entryTmpl = `
 const entryTmplWithAnCh = `
 ⚡️主催者：<@%s>
 ⚡️勝者：**1名**
-⚡️開始：**2分後**
+⚡️開始：**%d分後**
 ⚡️参加：⚔️にリアクション
 ⚡️配信：<#%s>
 `
@@ -30,7 +31,7 @@ const entryTmplWithAnCh = `
 // 起動元のチャンネルのみに送信します。
 //
 // この関数ではキャンセル処理の確認を行いません。
-func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
+func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID, min int) error {
 	// クエリー
 	btl, err := a.Query.FindByGuildID(guildID)
 	if err != nil {
@@ -44,7 +45,7 @@ func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 
 	embedInfo := &discordgo.MessageEmbed{
 		Title:       "⚔️ Battle Royale ⚔️",
-		Description: fmt.Sprintf(entryTmpl, btl.AuthorID().String()),
+		Description: fmt.Sprintf(entryTmpl, btl.AuthorID().String(), min),
 		Color:       shared.ColorBlue,
 		Timestamp:   shared.GetNowTimeStamp(),
 	}
@@ -54,6 +55,7 @@ func (a *BattleApp) sendEntryMsgToUser(guildID model.GuildID) error {
 		embedInfo.Description = fmt.Sprintf(
 			entryTmplWithAnCh,
 			btl.AuthorID().String(),
+			min,
 			btl.AnotherChannelID().String(),
 		)
 	}

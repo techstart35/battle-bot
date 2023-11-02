@@ -1,16 +1,16 @@
 package battle
 
 import (
+	"strings"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/techstart35/battle-bot/app/battle"
 	"github.com/techstart35/battle-bot/app/list"
 	"github.com/techstart35/battle-bot/app/reject_start"
 	"github.com/techstart35/battle-bot/app/stop"
-	"github.com/techstart35/battle-bot/app/tanaka_battle"
 	"github.com/techstart35/battle-bot/gateway/di"
 	"github.com/techstart35/battle-bot/shared"
 	"github.com/techstart35/battle-bot/shared/message"
-	"strings"
 )
 
 func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -33,7 +33,7 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case shared.Command().Start:
 		battleApp := battle.NewBattleApp(ap)
 
-		if err = battleApp.Battle(m.GuildID, m.ChannelID, m.Author.ID, input); err != nil {
+		if err = battleApp.Battle(m.GuildID, m.ChannelID, m.Author.ID, input, 2); err != nil {
 			req := message.SendErrReq{
 				Message:   "バトルの実行に失敗しました",
 				GuildID:   m.GuildID,
@@ -43,10 +43,10 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			message.SendErr(s, req)
 			return
 		}
-	case shared.Command().Tanaka:
-		tanakaApp := tanaka_battle.NewTanakaBattleApp(ap)
+	case shared.Command().Start5Min:
+		battleApp := battle.NewBattleApp(ap)
 
-		if err = tanakaApp.TanakaBattle(m.GuildID, m.ChannelID, m.Author.ID, input); err != nil {
+		if err = battleApp.Battle(m.GuildID, m.ChannelID, m.Author.ID, input, 5); err != nil {
 			req := message.SendErrReq{
 				Message:   "バトルの実行に失敗しました",
 				GuildID:   m.GuildID,
